@@ -165,7 +165,7 @@ writeFileSync(sessionFile, content, "utf-8");
 
 // latest.md を常に最新に更新
 const latestLink = join(sessionDir, "latest.md");
-if (existsSync(latestLink)) unlinkSync(latestLink);
+try { unlinkSync(latestLink); } catch (_) {}
 symlinkSync(sessionFile, latestLink);
 
 console.log(`✅ Session saved → ${sessionFile}`);

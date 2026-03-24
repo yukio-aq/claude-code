@@ -2,7 +2,7 @@
 
 Claude Code をテックリードとして使い倒すための設定・エージェント・ワークフロー集。
 
-20個の専門エージェント・7つのスラッシュコマンド・自動保存フックで、
+26個の専門エージェント・8つのスラッシュコマンド・自動化フックで、
 設計からコミットまでの開発フローを自動化する。
 
 ---
@@ -87,13 +87,15 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ├── README.md                    # このファイル
 ├── setup.sh                     # 初期セットアップスクリプト
 │
-├── agents/                      # 専門エージェント定義（20個）
+├── agents/                      # 専門エージェント定義（26個）
 │   ├── orchestration/
-│   │   └── chief-of-staff.md    # 大きなタスクの司令塔
+│   │   └── chief-of-staff.md        # 大きなタスクの司令塔
 │   ├── design/
-│   │   ├── planner.md           # 実装計画作成
-│   │   ├── architect.md         # 技術選定・ADR作成
-│   │   └── ai-agent-designer.md # AIエージェント設計
+│   │   ├── requirements-analyst.md  # 要件定義書作成
+│   │   ├── planner.md               # 実装計画作成
+│   │   ├── architect.md             # 技術選定・ADR作成
+│   │   ├── refactor-planner.md      # 技術的負債解消計画
+│   │   └── ai-agent-designer.md     # AIエージェント設計
 │   ├── implement/
 │   │   ├── frontend-implementer.md
 │   │   ├── backend-implementer.md
@@ -102,21 +104,27 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── 3d-implementer.md
 │   │   └── ai-agent-implementer.md
 │   ├── test/
-│   │   ├── qa-engineer.md       # テスト戦略設計
-│   │   └── test-implementer.md  # テスト実装・カバレッジ補完
+│   │   ├── qa-engineer.md           # テスト戦略設計
+│   │   ├── test-implementer.md      # テスト実装・カバレッジ補完
+│   │   └── e2e-implementer.md       # Playwright E2Eテスト
 │   ├── review/
 │   │   ├── frontend-reviewer.md
 │   │   ├── backend-reviewer.md
 │   │   ├── ios-reviewer.md
 │   │   ├── android-reviewer.md
 │   │   ├── 3d-reviewer.md
-│   │   └── ai-agent-reviewer.md
+│   │   ├── ai-agent-reviewer.md
+│   │   ├── security-auditor.md      # セキュリティ横断レビュー
+│   │   └── database-reviewer.md     # DBスキーマ・クエリレビュー
 │   ├── docs/
-│   │   └── doc-writer.md        # ドキュメント生成
-│   └── release/
-│       └── pr-author.md         # コミット前チェック・PR作成
+│   │   └── doc-writer.md            # ドキュメント生成
+│   ├── release/
+│   │   └── pr-author.md             # コミット前チェック・PR作成
+│   └── ops/
+│       └── observability-engineer.md # OpenTelemetry・SLO設計
 │
-├── commands/                    # スラッシュコマンド（7個）
+├── commands/                    # スラッシュコマンド（8個）
+│   ├── requirements.md          # /requirements
 │   ├── plan.md                  # /plan
 │   ├── adr.md                   # /adr
 │   ├── test.md                  # /test
@@ -126,8 +134,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── save.md                  # /save
 │
 ├── hooks/                       # 自動化スクリプト（4個）
-│   ├── session-save.js          # セッション終了時に自動保存（Stop hook）
-│   ├── session-load.js          # 前回セッションを起動時に注入（UserPromptSubmit hook）
+│   ├── session-save.js          # セッション保存（/save コマンドから手動呼び出し）
+│   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
 │   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
 │   └── pre-commit-guard.js      # main直接pushを防止（PreToolUse hook）
 │
@@ -158,6 +166,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 | コマンド | 用途 |
 |---|---|
+| `/requirements` | 要件を精査・構造化して要件定義書を作成する |
 | `/plan` | 実装計画を作成する（planner → architect → qa-engineer） |
 | `/adr` | 技術選定の意思決定をADRとして記録する |
 | `/test` | テスト戦略設計・実装・カバレッジ補完 |
@@ -181,8 +190,10 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 **設計**
 - `chief-of-staff` — 複数領域にまたがる大きなタスクの司令塔
+- `requirements-analyst` — 要件の精査・構造化・要件定義書作成
 - `planner` — タスク分解・実装計画書作成（`docs/plans/` に保存）
 - `architect` — 技術選定・ADR作成（`docs/adr/` に保存）
+- `refactor-planner` — 技術的負債の解消計画策定
 - `ai-agent-designer` — Mastra/LangChainエージェント設計
 
 **実装**（各領域の実装を担当。test-implementer と並走）
@@ -196,13 +207,17 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 **テスト**
 - `qa-engineer` — テスト戦略設計・カバレッジ基準設定
 - `test-implementer` — テスト実装・カバレッジ補完
+- `e2e-implementer` — Playwright E2Eテスト（Page Object Model・CI統合）
 
 **レビュー**（実装後に必ず通す。CRITICAL/HIGH は修正必須）
 - `frontend-reviewer` / `backend-reviewer` / `ios-reviewer` / `android-reviewer` / `3d-reviewer` / `ai-agent-reviewer`
+- `security-auditor` — OWASP Top 10を網羅するセキュリティ横断レビュー
+- `database-reviewer` — DBスキーマ・マイグレーション・クエリレビュー
 
-**ドキュメント・リリース**
+**ドキュメント・リリース・運用**
 - `doc-writer` — オンボーディング・APIリファレンス生成
 - `pr-author` — コミット前チェック・PR description生成
+- `observability-engineer` — OpenTelemetry・LGTM スタック・SLO設計
 
 ---
 
@@ -238,7 +253,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 ## セッション管理
 
-セッションの内容はプロジェクトごとに `.claude/sessions/` へ自動保存される。
+セッションの内容はプロジェクトごとに `.claude/sessions/` へ保存される。
+保存は `/save` を実行したタイミングのみ（自動保存なし）。
 
 ```bash
 # 手動保存（重要な決定をした時点で実行）
@@ -248,7 +264,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 /save ユーザー認証のアーキテクチャをJWTに決定
 ```
 
-次回起動時に前回のセッション要約が自動的に注入される（session-load hook）。
+次回起動後、最初のプロンプト送信時に前回のセッション要約が1回だけ自動注入される（session-load hook）。
 
 ### パターン抽出（continuous-learning）
 

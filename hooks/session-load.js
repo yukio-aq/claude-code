@@ -3,9 +3,16 @@
 // タイミング: UserPromptSubmit（最初のプロンプト送信時）
 // 役割: 前回セッションをコンテキストに注入して作業を継続させる
 
-import { readFileSync, existsSync, statSync } from "fs";
+import { readFileSync, existsSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
 import { execSync } from "child_process";
+import { tmpdir } from "os";
+
+// セッション内で1回だけ実行するためのフラグ
+// process.ppid = Claude プロセスの PID（セッション中は不変）
+const flagFile = join(tmpdir(), `claude-session-loaded-${process.ppid}`);
+if (existsSync(flagFile)) process.exit(0);
+writeFileSync(flagFile, "");
 
 // ── プロジェクトのセッションファイルを優先、なければスキップ ──
 let projectRoot;
