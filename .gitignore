@@ -1,0 +1,16 @@
+# APIキー・シークレット
+.env
+.env.local
+*.key
+secrets/
+.claude/
+
+# セッションファイル（プロジェクト側で管理）
+**/sessions/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
