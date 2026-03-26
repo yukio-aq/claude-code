@@ -1,4 +1,5 @@
 ---
+name: hono
 description: Hono.js のベストプラクティス（2026年版）。backend-implementer / backend-reviewer が参照する。Node.js / Cloudflare Workers / AWS Lambda 対応。
 ---
 

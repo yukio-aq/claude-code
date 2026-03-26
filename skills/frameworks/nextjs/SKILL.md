@@ -1,4 +1,5 @@
 ---
+name: nextjs
 description: Next.js 16 App Router のベストプラクティス（2026年版）。frontend-implementer / frontend-reviewer が参照する。
 ---
 

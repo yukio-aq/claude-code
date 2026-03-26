@@ -1,4 +1,5 @@
 ---
+name: database
 description: DB設計・マイグレーション・クエリ最適化のベストプラクティス。backend-implementer / backend-reviewer / database-reviewer が参照する。
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: android-compose
 description: Kotlin 2.3 / Jetpack Compose 1.10 / AGP 9.1 のベストプラクティス（2026年版）。android-implementer / android-reviewer が参照する。
 ---
 

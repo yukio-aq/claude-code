@@ -1,4 +1,5 @@
 ---
+name: ios-swift
 description: Swift 6.2 / SwiftUI (iOS 26) / Xcode 26 のベストプラクティス（2026年版）。ios-implementer / ios-reviewer が参照する。
 ---
 

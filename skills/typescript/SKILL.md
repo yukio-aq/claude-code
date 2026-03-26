@@ -1,4 +1,5 @@
 ---
+name: typescript
 description: TypeScript固有の型設計パターン。frontend-implementer / backend-implementer / frontend-reviewer / backend-reviewer が参照する。
 ---
 

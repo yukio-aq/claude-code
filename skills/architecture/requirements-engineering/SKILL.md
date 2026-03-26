@@ -1,4 +1,5 @@
 ---
+name: requirements-engineering
 description: 要件定義のベストプラクティス（2026年版）。Agile・ウォーターフォール・AIシステム固有の要件・非機能要件フレームワークを網羅。planner / architect / qa-engineer が参照する。
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: fastapi
 description: FastAPI のベストプラクティス（2026年版）。backend-implementer / backend-reviewer が参照する。Python 3.12+ / Pydantic v2 ベース。
 ---
 

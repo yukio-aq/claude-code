@@ -1,4 +1,5 @@
 ---
+name: clean-architecture
 description: クリーンアーキテクチャの層構造・依存関係ルール・実装パターン。architect / planner / backend-implementer / backend-reviewer が参照する。DDDと組み合わせて使う。
 ---
 

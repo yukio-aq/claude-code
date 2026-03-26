@@ -1,4 +1,5 @@
 ---
+name: android-coding-standards
 description: Kotlin/Jetpack ComposeのAndroidコーディングスタンダード。android-implementer / android-reviewer が参照する。
 ---
 

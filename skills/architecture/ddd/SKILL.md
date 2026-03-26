@@ -1,4 +1,5 @@
 ---
+name: ddd
 description: ドメイン駆動設計（DDD）の戦略・戦術パターン。architect / planner / backend-implementer / backend-reviewer が参照する。
 ---
 

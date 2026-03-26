@@ -1,4 +1,5 @@
 ---
+name: 3d-coding-standards
 description: Three.js/React Three Fiber/Unityの3Dコーディングスタンダード。3d-implementer / 3d-reviewer が参照する。
 ---
 

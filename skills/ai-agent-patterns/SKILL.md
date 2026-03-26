@@ -1,4 +1,5 @@
 ---
+name: ai-agent-patterns
 description: Mastra/LangChainのAIエージェント設計・実装パターン。ai-agent-designer / ai-agent-implementer / ai-agent-reviewer が参照する。
 ---
 

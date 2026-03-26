@@ -1,4 +1,5 @@
 ---
+name: express
 description: Express.js 5 のベストプラクティス（2026年版）。backend-implementer / backend-reviewer が参照する。
 ---
 

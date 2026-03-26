@@ -1,4 +1,5 @@
 ---
+name: docs-lookup
 description: Tavilyを使ったリアルタイム情報収集のガイドライン。architect / ai-agent-designer / ai-agent-implementer / qa-engineer が参照する。
 ---
 

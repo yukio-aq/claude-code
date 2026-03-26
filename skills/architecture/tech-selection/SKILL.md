@@ -1,4 +1,5 @@
 ---
+name: tech-selection
 description: 新しいライブラリ・フレームワーク・サービスを採用するときの確認チェックリスト。architect エージェントが技術選定時に参照する。
 ---
 

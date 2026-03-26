@@ -1,4 +1,5 @@
 ---
+name: testing-patterns
 description: テスト設計パターン（Test Double・テストデータビルダー・依存注入）。test-implementer / qa-engineer / *-reviewer が参照する。
 ---
 

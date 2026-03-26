@@ -1,4 +1,5 @@
 ---
+name: observability
 description: オブザーバビリティ（OpenTelemetry・LGTM スタック・SLO設計・GenAIトレーシング）のベストプラクティス。observability-engineer / backend-implementer / backend-reviewer が参照する。
 ---
 

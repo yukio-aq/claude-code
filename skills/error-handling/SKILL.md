@@ -1,4 +1,5 @@
 ---
+name: error-handling
 description: エラー設計パターン（カスタムエラー階層・Result型・エラーの伝播）。backend-implementer / frontend-implementer / backend-reviewer / frontend-reviewer が参照する。
 ---
 

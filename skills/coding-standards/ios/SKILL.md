@@ -1,4 +1,5 @@
 ---
+name: ios-coding-standards
 description: Swift/SwiftUIのiOSコーディングスタンダード。ios-implementer / ios-reviewer が参照する。
 ---
 

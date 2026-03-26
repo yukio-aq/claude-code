@@ -1,4 +1,5 @@
 ---
+name: vite-vitest
 description: Vite ビルド設定 と Vitest テストのベストプラクティス（2026年版）。frontend-implementer / test-implementer / frontend-reviewer が参照する。
 ---
 

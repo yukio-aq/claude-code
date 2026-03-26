@@ -1,4 +1,5 @@
 ---
+name: system-design
 description: システム設計パターン集。architect エージェントが設計判断時に参照する。
 ---
 
