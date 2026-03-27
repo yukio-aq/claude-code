@@ -1,4 +1,5 @@
 {
+  "_readme": "このファイルは ~/.claude.json への追加用テンプレートです。`claude mcp add` コマンドの代わりに直接 ~/.claude.json の mcpServers にコピペして使えます。Figma,Tavily は FIGMA_API_KEY を実際のトークンに置き換えてから追加してください。",
   "mcpServers": {
     "tavily": {
       "type": "stdio",
