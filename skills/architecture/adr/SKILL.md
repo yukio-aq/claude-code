@@ -1,5 +1,5 @@
 ---
-name: architecture-adr
+name: adr
 description: ADR（Architecture Decision Record）のテンプレート。architect エージェントと /adr コマンドが参照する。
 ---
 
