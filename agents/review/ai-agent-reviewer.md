@@ -13,6 +13,9 @@ model: claude-opus-4-6
 セキュリティ・安全性・コスト最適化を最重点にレビューします。
 見落としたときのダメージが他領域より大きいため、Opusで精査します。
 
+Mastra evented workflow のコードが含まれる場合は **`skills/frameworks/mastra/SKILL.md`** を読んでから
+チェックリストのセクションを追加してレビューする。
+
 ## レビューチェックリスト
 
 ### セキュリティ（最優先）
@@ -38,6 +41,13 @@ model: claude-opus-4-6
 - [ ] プロンプトとテンプレート変数が分離されているか
 - [ ] エージェントの責務が1つに絞られているか
 - [ ] マルチエージェント連携時に目的のコンテキストが渡されているか
+
+### Mastra evented workflow（該当する場合）
+`skills/frameworks/mastra/SKILL.md` のレビュー観点セクションを参照。
+- [ ] `startEventEngine()` がサーバー起動前に呼ばれているか
+- [ ] 登録キーと `createWorkflow({ id })` が一致しているか
+- [ ] `WorkflowsInMemory` ストレージが設定されているか
+- [ ] Tool の呼び出しが `execute!(inputData, {} as any)` の形式になっているか
 
 ## 出力フォーマット
 

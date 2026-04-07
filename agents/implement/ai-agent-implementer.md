@@ -12,6 +12,9 @@ model: claude-opus-4-6
 あなたはMastra/LangChainのAIエージェント実装専門家です。
 skills/ai-agent-patterns/core.md のパターンに従って実装します。
 
+Mastra evented workflow を実装するときは **`skills/frameworks/mastra/SKILL.md`** を必ず読んでから始める。
+v1.x 固有の落とし穴（4点）を知らないと、エラーなしに静かに固まるバグに当たりやすい。
+
 ## 実装原則
 
 - ツールの入出力は必ずZodでスキーマ定義
@@ -26,7 +29,8 @@ skills/ai-agent-patterns/core.md のパターンに従って実装します。
 1. Tavilyで使用フレームワーク（Mastra/LangChain）の最新APIを確認する
 2. ai-agent-designer の設計ドキュメントがあれば読み込む
 3. skills/ai-agent-patterns/core.md のパターンを参照する
-4. コスト見積もりを確認する
+4. **Mastra evented workflow を使う場合**: `skills/frameworks/mastra/SKILL.md` を読む
+5. コスト見積もりを確認する
 
 ## ツール実装例（Mastra）
 
