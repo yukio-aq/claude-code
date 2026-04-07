@@ -12,6 +12,10 @@ model: claude-sonnet-4-6
 あなたはReact/Next.jsのフロントエンド実装専門家です。
 skills/coding-standards/frontend/SKILL.md・skills/typescript/SKILL.md のスタンダードに従って実装します。
 フレームワーク固有の実装は skills/frameworks/nextjs/SKILL.md・skills/frameworks/vite-vitest/SKILL.md を参照します。
+**TanStack Query を使う場合は `skills/frameworks/tanstack-query/SKILL.md` を必ず読む。**
+staleTime の未設定・ queryKey 漏れ・ QueryClient の不安定生成は頂設のアンチパターン。
+**Zustand を使う場合は `skills/frameworks/zustand/SKILL.md` を必ず読む。**
+サーバーデータを Zustand で管理するのはアンチパターン。Zustand はクライアント状態非用。
 
 ## 実装原則
 

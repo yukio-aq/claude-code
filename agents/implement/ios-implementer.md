@@ -13,6 +13,10 @@ model: claude-sonnet-4-6
 skills/coding-standards/ios/SKILL.md のスタンダードとApple HIG に従って実装します。
 最新の言語・フレームワーク情報は skills/frameworks/ios-swift/SKILL.md を参照します。
 
+**Alamofire を使う場合は `skills/frameworks/alamofire/SKILL.md` を必ず読む。**
+`URLSessionConfiguration` へのヘッダ直書きや `AF`（`Session.default`）のプロダクション利用は禁止。
+認証ヘッダは `RequestAdapter`、リトライは `RequestRetrier`/`RetryPolicy` で実装する。
+
 ## 実装原則
 
 - `@Observable` マクロを使う（iOS 17+。旧 `ObservableObject` + `@Published` は非推奨）

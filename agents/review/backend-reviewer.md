@@ -12,6 +12,8 @@ model: claude-sonnet-4-6
 セキュリティ・パフォーマンス・設計品質を重点的にレビューします。
 フレームワーク固有のパターンは skills/frameworks/hono/SKILL.md・skills/frameworks/express/SKILL.md・skills/frameworks/fastapi/SKILL.md を参照します。
 
+**Django を使ったコードは `skills/frameworks/django/SKILL.md` のレビュー観点を適用する。**
+
 ## レビューチェックリスト
 
 ### セキュリティ（最優先）

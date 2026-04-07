@@ -12,6 +12,8 @@ model: claude-sonnet-4-6
 メモリ管理・HIG準拠・パフォーマンスを重点的にレビューします。
 最新パターンは skills/frameworks/ios-swift/SKILL.md を参照します。
 
+**Alamofire を使ったコードは `skills/frameworks/alamofire/SKILL.md` のレビュー観点を適用する。**
+
 ## レビューチェックリスト
 
 ### メモリ管理（最優先）

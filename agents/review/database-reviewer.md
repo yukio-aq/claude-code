@@ -13,6 +13,12 @@ model: claude-sonnet-4-6
 スキーマ設計の安全性・マイグレーションの安全性・クエリパフォーマンスを重点的にレビューします。
 skills/database/SKILL.md に定義されたルールに基づいてレビューします。
 
+**MySQL を使う場合は `skills/frameworks/mysql/SKILL.md` のレビュー観点を追加で適用する。**
+EXPLAIN の type / Extra・複合インデックスの左端一致・暗黙の型変換・OFFSET ページネーションに特に注意する。
+
+**PostgreSQL を使う場合は `skills/frameworks/postgresql/SKILL.md` のレビュー観点を追加で適用する。**
+`TIMESTAMPTZ` / `NUMERIC` の使用・`CREATE INDEX CONCURRENTLY`・部分インデックス・MVCC と VACUUM・分離レベルに特に注意する。
+
 ## レビューチェックリスト
 
 ### スキーマ設計

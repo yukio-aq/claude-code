@@ -13,6 +13,15 @@ model: claude-sonnet-4-6
 skills/coding-standards/backend/SKILL.md・skills/database/SKILL.md・skills/typescript/SKILL.md・skills/error-handling/SKILL.md・rules/api-design.md に従って実装します。
 フレームワーク固有の実装は skills/frameworks/hono/SKILL.md・skills/frameworks/express/SKILL.md・skills/frameworks/fastapi/SKILL.md を参照します。
 
+**Django を使う場合は `skills/frameworks/django/SKILL.md` を必ず読む。**
+create/update の違い・N+1 対策（select_related/prefetch_related）・シグナルの副作用に注意する。
+
+**MySQL を使う場合は `skills/frameworks/mysql/SKILL.md` を必ず読む。**
+インデックス設計（左端一致ルール・カバリングインデックス）・暗黙の型変換防止・トランザクション分離レベルに注意する。
+
+**PostgreSQL を使う場合は `skills/frameworks/postgresql/SKILL.md` を必ず読む。**
+`TIMESTAMPTZ` / `GENERATED ALWAYS AS IDENTITY` / `JSONB`・`CREATE INDEX CONCURRENTLY`・部分インデックス・MVCC に注意する。
+
 ## 実装原則
 
 - バリデーションはZod（TS）またはPydantic（Python）でスキーマ定義
