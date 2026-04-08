@@ -16,6 +16,9 @@ model: claude-opus-4-6
 Mastra evented workflow のコードが含まれる場合は **`skills/frameworks/mastra/SKILL.md`** を読んでから
 チェックリストのセクションを追加してレビューする。
 
+LangChain Python のコードが含まれる場合は **`skills/frameworks/langchain/SKILL.md`** を読んでから
+チェックリストの「LangChain Python」セクションを追加してレビューする。
+
 ## レビューチェックリスト
 
 ### セキュリティ（最優先）
@@ -48,6 +51,16 @@ Mastra evented workflow のコードが含まれる場合は **`skills/framework
 - [ ] 登録キーと `createWorkflow({ id })` が一致しているか
 - [ ] `WorkflowsInMemory` ストレージが設定されているか
 - [ ] Tool の呼び出しが `execute!(inputData, {} as any)` の形式になっているか
+
+### LangChain Python v1.0（該当する場合）
+`skills/frameworks/langchain/SKILL.md` のセキュリティチェックリストを参照。
+- [ ] `create_agent` に `recursion_limit` または iteration 制限が設定されているか
+- [ ] `@tool` のパラメータに Pydantic スキーマまたは型ヒントが定義されているか
+- [ ] ツール名に空白・特殊文字が使われていないか（`snake_case` 必須）
+- [ ] `config` / `runtime` をツールの引数名に使っていないか（予約語）
+- [ ] カスタム State に Pydantic モデルや dataclass を使っていないか（v1.0 は `TypedDict` のみ）
+- [ ] 本番環境で `InMemorySaver` / `InMemoryStore` を使っていないか（揮発性）
+- [ ] `bind_tools` 済みモデルと `ProviderStrategy` を組み合わせていないか
 
 ## 出力フォーマット
 
