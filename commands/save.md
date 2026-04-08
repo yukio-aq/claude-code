@@ -14,7 +14,7 @@ description: 現在のセッションを保存する。重要な決定をした�
 **Step 1**: 保存パスを Bash で確定する。
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$HOME")
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
 SESSION_ID=$(date +%Y-%m-%dT%H-%M-%S)
 mkdir -p "$PROJECT_ROOT/.claude/sessions"
 echo "SESSION_DIR=$PROJECT_ROOT/.claude/sessions"

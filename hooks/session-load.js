@@ -21,7 +21,7 @@ try {
     .toString()
     .trim();
 } catch {
-  projectRoot = process.env.HOME;
+  projectRoot = process.cwd();
 }
 
 const latestSession = join(projectRoot, ".claude", "sessions", "latest.md");
