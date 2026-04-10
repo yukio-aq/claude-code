@@ -8,6 +8,11 @@ secrets/
 # セッションファイル（プロジェクト側で管理）
 **/sessions/
 
+# 自動抽出パターン（プロジェクト固有の情報が含まれる）
+# curated/ は汎用知識なので管理対象に含める
+skills/continuous-learning/instincts/*
+!skills/continuous-learning/instincts/.gitkeep
+
 # OS
 .DS_Store
 Thumbs.db
