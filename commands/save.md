@@ -59,6 +59,14 @@ echo "SESSION_ID=$SESSION_ID"
 ln -sf "{SESSION_FILE_PATH}" "{SESSION_DIR}/latest.md"
 ```
 
+**Step 4**: パターン抽出を実行する。
+
+```bash
+node ~/desktop/claude-code/skills/continuous-learning/extract.js --dir "$PROJECT_ROOT"
+```
+
+抽出結果（カテゴリ・件数）を表示する。エラーが出た場合はスキップしてその旨を表示する。
+
 **Step 4**: 完了メッセージを出力する。
 
 ```
