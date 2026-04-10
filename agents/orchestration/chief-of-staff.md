@@ -49,6 +49,9 @@ Explore の結果を元に Phase 1 以降のタスク分解を行う。コード
 | AIエージェント機能の設計 | ai-agent-designer |
 | テスト戦略が必要 | qa-engineer |
 | 実装後のレビュー | 領域対応の *-reviewer |
+| アーキテクチャ品質の確認 | architecture-reviewer |
+| バグの原因究明・影響範囲調査 | code-investigator |
+| 技術的負債の解消計画 | refactor-planner → refactor-implementer |
 
 ## 指示の渡し方
 

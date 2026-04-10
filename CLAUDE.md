@@ -90,9 +90,18 @@
 
 ### バグ修正
 ```
-1. 原因調査     → 該当領域の *-reviewer で問題箇所を特定
+1. 原因調査     → code-investigator で根本原因・影響範囲を特定
 2. *-implementer → 再現テストを書いてから修正実装
 3. pr-author    → コミット
+```
+
+### リファクタリング
+```
+1. refactor-planner    → 計画書を作成（docs/plans/ に保存）
+2. test-implementer    → テストが不足していれば補完（Phase 1）
+3. refactor-implementer → 計画書に従ってフェーズ単位で実行
+4. architecture-reviewer → 設計品質の確認（必要に応じて）
+5. pr-author           → フェーズ単位でコミット・PR作成
 ```
 
 ---
