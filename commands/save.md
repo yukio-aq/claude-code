@@ -67,7 +67,7 @@ node ~/desktop/claude-code/skills/continuous-learning/extract.js --dir "$PROJECT
 
 抽出結果（カテゴリ・件数）を表示する。エラーが出た場合はスキップしてその旨を表示する。
 
-**Step 4**: 完了メッセージを出力する。
+**Step 5**: 完了メッセージを出力する。
 
 ```
 ✅ Session saved → {SESSION_FILE_PATH}
