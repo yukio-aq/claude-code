@@ -1,5 +1,5 @@
 ---
-name: backend-coding-standards
+name: backend
 description: Node.js/PythonのバックエンドAPIコーディングスタンダード。backend-implementer / backend-reviewer が参照する。
 ---
 

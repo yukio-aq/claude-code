@@ -1,5 +1,5 @@
 ---
-name: frontend-coding-standards
+name: frontend
 description: React/Next.jsのコーディングスタンダード。frontend-implementer / frontend-reviewer が参照する。
 ---
 
