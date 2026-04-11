@@ -139,13 +139,14 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
 │   └── pre-commit-guard.js      # main直接pushを防止（PreToolUse hook）
 │
-├── rules/                       # 常時適用ルール（6個）
+├── rules/                       # 常時適用ルール（7個）
 │   ├── api-design.md            # API設計・レスポンス形式
 │   ├── testing.md               # テスト方針・カバレッジ基準
 │   ├── security.md              # セキュリティ禁止事項
 │   ├── git.md                   # ブランチ戦略・コミット規約
 │   ├── performance.md           # パフォーマンス計測基準
-│   └── dependencies.md          # ライブラリ管理・設計遵守
+│   ├── dependencies.md          # ライブラリ管理・設計遵守
+│   └── maintenance.md           # スキル情報の鮮度管理
 │
 ├── skills/                      # ドメイン知識・ベストプラクティス
 │   ├── ai-agent-patterns/       # Mastra/LangChain/LlamaIndex設計パターン
@@ -198,7 +199,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 - `ai-agent-designer` — Mastra/LangChain/LlamaIndexエージェント設計
 
 **実装**（各領域の実装を担当。test-implementer と並走）
-- `frontend-implementer` — React / Next.js
+- `frontend-implementer` — React / Next.js / Vue.js
 - `backend-implementer` — Node.js / Python / PHP (Laravel) API
 - `ios-implementer` — Swift / SwiftUI
 - `android-implementer` — Kotlin / Jetpack Compose
@@ -211,7 +212,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 - `e2e-implementer` — Playwright E2Eテスト（Page Object Model・CI統合）
 
 **レビュー**（実装後に必ず通す。CRITICAL/HIGH は修正必須）
-- `frontend-reviewer` / `backend-reviewer` (Node.js/Python/PHP) / `ios-reviewer` / `android-reviewer` / `3d-reviewer` / `ai-agent-reviewer`
+- `frontend-reviewer` (React/Next.js/Vue.js) / `backend-reviewer` (Node.js/Python/PHP) / `ios-reviewer` / `android-reviewer` / `3d-reviewer` / `ai-agent-reviewer`
 - `security-auditor` — OWASP Top 10を網羅するセキュリティ横断レビュー
 - `database-reviewer` — DBスキーマ・マイグレーション・クエリレビュー
 
@@ -292,6 +293,7 @@ node ~/Desktop/claude-code/skills/continuous-learning/extract.js
 | `git.md` | ブランチ戦略・Conventional Commits・PRルール |
 | `performance.md` | LCP 2.5秒・INP 100ms・API p95 500ms・60fps |
 | `dependencies.md` | ライブラリ追加禁止・設計（ADR）の遵守 |
+| `maintenance.md` | スキル情報の鮮度管理・定期見直しルール |
 
 ---
 

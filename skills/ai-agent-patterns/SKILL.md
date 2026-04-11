@@ -5,6 +5,8 @@ description: Mastra/LangChainのAIエージェント設計・実装パターン�
 
 # AIエージェント設計パターン（Mastra / LangChain）
 
+> 情報収集日: 2026-03-31
+
 ## エージェント設計の原則
 
 ### 責務を1つに絞る

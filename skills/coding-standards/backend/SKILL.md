@@ -5,6 +5,8 @@ description: Node.js/PythonのバックエンドAPIコーディングスタン�
 
 # バックエンド コーディングスタンダード（Node.js / Python）
 
+> 情報収集日: 2026-03-31
+
 ## ディレクトリ構成（Node.js）
 
 ```

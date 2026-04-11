@@ -5,6 +5,8 @@ description: ADR（Architecture Decision Record）のテンプレート。archit
 
 # ADR テンプレート
 
+> 情報収集日: 2026-03-31
+
 ## ADR-XXX: [タイトル]
 
 | 項目        | 内容                                          |

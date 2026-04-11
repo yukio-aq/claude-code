@@ -5,6 +5,7 @@ description: オブザーバビリティ（OpenTelemetry・LGTM スタック・S
 
 # オブザーバビリティ ベストプラクティス
 
+> 情報収集日: 2026-03-31
 > 調査日: 2026-03-23 / 対象バージョン: OpenTelemetry SDK v1.55、LGTM スタック 2026年3月時点
 
 ---

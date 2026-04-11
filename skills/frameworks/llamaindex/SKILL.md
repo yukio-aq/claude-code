@@ -9,6 +9,7 @@ description: >
 # LlamaIndex Python v0.14.x — 実装スキル
 
 > 公式ドキュメント: https://developers.llamaindex.ai/python/framework/
+> 情報収集日: 2026-03-31
 > GitHub: https://github.com/run-llama/llama_index
 > Python 要件: >=3.10, <4.0 / ライセンス: MIT
 

@@ -8,6 +8,7 @@ description: >
 
 # Mastra v1.x — Evented Workflow 実装スキル
 
+> 情報収集日: 2026-03-31
 > 詳細なガイド（コード例・フロー図付き）は `skills/frameworks/mastra/guide.md` を参照。
 
 ---

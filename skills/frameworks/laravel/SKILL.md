@@ -9,6 +9,7 @@ description: >
 # Laravel 13.x — 実装スキル
 
 > 公式ドキュメント: https://laravel.com/docs/13.x
+> 情報収集日: 2026-03-31
 > PHP 要件: >= 8.3 / ライセンス: MIT
 
 ---

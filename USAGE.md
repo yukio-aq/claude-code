@@ -148,7 +148,7 @@ Claude Code のチャット欄で `/` を入力すると一覧が出る。
 「requirements-analyst にこのユーザーストーリーを精査してもらう」
 
 # 実装
-「frontend-implementer でこのコンポーネントを実装してください（TypeScript + Tailwind）」
+「frontend-implementer でこのコンポーネントを実装してください（TypeScript + Tailwind / Vue 3）」
 「backend-implementer でユーザー登録 API を実装してください（PHP/Laravel 13）」
 「ai-agent-implementer で Mastra や LlamaIndex を使ったワークフローを実装してください」
 

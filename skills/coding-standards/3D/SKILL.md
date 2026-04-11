@@ -5,6 +5,8 @@ description: Three.js/React Three Fiber/Unityの3Dコーディングスタンダ
 
 # 3D コーディングスタンダード（Three.js / R3F / Unity）
 
+> 情報収集日: 2026-03-31
+
 ## Three.js / React Three Fiber
 
 ### メモリ管理（最重要）

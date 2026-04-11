@@ -5,6 +5,8 @@ description: TypeScript固有の型設計パターン。frontend-implementer / b
 
 # TypeScript 型設計スキル
 
+> 情報収集日: 2026-03-31
+
 ## 基本原則
 
 - `any` は禁止。使う場合は `// eslint-disable-next-line @typescript-eslint/no-explicit-any` とコメントで理由を明記

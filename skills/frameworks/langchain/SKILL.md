@@ -9,6 +9,7 @@ description: >
 # LangChain Python v1.0 — 実装スキル
 
 > 公式ドキュメント: https://docs.langchain.com/oss/python/langchain/overview
+> 情報収集日: 2026-03-31
 > クイックスタート: https://docs.langchain.com/oss/python/langchain/quickstart
 
 ---

@@ -5,6 +5,8 @@ description: React/Next.jsのコーディングスタンダード。frontend-imp
 
 # フロントエンド コーディングスタンダード（React / Next.js）
 
+> 情報収集日: 2026-03-31
+
 ## コンポーネント設計
 
 ### 分類と配置

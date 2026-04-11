@@ -5,6 +5,8 @@ description: Swift/SwiftUIのiOSコーディングスタンダード。ios-imple
 
 # iOS コーディングスタンダード（Swift / SwiftUI）
 
+> 情報収集日: 2026-03-31
+
 ## アーキテクチャ（MVVM）
 
 ```swift

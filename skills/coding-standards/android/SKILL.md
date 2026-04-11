@@ -5,6 +5,8 @@ description: Kotlin/Jetpack ComposeのAndroidコーディングスタンダー�
 
 # Android コーディングスタンダード（Kotlin / Jetpack Compose）
 
+> 情報収集日: 2026-03-31
+
 ## アーキテクチャ（MVVM + Repository）
 
 ```kotlin
