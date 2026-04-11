@@ -139,12 +139,13 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
 │   └── pre-commit-guard.js      # main直接pushを防止（PreToolUse hook）
 │
-├── rules/                       # 常時適用ルール（5個）
+├── rules/                       # 常時適用ルール（6個）
 │   ├── api-design.md            # API設計・レスポンス形式
 │   ├── testing.md               # テスト方針・カバレッジ基準
 │   ├── security.md              # セキュリティ禁止事項
 │   ├── git.md                   # ブランチ戦略・コミット規約
-│   └── performance.md           # パフォーマンス計測基準
+│   ├── performance.md           # パフォーマンス計測基準
+│   └── dependencies.md          # ライブラリ管理・設計遵守
 │
 ├── skills/                      # ドメイン知識・ベストプラクティス
 │   ├── ai-agent-patterns/       # Mastra/LangChain/LlamaIndex設計パターン
@@ -290,6 +291,7 @@ node ~/Desktop/claude-code/skills/continuous-learning/extract.js
 | `security.md` | APIキーハードコード禁止・入力バリデーション・認証認可 |
 | `git.md` | ブランチ戦略・Conventional Commits・PRルール |
 | `performance.md` | LCP 2.5秒・INP 100ms・API p95 500ms・60fps |
+| `dependencies.md` | ライブラリ追加禁止・設計（ADR）の遵守 |
 
 ---
 
