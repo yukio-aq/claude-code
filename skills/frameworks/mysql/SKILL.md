@@ -4,7 +4,6 @@ description: >
   MySQL 8.4 (LTS) のベストプラクティス。スキーマ設計・インデックス設計・
   クエリ最適化・トランザクション・EXPLAIN の読み方・よくある落とし穴。
   backend-implementer / backend-reviewer / database-reviewer が参照。
-applyTo: "**"
 ---
 
 # MySQL 8.4 ベストプラクティス
