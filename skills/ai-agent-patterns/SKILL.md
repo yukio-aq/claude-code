@@ -285,3 +285,96 @@ def log_llm_response(request, response):
     print({"duration_ms": duration_ms, "messages": len(request.state["messages"])})
     return response
 ```
+
+---
+
+## LlamaIndex Python v0.14.x 実装パターン
+
+> 詳細は `skills/frameworks/llamaindex/SKILL.md` を参照。
+
+### エージェント定義（FunctionAgent）
+
+LlamaIndex では `FunctionAgent` が推奨。常に `async` で実行する。
+
+```python
+from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.llms.openai import OpenAI
+
+agent = FunctionAgent(
+    tools=[search_tool, calculator_tool],
+    llm=OpenAI(model="gpt-4o-mini"),
+    system_prompt="You are a specialized research assistant.",
+)
+
+# 実行は常に await が必要
+response = await agent.run(user_msg="2024年のAIトレンドを調べて")
+```
+
+### ツール定義（docstring + 型ヒント）
+
+LlamaIndex は関数の docstring と型ヒントをメタデータとして利用する。
+
+```python
+from typing import Annotated
+
+def multiply(
+    a: Annotated[float, "The first number to multiply"],
+    b: Annotated[float, "The second number to multiply"]
+) -> float:
+    """Multiply two numbers and return the product."""
+    return a * b
+```
+
+### マルチエージェント（AgentWorkflow）
+
+`can_handoff_to` を使ってエージェント間の遷移を定義する。
+
+```python
+research_agent = FunctionAgent(
+    name="Researcher",
+    system_prompt="...",
+    can_handoff_to=["Writer"], # Writer へのハンドオフを許可
+)
+
+writer_agent = FunctionAgent(
+    name="Writer",
+    system_prompt="...",
+    can_handoff_to=["Researcher"], # 必要なら戻れるようにする
+)
+
+workflow = AgentWorkflow(
+    agents=[research_agent, writer_agent],
+    root_agent="Researcher",
+)
+```
+
+### 会話履歴の管理（Context）
+
+会話の文脈を維持するには `Context` オブジェクトを使い回す。
+
+```python
+from llama_index.core.workflow import Context
+
+ctx = Context(agent)
+# 1回目
+await agent.run(user_msg="My name is Alice.", ctx=ctx)
+# 2回目（Alice という名前を覚えている）
+await agent.run(user_msg="What is my name?", ctx=ctx)
+```
+
+### Human-in-the-loop
+
+`ctx.wait_for_event` を使用して、ユーザーの介入を待機する。
+
+```python
+async def sensitive_tool(ctx: Context, action: str):
+    """重要な操作の前に確認を求める"""
+    response = await ctx.wait_for_event(
+        HumanResponseEvent,
+        waiter_id="confirm",
+        waiter_event=InputRequiredEvent(prefix=f"Really {action}?")
+    )
+    if response.response == "yes":
+        # 実行
+        ...
+```

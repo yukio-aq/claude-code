@@ -185,3 +185,217 @@ users.map((u, i) => <UserRow key={i} user={u} />) // 並べ替え時にバグ
 **適用すべきでないケース:** 単独領域の単純タスクは直接 `*-implementer` を呼ぶ。
 
 ---
+
+## ファイル input の同一ファイル再選択バグを `input.value = ''` で解消する
+
+**概要:** 同じファイルを連続して選択すると `onChange` イベントが発火しない。選択後に `input.value = ''` でリセットすることで毎回発火させられる。
+
+**適用条件:** `<input type="file">` を使うすべてのファイルアップロードコンポーネント。
+
+**良い例:**
+```typescript
+const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (file) onFileSelect(file)
+  e.target.value = '' // 同一ファイルの再選択を可能にする
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: リセットなし → 同じファイルを選ぶと onChange が発火しない
+const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
+  if (file) onFileSelect(file)
+}
+```
+
+**適用すべきでないケース:** なし。ファイル input では常にリセットする。
+
+---
+
+## "その他" 入力を持つ Select は選択意図と値を独立した state で管理する
+
+**概要:** 「その他」を選んだかどうかを value（空文字）で判定すると、未選択との区別がつかずバグになる。選択意図を独立した boolean state で持つ。
+
+**適用条件:** 「その他」→ フリーテキスト入力に切り替わる Select コンポーネント全般。
+
+**良い例:**
+```typescript
+const [otherSelected, setOtherSelected] = useState(false)
+const [value, setValue] = useState('')
+
+const handleChange = (v: string) => {
+  if (v === '__other__') {
+    setOtherSelected(true)
+    setValue('')
+  } else {
+    setOtherSelected(false)
+    setValue(v)
+  }
+}
+
+// 表示切り替えは otherSelected で判定（value の空文字に依存しない）
+return otherSelected ? <TextInput value={value} onChange={setValue} /> : <Select onChange={handleChange} />
+```
+
+**アンチパターン:**
+```typescript
+// NG: value === '' で「その他」を判定 → 未選択と区別できない
+{value === '' && <TextInput ... />}
+```
+
+**適用すべきでないケース:** 選択肢が固定で「その他」がないシンプルな Select。
+
+---
+
+## Remember me は localStorage、セッション限定は sessionStorage を使い分ける
+
+**概要:** 「ログイン状態を保持」チェックの有無で保存先を変える。起動時チェックは両方を参照する。
+
+**適用条件:** ログイン画面に「ログイン状態を保持する」オプションがある認証実装。
+
+**良い例:**
+```typescript
+const login = (token: string, rememberMe: boolean) => {
+  const storage = rememberMe ? localStorage : sessionStorage
+  storage.setItem('authToken', token)
+}
+
+// 起動時: どちらに保存されていても復元できるようにする
+const restoreToken = () =>
+  localStorage.getItem('authToken') ?? sessionStorage.getItem('authToken')
+```
+
+**アンチパターン:**
+```typescript
+// NG: 常に localStorage → ブラウザを閉じても残り続ける
+localStorage.setItem('authToken', token)
+```
+
+**適用すべきでないケース:** 管理画面など「セッション限定のみ」が要件の場合は sessionStorage 固定でよい。
+
+---
+
+## `JSON.parse` はストレージから読むとき必ず `try/catch` でガードする
+
+**概要:** ストレージの値が破損・改ざんされていると `JSON.parse` がクラッシュしてアプリが起動不能になる。エラー時はストレージをクリアして初期状態に戻す。
+
+**適用条件:** `localStorage` / `sessionStorage` から JSON を読み出す箇所すべて。
+
+**良い例:**
+```typescript
+const loadState = () => {
+  try {
+    const raw = sessionStorage.getItem('appState')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    sessionStorage.removeItem('appState') // 破損していたらクリア
+    return null
+  }
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: try/catch なし → 破損データで起動時クラッシュ
+const state = JSON.parse(sessionStorage.getItem('appState')!)
+```
+
+**適用すべきでないケース:** なし。ストレージからの JSON 読み出しは常にガードする。
+
+---
+
+## 印刷ページサイズは `window.print()` 前の `<style>` 動的注入で制御する
+
+**概要:** CSS の `@page` ルールはブラウザ・OS の印刷設定に上書きされることがある。`window.print()` 直前に `<style>` タグを動的に挿入することで確実にページサイズを制御できる。
+
+**適用条件:** A3・A4 など特定サイズ・向きでの印刷が必須な帳票・レポート画面。
+
+**良い例:**
+```typescript
+const handlePrint = () => {
+  const style = document.createElement('style')
+  style.textContent = '@page { size: A3 landscape; margin: 10mm; }'
+  document.head.appendChild(style)
+  window.print()
+  document.head.removeChild(style) // 印刷後にクリーンアップ
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: CSS ファイルの @page だけに頼る → ブラウザ設定に負けることがある
+/* print.css */
+@page { size: A3 landscape; }
+```
+
+**適用すべきでないケース:** 印刷サイズがユーザー任意でよい場合（標準ブラウザ印刷ダイアログで足りる）。
+
+---
+
+## Python バックエンドの ORM は SQLModel（Pydantic + SQLAlchemy 統合）を使う
+
+**概要:** Prisma は JavaScript/TypeScript 向けに成熟しており、Python サポートは限定的。Python バックエンドでは SQLModel（Pydantic の型安全性 + SQLAlchemy の実績）が適切。
+
+**適用条件:** Python（FastAPI / Starlette）バックエンドで ORM を選定するとき。
+
+**良い例:**
+```python
+from sqlmodel import SQLModel, Field, Session, create_engine
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    email: str
+    name: str
+
+# Pydantic モデルと DB モデルを兼ねるため、スキーマ定義が1箇所に集約される
+```
+
+**アンチパターン:**
+```python
+# NG: Python プロジェクトで Prisma を採用 → Python クライアントが未成熟でエコシステムが薄い
+# prisma generate 後の型補完・マイグレーション体験が TypeScript より劣る
+```
+
+**適用すべきでないケース:** Node.js バックエンドなら Prisma / Drizzle を使う。SQLModel は Python 専用。
+
+---
+
+## マルチステップフォームのバリデーションはボタン契機で一括チェックしサマリー表示する
+
+**概要:** ステップ送信ボタン押下時に `validateStepN()` で一括チェックし、エラーがあればサマリーバナーをステップ内に表示してステップを戻す。per-field リアルタイムバリデーションより実装がシンプルで UX も一貫する。
+
+**適用条件:** 複数ステップで構成される入力フォーム（ウィザード UI）。
+
+**良い例:**
+```typescript
+const validateStep0 = (): string[] => {
+  const errors: string[] = []
+  if (!formData.name) errors.push('名前を入力してください')
+  if (!formData.date) errors.push('日付を入力してください')
+  return errors
+}
+
+const handleNextStep = () => {
+  const errors = validateStep0()
+  if (errors.length > 0) {
+    setValidationErrors(errors) // サマリーバナーに表示
+    return
+  }
+  setStep(1)
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: フィールドごとにリアルタイムでバリデーション → ステップをまたぐ状態管理が複雑になる
+const handleNameChange = (v: string) => {
+  setName(v)
+  setNameError(v ? '' : '名前を入力してください')
+}
+```
+
+**適用すべきでないケース:** 単一ページフォームでリアルタイムフィードバックが UX 要件の場合。
+
+---

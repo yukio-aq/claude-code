@@ -95,14 +95,14 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── planner.md               # 実装計画作成
 │   │   ├── architect.md             # 技術選定・ADR作成
 │   │   ├── refactor-planner.md      # 技術的負債解消計画
-│   │   └── ai-agent-designer.md     # AIエージェント設計
+│   │   └── ai-agent-designer.md     # AIエージェント設計（Mastra/LangChain/LlamaIndex）
 │   ├── implement/
 │   │   ├── frontend-implementer.md
 │   │   ├── backend-implementer.md
 │   │   ├── ios-implementer.md
 │   │   ├── android-implementer.md
 │   │   ├── 3d-implementer.md
-│   │   └── ai-agent-implementer.md
+│   │   └── ai-agent-implementer.md   # AIエージェント実装（Mastra/LangChain/LlamaIndex）
 │   ├── test/
 │   │   ├── qa-engineer.md           # テスト戦略設計
 │   │   ├── test-implementer.md      # テスト実装・カバレッジ補完
@@ -147,7 +147,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── performance.md           # パフォーマンス計測基準
 │
 ├── skills/                      # ドメイン知識・ベストプラクティス
-│   ├── ai-agent-patterns/       # Mastra/LangChain設計パターン
+│   ├── ai-agent-patterns/       # Mastra/LangChain/LlamaIndex設計パターン
 │   ├── architecture/            # ADRテンプレート・システム設計・技術選定
 │   ├── coding-standards/        # 領域別コーディング規約（frontend/backend/ios/android/3D）
 │   ├── docs-lookup/             # Tavily検索パターン
@@ -194,15 +194,15 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 - `planner` — タスク分解・実装計画書作成（`docs/plans/` に保存）
 - `architect` — 技術選定・ADR作成（`docs/adr/` に保存）
 - `refactor-planner` — 技術的負債の解消計画策定
-- `ai-agent-designer` — Mastra/LangChainエージェント設計
+- `ai-agent-designer` — Mastra/LangChain/LlamaIndexエージェント設計
 
 **実装**（各領域の実装を担当。test-implementer と並走）
 - `frontend-implementer` — React / Next.js
-- `backend-implementer` — Node.js / Python API
+- `backend-implementer` — Node.js / Python / PHP (Laravel) API
 - `ios-implementer` — Swift / SwiftUI
 - `android-implementer` — Kotlin / Jetpack Compose
 - `3d-implementer` — Three.js / React Three Fiber / Unity
-- `ai-agent-implementer` — Mastra / LangChain
+- `ai-agent-implementer` — Mastra / LangChain / LlamaIndex
 
 **テスト**
 - `qa-engineer` — テスト戦略設計・カバレッジ基準設定
@@ -210,7 +210,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 - `e2e-implementer` — Playwright E2Eテスト（Page Object Model・CI統合）
 
 **レビュー**（実装後に必ず通す。CRITICAL/HIGH は修正必須）
-- `frontend-reviewer` / `backend-reviewer` / `ios-reviewer` / `android-reviewer` / `3d-reviewer` / `ai-agent-reviewer`
+- `frontend-reviewer` / `backend-reviewer` (Node.js/Python/PHP) / `ios-reviewer` / `android-reviewer` / `3d-reviewer` / `ai-agent-reviewer`
 - `security-auditor` — OWASP Top 10を網羅するセキュリティ横断レビュー
 - `database-reviewer` — DBスキーマ・マイグレーション・クエリレビュー
 

@@ -1,9 +1,9 @@
 ---
 name: ai-agent-reviewer
 description: >
-  Mastra/LangChainを使ったAIエージェント実装のレビュー専門家。
+  Mastra/LangChain/LlamaIndexを使ったAIエージェント実装のレビュー専門家。
   エージェント・ツール・ワークフロー定義のコードが変更されたときに起動。
-  mastra / langchain / agent/ のファイルが対象。
+  mastra / langchain / llama-index / agent/ のファイルが対象。
   プロンプトインジェクション・無限ループ・コスト爆発のリスクを重点チェック。
 tools: Read, Grep, Glob, Bash
 model: claude-opus-4-6
@@ -18,6 +18,9 @@ Mastra evented workflow のコードが含まれる場合は **`skills/framework
 
 LangChain Python のコードが含まれる場合は **`skills/frameworks/langchain/SKILL.md`** を読んでから
 チェックリストの「LangChain Python」セクションを追加してレビューする。
+
+LlamaIndex Python のコードが含まれる場合は **`skills/frameworks/llamaindex/SKILL.md`** を読んでから
+チェックリストの「LlamaIndex Python」セクションを追加してレビューする。
 
 ## レビューチェックリスト
 
@@ -40,7 +43,7 @@ LangChain Python のコードが含まれる場合は **`skills/frameworks/langc
 - [ ] LLM呼び出しのログが出力されるか（コストトラッキング）
 
 ### コード品質
-- [ ] ツールの入出力スキーマが定義されているか（Zod）
+- [ ] ツールの入出力スキーマが定義されているか（Zod / Pydantic）
 - [ ] プロンプトとテンプレート変数が分離されているか
 - [ ] エージェントの責務が1つに絞られているか
 - [ ] マルチエージェント連携時に目的のコンテキストが渡されているか
@@ -61,6 +64,15 @@ LangChain Python のコードが含まれる場合は **`skills/frameworks/langc
 - [ ] カスタム State に Pydantic モデルや dataclass を使っていないか（v1.0 は `TypedDict` のみ）
 - [ ] 本番環境で `InMemorySaver` / `InMemoryStore` を使っていないか（揮発性）
 - [ ] `bind_tools` 済みモデルと `ProviderStrategy` を組み合わせていないか
+
+### LlamaIndex Python v0.14.x（該当する場合）
+`skills/frameworks/llamaindex/SKILL.md` のレビュー観点セクションを参照。
+- [ ] `agent.run()` が `await` されているか（Agent API は async 必須）
+- [ ] ツールに docstring と正確な型ヒント（Annotated 推奨）があるか
+- [ ] `ChatMemoryBuffer` ではなく `Memory` クラスを使っているか
+- [ ] AgentWorkflow で `can_handoff_to` が適切に制限されているか
+- [ ] CodeActAgent を使う場合、Docker サンドボックス設定があるか
+- [ ] `Settings` のグローバル設定（LLM, Embedding）が適切か
 
 ## 出力フォーマット
 
