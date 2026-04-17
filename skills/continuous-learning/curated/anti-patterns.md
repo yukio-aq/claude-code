@@ -272,3 +272,34 @@ workItems.map((item, i) => <WorkItemInput key={`work-item-${i}`} item={item} />)
 **根拠:** 「key 方針」として複数セッションで議論・決定が繰り返し発生。ID がある場合は ID、なければコンテンツ文字列や複合キーを使う。index が適切なのは固定長・並べ替えなしの配列に限る。
 
 ---
+
+## ファイル保存フックにプロジェクト全体解析ツールを実行させる
+
+**問題:** `tsc --noEmit` や `mypy` はプロジェクト全ファイルを解析するため、ファイル保存ごとに実行すると数秒〜数十秒かかりワークフローを詰まらせる。
+
+**発生状況:** PostToolUse・pre-commit などのファイル保存フックに型チェックを追加したいとき。
+
+**悪い例:**
+```javascript
+// NG: tsc は全ファイル対象 → 1ファイル保存のたびにプロジェクト全体を解析
+if (["ts", "tsx"].includes(ext) && existsSync(tsconfigPath)) {
+  const tsc = run("npx", ["tsc", "--noEmit", "--skipLibCheck"]);
+  // ...
+}
+```
+
+**良い例:**
+```javascript
+// OK: Prettier は単一ファイルを即時処理 → フックに適している
+if (isInstalled("prettier")) {
+  run("prettier", ["--write", filePath]);
+}
+
+// tsc は実装完了時に手動実行 or CI に委ねる
+// → package.json の scripts か Makefile に置く
+// "typecheck": "tsc --noEmit"
+```
+
+**根拠:** tsc にはシングルファイルモードがなく、`--noEmit` でも必ずプロジェクト全体を解析する。`npx` 経由だとさらに起動オーバーヘッドが加わる。フックに入れるべきは「単一ファイルを即時処理できるツール」（Prettier・Ruff・ESLint `--fix`）に限定し、全体解析は CI か実装完了時の手動実行に委ねる。
+
+---

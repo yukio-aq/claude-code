@@ -28,7 +28,8 @@ requirements-analyst エージェントを起動して、要件の精査・構�
 3. 曖昧さ・矛盾・見落としを検出してヒアリング
 4. 機能要件 / 非機能要件を構造化
 5. docs/requirements/ に要件定義書を出力
-6. planner に渡すための概要サマリーを作成
+6. requirements-reviewer でレビュー → 結果を末尾に追記
+7. APPROVED なら次のステップを案内 / NEEDS_REVISION なら停止
 ```
 
 ## 出力先
@@ -39,4 +40,5 @@ requirements-analyst エージェントを起動して、要件の精査・構�
 
 ## 次のステップ
 
-要件定義書が完成したら `/plan` で実装計画を作成します。
+レビューが APPROVED になったら `/plan` で実装計画を作成します。
+NEEDS_REVISION の場合は指摘事項を修正してから `/plan` に進んでください。
