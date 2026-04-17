@@ -22,6 +22,18 @@ const INSTINCTS_DIR = join(__dirname, "instincts");
 
 if (!existsSync(INSTINCTS_DIR)) mkdirSync(INSTINCTS_DIR, { recursive: true });
 
+// 差分処理用マーカー（最後に処理したセッションIDを記録）
+const MARKER_FILE = join(INSTINCTS_DIR, ".last-run");
+
+function getLastRun() {
+  if (!existsSync(MARKER_FILE)) return null;
+  return readFileSync(MARKER_FILE, "utf-8").trim();
+}
+
+function saveLastRun(latestSessionId) {
+  writeFileSync(MARKER_FILE, latestSessionId, "utf-8");
+}
+
 // ── セッションディレクトリの検索 ──────────────────────────
 
 function getSessionDirs() {
@@ -164,12 +176,23 @@ if (allSessions.length === 0) {
   process.exit(0);
 }
 
-console.log(`${allSessions.length}件のセッションを処理中...\n`);
+// 差分処理: 前回実行以降の新しいセッションのみ処理する
+const lastRun = getLastRun();
+const sessionsToProcess = lastRun
+  ? allSessions.filter((s) => s.sessionId > lastRun)
+  : allSessions;
+
+if (sessionsToProcess.length === 0) {
+  console.log("新しいセッションはありません。（前回実行以降の変更なし）");
+  process.exit(0);
+}
+
+console.log(`${sessionsToProcess.length}件の新規セッションを処理中...\n`);
 
 // カテゴリ別に集約
 const categoryMap = new Map();
 
-for (const session of allSessions) {
+for (const session of sessionsToProcess) {
   for (const decision of session.decisions) {
     const category = categorize(decision);
     if (!categoryMap.has(category)) {
@@ -198,3 +221,7 @@ for (const [category, { items, sessionCount }] of categoryMap.entries()) {
 
 console.log(`\n${written.length}件のカテゴリを instincts/ に保存しました。`);
 console.log("内容を確認して、確かなパターンだけ curated/ に昇格させてください。");
+
+// 今回処理した最新セッションIDをマーカーとして保存
+const latestSessionId = allSessions.map((s) => s.sessionId).sort().pop();
+if (latestSessionId) saveLastRun(latestSessionId);

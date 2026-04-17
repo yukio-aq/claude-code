@@ -126,7 +126,7 @@ else
       {
         "hooks": [{
           "type": "command",
-          "command": "node $CLAUDE_CODE_DIR/hooks/session-save.js"
+          "command": "node $CLAUDE_CODE_DIR/hooks/session-extract.js"
         }]
       }
     ]

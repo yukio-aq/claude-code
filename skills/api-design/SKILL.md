@@ -1,8 +1,11 @@
 ---
-description: API設計ルール。レスポンス形式・HTTPステータス・エラーコード規則。全バックエンドAPIに適用。
+name: api-design
+description: API設計・レスポンス形式・エラーコード・バリデーション・パフォーマンスのベストプラクティス。backend-implementer / backend-reviewer が参照する。
 ---
 
 # API設計ルール
+
+> 情報収集日: 2026-04-17
 
 ## レスポンス形式（統一エンベロープ）
 

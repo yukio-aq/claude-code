@@ -1,10 +1,12 @@
 ---
-description: パフォーマンスルール。計測基準・領域別最適化パターン。最適化は計測してから行う。
+name: performance
+description: フロントエンド・バックエンド・AIエージェント・3D・モバイルのパフォーマンス計測基準と最適化手法。frontend-implementer / backend-implementer / frontend-reviewer / backend-reviewer が参照する。
 ---
 
 # パフォーマンスルール
 
-> 最適化は計測してから。計測なしの早期最適化はしない。
+> 情報収集日: 2026-04-17
+> **最適化は計測してから。計測なしの早期最適化はしない。**
 
 ## 計測基準
 
