@@ -76,19 +76,8 @@ if (["ts", "tsx", "js", "jsx", "mjs", "cjs"].includes(ext)) {
     if (!fmt.ok) errors.push(`Prettier エラー:\n${fmt.output}`);
   }
 
-  // 型チェック（tsconfig.json があるときのみ）
-  const tsconfigPath = join(projectRoot, "tsconfig.json");
-  if (["ts", "tsx"].includes(ext) && existsSync(tsconfigPath)) {
-    const tsc = run("npx", ["tsc", "--noEmit", "--skipLibCheck"]);
-    if (!tsc.ok) {
-      const lines = tsc.output.split("\n");
-      const relevant = lines
-        .filter((l) => l.includes(filePath) || l.includes("error TS"))
-        .slice(0, 20)
-        .join("\n");
-      if (relevant) errors.push(`TypeScript エラー:\n${relevant}`);
-    }
-  }
+  // 型チェックはフックでは行わない（tsc は全ファイル対象のため毎保存実行はコスト過多）
+  // → 実装完了時に tsc --noEmit を手動実行すること
 }
 
 // ── Python ───────────────────────────────────────────────

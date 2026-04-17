@@ -154,8 +154,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── coding-standards/        # 領域別コーディング規約（frontend/backend/ios/android/3D）
 │   ├── docs-lookup/             # Tavily検索パターン
 │   └── continuous-learning/     # セッションからの学習蓄積
-│       ├── extract.js           # パターン抽出スクリプト
-│       ├── instincts/           # 自動抽出されたパターン
+│       ├── instincts/           # 自動抽出されたパターン（未精査）
 │       └── curated/             # 確認済みベストプラクティス
 │
 └── mcp-configs/
@@ -268,16 +267,13 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 次回起動後、最初のプロンプト送信時に前回のセッション要約が1回だけ自動注入される（session-load hook）。
 
-### パターン抽出（continuous-learning）
+### パターン蓄積（continuous-learning）
 
-セッションが蓄積されたら、繰り返し使われるパターンを抽出できる:
+`/save` でセッションを保存すると、Claude が会話を振り返り価値のあるパターンを `instincts/` に抽出する。
+気づいた瞬間に残したい場合は `/learn <内容>` を使う。
 
-```bash
-node ~/Desktop/claude-code/skills/continuous-learning/extract.js
-```
-
-`instincts/` に自動抽出されたパターンが保存される。
-内容を確認して確かなものだけ `curated/` に昇格させると、エージェントが次回から参照する。
+週1程度で `/curate` を実行すると、instincts/ の未精査パターンを精査して `curated/` に昇格できる。
+`curated/` のパターンはエージェントが実装・レビュー時に自動参照する。
 
 ---
 
