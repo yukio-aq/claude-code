@@ -12,68 +12,61 @@ description: セッションから学習した知識を蓄積する仕組み。�
 skills/continuous-learning/
 ├── README.md       このファイル
 ├── extract.js      セッションからパターンを抽出するスクリプト
-├── instincts/      自動抽出されたパターン（編集しない）
+├── instincts/      自動抽出・手動記録されたパターン（精査前）
+│   └── .last-run   差分処理用マーカー（extract.js が自動管理）
 └── curated/        手動で精査・昇格させたベストプラクティス
-    ├── patterns.md
-    └── anti-patterns.md
+    ├── patterns.md      確認済みの良いパターン
+    └── anti-patterns.md 確認済みのアンチパターン
 ```
 
-## 仕組み
+## 知識蓄積のサイクル
 
 ```
-セッション終了（Stop hook）
+実装中に気づいたこと
+    ↓ /learn <内容>
+instincts/ に即時記録
     ↓
-session-save.js が .claude/sessions/ に保存
+    ─────────────────────────────────
+    ↓ /save（作業の区切りごと）
+セッションサマリーを .claude/sessions/ に保存
+    ↓ extract.js が自動実行（差分のみ処理）
+instincts/ にパターンを追記
+    ─────────────────────────────────
+    ↓ /curate（定期的に実行）
+instincts/ を精査・ノイズを除去
     ↓
-node skills/continuous-learning/extract.js を実行（手動）
-    ↓
-instincts/ にパターンを自動保存
-    ↓
-内容を確認して curated/ に昇格（手動）
-    ↓
-エージェントが次回から参照して品質向上
+curated/ に昇格（エージェントが実装・レビュー時に参照）
 ```
 
-## パターン抽出の実行
+## コマンド
 
-```bash
-# プロジェクトのセッションからパターンを抽出する
-node ~/desktop/claude-code/skills/continuous-learning/extract.js
-```
+| コマンド | 用途 |
+|---|---|
+| `/learn <内容>` | 気づきをその場で instincts/ に記録 |
+| `/save` | セッションを保存 + extract.js を実行 |
+| `/curate` | instincts/ を精査して curated/ に昇格 |
 
-## instinct ファイルのフォーマット
+## instincts/ vs curated/ の違い
 
-```markdown
----
-title: Zodバリデーションは必ずスキーマを分離する
-confidence: 0.85
-source_sessions: 3
-last_seen: 2026-03-22
----
+| | instincts/ | curated/ |
+|---|---|---|
+| 入力元 | extract.js（自動）/ `/learn`（手動） | `/curate` コマンドで手動昇格 |
+| 品質 | 未精査・ノイズ含む | 精査済み・コード例付き |
+| エージェント参照 | しない | する（実装・レビュー時） |
 
-## パターン
-APIエンドポイントのバリデーションはインラインで書かず、
-schemas/ ディレクトリに分離したZodスキーマを使う。
+## curated/ へ昇格するパターンの基準
 
-## 根拠
-3回のセッションで同じ修正が発生。
+- 具体的なコードに落とせるもの
+- 複数プロジェクトに適用できる汎用性があるもの
+- 「適用すべきでないケース」まで書けるもの
 
-## 適用例
-src/schemas/user.schema.ts にスキーマを定義して routes/ でimport。
+**instincts の大半はノイズ。** 10件あれば昇格に値するのは1〜2件が相場。
+厳しくフィルタして curated/ の品質を維持すること。
 
-## アンチパターン
-route handler の中に z.object({ ... }) を直接書く。
-```
+## 参照しているエージェント
 
-## curated/ への昇格ルール
-
-instincts/ に自動保存されたファイルを確認して、
-「これは確かに自分のパターンだ」と思ったものだけ curated/ に移す。
-
-移すときに追記すること:
-- 具体的なコード例
-- アンチパターンの例
-- 適用すべきでないケース（過剰適用を防ぐ）
-
-curated/ に入ったものはエージェントが自動参照して
-実装・レビューの質が上がっていく。
+curated/ は以下のエージェントが実装・レビュー前に参照する:
+- `frontend-implementer`
+- `backend-implementer`
+- `frontend-reviewer`
+- `backend-reviewer`

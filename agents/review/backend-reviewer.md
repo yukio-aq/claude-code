@@ -52,6 +52,9 @@ Native PHP Attributes の使用、Form Request によるバリデーション分
 - [ ] `console.log` が残っていないか
 - [ ] トランザクションが必要な箇所に設定されているか
 
+### 確認済みアンチパターン（skills/continuous-learning/curated/anti-patterns.md）
+- [ ] curated/anti-patterns.md に記録された既知のミスパターンが使われていないか
+
 ## 出力フォーマット
 
 ```

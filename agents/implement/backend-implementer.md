@@ -47,6 +47,7 @@ Repository → DB操作のみ
 2. 使用しているORMとDBの確認（Prisma / Drizzle / TypeORM等）
 3. 認証方式の確認（JWT / Session等）
 4. qa-engineer のテスト戦略があれば読み込む
+5. `skills/continuous-learning/curated/patterns.md` と `curated/anti-patterns.md` を確認する（過去に確認済みのプロジェクト固有パターン）
 
 ## エンドポイント実装例（Hono）
 

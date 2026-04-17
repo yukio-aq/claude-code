@@ -59,13 +59,57 @@ echo "SESSION_ID=$SESSION_ID"
 ln -sf "{SESSION_FILE_PATH}" "{SESSION_DIR}/latest.md"
 ```
 
-**Step 4**: パターン抽出を実行する。
+**Step 4**: このセッションの会話を振り返り、具体的なパターンを **0〜3件** 厳選して instincts/ に記録する。
 
-```bash
-node ~/desktop/claude-code/skills/continuous-learning/extract.js --dir "$PROJECT_ROOT"
+### 記録する基準（すべて満たすもの）
+
+- 具体的なコード例が書けるパターン・アンチパターン
+- 複数プロジェクトに適用できる汎用性がある
+- 既存の `curated/patterns.md` / `curated/anti-patterns.md` にまだ載っていない
+
+### 記録しない（積極的にスキップ）
+
+- このプロジェクト固有の実装詳細やバグ修正
+- ハーネス（claude-code リポジトリ）の設定変更
+- 抽象的すぎてコードに落とせないもの
+- 「〜を採用した」「〜に決めた」という意思決定のみで、パターンとして成立しないもの
+
+**ゼロ件でよい。** 質より量は不要。価値のあるものだけ記録する。
+
+### カテゴリ判定
+
+| キーワード | カテゴリ |
+|---|---|
+| テスト・test・vitest・jest・playwright・カバレッジ | `testing` |
+| API・エンドポイント・endpoint・レスポンス・Zod | `api-design` |
+| アーキテクチャ・設計・レイヤー・分割・責務 | `architecture` |
+| セキュリティ・認証・認可・auth・token・JWT | `security` |
+| パフォーマンス・最適化・N+1・キャッシュ・遅い | `performance` |
+| コミット・branch・PR・マージ | `git` |
+| エージェント・agent・LLM・プロンプト・Mastra | `ai-agent` |
+| 上記以外 | `general` |
+
+### 書き込み先と形式
+
+パス: `{PROJECT_ROOT}/skills/continuous-learning/instincts/{TODAY}-{category}.md`
+
+ファイルが存在する場合は Read して `## パターン` セクションの末尾に1行追記。
+存在しない場合は Write で新規作成:
+
+```markdown
+---
+title: {category} パターン
+confidence: 0.8
+source: /save（Claude抽出）
+last_seen: {TODAY}
+---
+
+## パターン
+
+- {パターン内容}
 ```
 
-抽出結果（カテゴリ・件数）を表示する。エラーが出た場合はスキップしてその旨を表示する。
+抽出件数を表示する（0件の場合は「新規パターンなし」と表示）。
 
 **Step 5**: 完了メッセージを出力する。
 
