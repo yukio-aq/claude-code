@@ -303,3 +303,36 @@ if (isInstalled("prettier")) {
 **根拠:** tsc にはシングルファイルモードがなく、`--noEmit` でも必ずプロジェクト全体を解析する。`npx` 経由だとさらに起動オーバーヘッドが加わる。フックに入れるべきは「単一ファイルを即時処理できるツール」（Prettier・Ruff・ESLint `--fix`）に限定し、全体解析は CI か実装完了時の手動実行に委ねる。
 
 ---
+
+## ESM プロジェクトの `vi.mock` ファクトリ内で `require()` を使う
+
+**問題:** `"type": "module"` の ESM プロジェクトでは `vi.mock` のファクトリ関数内で `require()` を呼ぶとエラーになる。`require` は CommonJS 専用であり ESM では未定義。
+
+**発生状況:** CommonJS の vi.mock サンプルをそのまま ESM プロジェクトにコピーしたとき。
+
+**悪い例:**
+```typescript
+// NG: ESM プロジェクトでは require は未定義
+vi.mock('./db', () => {
+  const { DrizzleClient } = require('./db') // ReferenceError: require is not defined
+  return { db: vi.fn(() => new DrizzleClient()) }
+})
+```
+
+**良い例:**
+```typescript
+// OK: async ファクトリ + 動的 import を使う
+vi.mock('./db', async () => {
+  const { DrizzleClient } = await import('./db')
+  return { db: vi.fn(() => new DrizzleClient()) }
+})
+
+// OK: import なしで直接モックオブジェクトを返す（依存が不要な場合はこちらが簡潔）
+vi.mock('./db', () => ({
+  db: { select: vi.fn(), insert: vi.fn() },
+}))
+```
+
+**根拠:** ESM では `require` が存在しないため実行時エラーになる。`vi.mock` のファクトリは巻き上げ（hoist）されるため通常の `import` も使えず、動的 `import()` が唯一の手段。Node.js 組み込みモジュール（`fs`, `path` 等）も同じパターンで対応できる。
+
+---

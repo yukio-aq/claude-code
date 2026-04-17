@@ -399,3 +399,85 @@ const handleNameChange = (v: string) => {
 **適用すべきでないケース:** 単一ページフォームでリアルタイムフィードバックが UX 要件の場合。
 
 ---
+
+## タイマーベース非同期処理のテストは fake timers で完結させる
+
+**概要:** `setTimeout` / `setInterval` を内部で使うクラス（キュー・レートリミッター・リトライ等）のテストは `vi.useFakeTimers()` + `await vi.runAllTimersAsync()` で実時間待ちなしに完結できる。
+
+**適用条件:** Vitest で遅延・backoff・ポーリングを持つ非同期処理をテストするとき。
+
+**良い例:**
+```typescript
+describe('RateLimiter', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers() // 忘れると後続テストに影響
+  })
+
+  it('should process queue after delay', async () => {
+    const limiter = new RateLimiter({ intervalMs: 1000 })
+    const promise = limiter.enqueue(() => fetchData())
+
+    await vi.runAllTimersAsync() // 実時間を待たずにタイマーを全消化
+
+    await expect(promise).resolves.toBeDefined()
+  })
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: 実時間で待つ → テストが遅くなりフラッキーになる
+it('should process after 1 second', async () => {
+  const limiter = new RateLimiter({ intervalMs: 1000 })
+  const promise = limiter.enqueue(() => fetchData())
+  await new Promise((r) => setTimeout(r, 1100)) // 実時間1秒以上待機
+  await expect(promise).resolves.toBeDefined()
+})
+```
+
+**適用すべきでないケース:** 外部APIのタイムアウトなど「実時間の経過そのものをテストしたい」場合は Integration テストで実時間を使う。
+
+---
+
+## 直列実行テストは "同時実行数カウンター" で並列漏れを検出する
+
+**概要:** キューやワーカーが「1件ずつしか処理しない」ことを検証する際、同時実行数カウンターを仕込んで最大値が1であることをアサートする。
+
+**適用条件:** 直列実行・排他制御・ミューテックス相当の動作をテストするとき。
+
+**良い例:**
+```typescript
+it('should process tasks sequentially', async () => {
+  let concurrent = 0
+  let maxConcurrent = 0
+
+  const tasks = Array.from({ length: 5 }, (_, i) =>
+    queue.add(async () => {
+      concurrent++
+      maxConcurrent = Math.max(maxConcurrent, concurrent)
+      await delay(10) // 実際の処理をシミュレート
+      concurrent--
+      return i
+    })
+  )
+
+  await Promise.all(tasks)
+
+  expect(maxConcurrent).toBe(1) // 同時実行が常に1件だったことを保証
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: 完了順序だけ見ても並列実行されていないことは証明できない
+const results = await Promise.all(tasks)
+expect(results).toEqual([0, 1, 2, 3, 4]) // 順序が正しくても並列実行されている可能性がある
+```
+
+**適用すべきでないケース:** 並列実行数の上限が2以上（concurrency limit）の場合は `expect(maxConcurrent).toBeLessThanOrEqual(N)` に変える。
+
+---
