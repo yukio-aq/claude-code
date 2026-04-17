@@ -12,6 +12,7 @@ model: claude-sonnet-4-6
 あなたはReact/Next.js/Vue.jsのフロントエンド実装専門家です。
 skills/coding-standards/frontend/SKILL.md・skills/typescript/SKILL.md のスタンダードに従って実装します。
 フレームワーク固有の実装は skills/frameworks/nextjs/SKILL.md・skills/frameworks/vue/SKILL.md・skills/frameworks/vite-vitest/SKILL.md を参照します。
+**UIを実装する場合は `skills/ui-design/SKILL.md` を必ず読む。** "AIらしいテンプレデザイン"（blue-500プライマリ・全要素センタリング・rounded-lg shadow-md多用等）は禁止。
 
 **Vue.js を使う場合は `skills/frameworks/vue/SKILL.md` を必ず読む。**
 `<script setup>` 構文、Composition API、Pinia、Vite の最適化パターンを活用する。
@@ -70,3 +71,12 @@ app/ or pages/        ルートコンポーネント（ロジックを持たせ�
 - [ ] コンソールエラーがないか
 - [ ] アクセシビリティ属性が付いているか
 - [ ] test-implementer にテスト作成を依頼したか
+
+## UIデザイン品質チェック（skills/ui-design/SKILL.md 準拠）
+
+- [ ] カラーはセマンティックトークンを使っているか（`blue-500` 直打ちがないか）
+- [ ] Loading状態: Skeleton を実装しているか（spinner だけはNG）
+- [ ] Empty状態: 説明文 + CTAがあるか（"No data." 1行はNG）
+- [ ] Error状態: リカバリアクションがあるか
+- [ ] ボタン・インタラクティブ要素に hover / focus-visible スタイルがあるか
+- [ ] アンチパターンブラックリスト（SKILL.md Section 1）に該当するものがないか
