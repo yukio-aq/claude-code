@@ -28,6 +28,8 @@ description: コードレビューを実行する。ファイルの拡張子・�
 
 | 判定条件 | レビュアー |
 |---|---|
+| *.test.ts/tsx / *.spec.ts/tsx / __tests__/ | qa-reviewer（実装レビューモード） |
+| docs/test-strategies/*.md | qa-reviewer（戦略書レビューモード） |
 | .tsx .ts + components/ pages/ app/ | frontend-reviewer |
 | .ts .js + api/ routes/ server/ services/ | backend-reviewer |
 | migrations/ schema/ repository/ | database-reviewer |

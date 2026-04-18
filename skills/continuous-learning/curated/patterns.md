@@ -481,3 +481,46 @@ expect(results).toEqual([0, 1, 2, 3, 4]) // 順序が正しくても並列実行
 **適用すべきでないケース:** 並列実行数の上限が2以上（concurrency limit）の場合は `expect(maxConcurrent).toBeLessThanOrEqual(N)` に変える。
 
 ---
+
+## ランダム依存コードのテストは `vi.spyOn(Math, 'random')` で乱数を固定する
+
+**概要:** 指数バックオフのジッターなど `Math.random()` に依存する処理をテストするとき、スパイで乱数を固定することで遅延の精度を決定論的に検証できる。
+
+**適用条件:** Vitest で `Math.random()` を内部で使う処理（ジッター付きバックオフ・ランダムサンプリング等）の遅延や値をアサートするとき。
+
+**良い例:**
+```typescript
+beforeEach(() => {
+  vi.useFakeTimers()
+  vi.spyOn(Math, 'random').mockReturnValue(0) // ジッターをゼロに固定
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+  vi.restoreAllMocks() // スパイが次テストに漏れるのを防ぐ
+})
+
+it('should retry with exponential backoff: 1s → 2s', async () => {
+  const rejection = expect(operation()).rejects.toThrow('max retries')
+
+  await vi.advanceTimersByTimeAsync(1000) // 1回目リトライ（1秒後）
+  expect(mockFn).toHaveBeenCalledTimes(2)
+
+  await vi.advanceTimersByTimeAsync(2000) // 2回目リトライ（2秒後）
+  expect(mockFn).toHaveBeenCalledTimes(3)
+
+  await vi.runAllTimersAsync()
+  await rejection
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: runAllTimersAsync は全タイマーを即時消化 → 遅延の精度・順序を検証できない
+await vi.runAllTimersAsync()
+expect(mockFn).toHaveBeenCalledTimes(4) // 何回目のリトライで何秒待ったか不明
+```
+
+**適用すべきでないケース:** 遅延の順序・精度を検証する必要がなく「最終的に成功/失敗する」だけを確認したい場合は `runAllTimersAsync()` で十分。
+
+---

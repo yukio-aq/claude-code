@@ -336,3 +336,28 @@ vi.mock('./db', () => ({
 **根拠:** ESM では `require` が存在しないため実行時エラーになる。`vi.mock` のファクトリは巻き上げ（hoist）されるため通常の `import` も使えず、動的 `import()` が唯一の手段。Node.js 組み込みモジュール（`fs`, `path` 等）も同じパターンで対応できる。
 
 ---
+
+## `expect(promise).rejects` ハンドラをタイマー実行後にアタッチする
+
+**問題:** `vi.runAllTimersAsync()` でタイマーを先に消化すると、reject ハンドラがない状態で Promise が reject され unhandled rejection になる。テストが意図せずパスしたりエラーになったりする。
+
+**発生状況:** `vi.useFakeTimers()` を使ったテストで、タイマー実行によって Promise が reject されるケース（タイムアウト・バックオフ上限超過など）を検証するとき。
+
+**悪い例:**
+```typescript
+// NG: タイマーを先に消化 → reject 時点でハンドラが存在せず unhandled rejection
+await vi.runAllTimersAsync()
+await expect(promise).rejects.toThrow('timeout') // 手遅れ
+```
+
+**良い例:**
+```typescript
+// OK: ハンドラを先にアタッチしてからタイマーを消化
+const rejection = expect(promise).rejects.toThrow('timeout')
+await vi.runAllTimersAsync()
+await rejection
+```
+
+**根拠:** Promise の reject ハンドラは reject が発生する前にアタッチしておく必要がある。`runAllTimersAsync()` がタイマーを即時消化する性質上、呼び出し前にハンドラを設定しないと unhandled rejection として扱われる。
+
+---
