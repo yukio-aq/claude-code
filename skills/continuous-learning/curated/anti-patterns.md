@@ -361,3 +361,142 @@ await rejection
 **根拠:** Promise の reject ハンドラは reject が発生する前にアタッチしておく必要がある。`runAllTimersAsync()` がタイマーを即時消化する性質上、呼び出し前にハンドラを設定しないと unhandled rejection として扱われる。
 
 ---
+
+## DB 書き込みとファイル保存をアトミックに扱わない
+
+**問題:** ファイル保存成功後に DB コミットが失敗すると、ストレージに孤立ファイルが残り続ける。逆順でも DB 書き込み後にファイル保存が失敗すると DB にゴミレコードが残る。
+
+**発生状況:** ファイルアップロード処理でストレージへの書き込みと DB への記録を別々に行うとき。
+
+**悪い例:**
+```python
+# NG: DB 失敗時にストレージのファイルが孤立する
+storage_key = store_upload(file)  # ファイル保存成功
+session.commit()                  # DB 失敗 → storage_key が孤立したまま
+```
+
+**良い例:**
+```python
+# OK: DB 失敗時はファイルもロールバック
+storage_key = store_upload(file)
+try:
+    session.commit()
+except Exception:
+    delete_stored(storage_key)  # ファイルも削除してアトミシティを保つ
+    raise
+```
+
+**根拠:** ストレージと DB は別のトランザクション境界を持つため、一方の失敗が他方に伝播しない。補償トランザクション（失敗時の逆操作）を対で実装しないと、時間経過でストレージコストが増大し、整合性チェックが困難になる。
+
+---
+
+## CPU バウンド処理を async ハンドラ内で直接呼ぶ
+
+**問題:** OCR・画像処理などの重い同期処理を `async def` ハンドラ内で直接実行するとイベントループがブロックされ、処理中は他のリクエストがすべて停止する。
+
+**発生状況:** FastAPI / aiohttp などの非同期フレームワークで CPU バウンドな処理（OCR・機械学習推論・圧縮等）を呼び出すとき。
+
+**悪い例:**
+```python
+# NG: イベントループをブロック → 他リクエストが数秒待たされる
+@app.post("/upload")
+async def upload(file: UploadFile):
+    result = run_ocr(file.read())  # 重い同期処理を直接呼ぶ
+    return {"text": result}
+```
+
+**良い例:**
+```python
+# OK: スレッドプールに委譲してイベントループを解放
+import anyio
+
+@app.post("/upload")
+async def upload(file: UploadFile):
+    content = await file.read()
+    result = await anyio.to_thread.run_sync(run_ocr, content)
+    return {"text": result}
+```
+
+**根拠:** async フレームワークのイベントループはシングルスレッドで動作する。同期のブロッキング処理を直接呼ぶと、完了するまで全 I/O が止まる。`anyio.to_thread.run_sync`（または `asyncio.to_thread.run_in_executor`）でスレッドプールに委譲することで並列性を維持できる。
+
+---
+
+## エラー時にモックデータへサイレントフォールバックする
+
+**問題:** `catch` 節でモックデータに差し替えると、バックエンドが壊れているのに UI が正常動作しているように見える。デバッグ不能になり、特にデモ・本番環境で重大な混乱を招く。
+
+**発生状況:** API 呼び出しが失敗したとき「とりあえず画面を動かす」目的でモックに切り替えるとき。
+
+**悪い例:**
+```typescript
+// NG: エラーをモックで隠す → 障害に気づけない
+try {
+  const data = await api.fetchItems()
+  setItems(data)
+} catch {
+  setItems(MOCK_ITEMS)  // サイレントフォールバック
+}
+```
+
+**良い例:**
+```typescript
+// OK: エラーを明示して UI に伝える
+try {
+  const data = await api.fetchItems()
+  setItems(data)
+} catch (e) {
+  setError(e)  // エラー状態を UI で表示
+}
+```
+
+**根拠:** フォールバックはエラーを隠蔽する。モックに切り替わった瞬間から「動いているように見えるが実際は壊れている」状態になり、根本原因の発見が著しく遅れる。エラーは必ず `error` state にセットして UI で表示する。開発中だけモックを使いたい場合は環境変数フラグで明示的に切り替える。
+
+---
+
+## グローバルインスタンスをスレッドセーフに初期化しない
+
+**問題:** モジュールレベルのグローバル変数として重いオブジェクトを遅延初期化する場合、マルチスレッド環境では複数スレッドが同時に初期化コードに到達し、インスタンスが重複生成される。
+
+**発生状況:** ML モデル・OCR エンジンなど起動コストが高いオブジェクトをシングルトンとしてキャッシュするとき。
+
+**悪い例:**
+```python
+# NG: スレッドセーフでない遅延初期化
+_model = None
+
+def get_model():
+    global _model
+    if _model is None:
+        _model = load_heavy_model()  # 複数スレッドが同時に実行される可能性
+    return _model
+```
+
+**良い例:**
+```python
+# OK: threading.Lock で double-checked locking
+import threading
+
+_model = None
+_lock = threading.Lock()
+
+def get_model():
+    global _model
+    if _model is None:
+        with _lock:
+            if _model is None:  # ロック取得後に再チェック
+                _model = load_heavy_model()
+    return _model
+
+# OK: lifespan で一度だけ初期化して DI で渡す（より推奨）
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.model = load_heavy_model()
+    yield
+    # クリーンアップ処理をここに書く
+```
+
+**根拠:** CPython の GIL がある場合でも、`if _model is None` のチェックと代入の間に別スレッドが割り込める。lifespan フックで起動時に一度だけ初期化して DI で渡す設計のほうがテストしやすく、競合の心配もない。
+
+---

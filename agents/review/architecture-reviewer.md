@@ -108,6 +108,10 @@ npx madge --circular src/
 - [ ] インターフェースと実装が分離されているか（テスタビリティ）
 - [ ] 抽象に依存しているか（具体的な実装に直接依存していないか）
 
+### 確認済みアンチパターン（skills/continuous-learning/curated/anti-patterns.md）
+
+- [ ] curated/anti-patterns.md に記録された既知のミスパターンが使われていないか
+
 ---
 
 ## 出力フォーマット
