@@ -34,3 +34,8 @@ description: 機能・タスクの実装計画を作成する。planner / archit
 
 レビューが APPROVED になったら `*-implementer` で実装を開始します。
 NEEDS_REVISION の場合は指摘事項を修正してから実装に進んでください。
+
+## 自動保存
+
+APPROVED / NEEDS_REVISION いずれの場合も、完了時に `/save` と同じ処理でセッションを保存する。
+メモ: 「/plan: <機能名> の実装計画を作成。保存先: docs/plans/xxx.md」

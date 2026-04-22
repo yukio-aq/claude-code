@@ -37,6 +37,11 @@ CRITICAL / HIGH があれば差し戻す（Step 4以降に進まない）。
 `pr-author` エージェントを起動してdescriptionを生成する。
 確認後に `git push -u origin <branch>` を実行する。
 
+### Step 6: 自動保存
+
+PR 作成完了後に `/save` と同じ処理でセッションを保存する。
+メモ: 「/ship: <ブランチ名> → PR #xxx を作成」
+
 ## 注意
 - main / master への直接pushは絶対に拒否する
 - `git push --force` は使わない
