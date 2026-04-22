@@ -2,7 +2,7 @@
 
 Claude Code をテックリードとして使い倒すための設定・エージェント・ワークフロー集。
 
-26個の専門エージェント・8つのスラッシュコマンド・自動化フックで、
+34個の専門エージェント・10のスラッシュコマンド・自動化フックで、
 設計からコミットまでの開発フローを自動化する。
 
 ---
@@ -87,7 +87,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ├── README.md                    # このファイル
 ├── setup.sh                     # 初期セットアップスクリプト
 │
-├── agents/                      # 専門エージェント定義（26個）
+├── agents/                      # 専門エージェント定義（34個）
 │   ├── orchestration/
 │   │   └── chief-of-staff.md        # 大きなタスクの司令塔
 │   ├── design/
@@ -95,6 +95,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── planner.md               # 実装計画作成
 │   │   ├── architect.md             # 技術選定・ADR作成
 │   │   ├── refactor-planner.md      # 技術的負債解消計画
+│   │   ├── ui-designer.md           # UIデザイン設計
 │   │   └── ai-agent-designer.md     # AIエージェント設計（Mastra/LangChain/LlamaIndex）
 │   ├── implement/
 │   │   ├── frontend-implementer.md
@@ -102,7 +103,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── ios-implementer.md
 │   │   ├── android-implementer.md
 │   │   ├── 3d-implementer.md
-│   │   └── ai-agent-implementer.md   # AIエージェント実装（Mastra/LangChain/LlamaIndex）
+│   │   ├── ai-agent-implementer.md  # AIエージェント実装（Mastra/LangChain/LlamaIndex）
+│   │   └── refactor-implementer.md  # リファクタ計画書に従って実装
 │   ├── test/
 │   │   ├── qa-engineer.md           # テスト戦略設計
 │   │   ├── test-implementer.md      # テスト実装・カバレッジ補完
@@ -114,8 +116,14 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── android-reviewer.md
 │   │   ├── 3d-reviewer.md
 │   │   ├── ai-agent-reviewer.md
+│   │   ├── architecture-reviewer.md # アーキテクチャ品質レビュー
 │   │   ├── security-auditor.md      # セキュリティ横断レビュー
-│   │   └── database-reviewer.md     # DBスキーマ・クエリレビュー
+│   │   ├── database-reviewer.md     # DBスキーマ・クエリレビュー
+│   │   ├── qa-reviewer.md           # テスト戦略・実装レビュー
+│   │   ├── requirements-reviewer.md # 要件定義書レビュー
+│   │   ├── plan-reviewer.md         # 実装計画書レビュー
+│   │   ├── adr-reviewer.md          # ADRレビュー
+│   │   └── code-investigator.md     # バグ原因究明・影響範囲調査
 │   ├── docs/
 │   │   └── doc-writer.md            # ドキュメント生成
 │   ├── release/
@@ -123,7 +131,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── ops/
 │       └── observability-engineer.md # OpenTelemetry・SLO設計
 │
-├── commands/                    # スラッシュコマンド（8個）
+├── commands/                    # スラッシュコマンド（10個）
 │   ├── requirements.md          # /requirements
 │   ├── plan.md                  # /plan
 │   ├── adr.md                   # /adr
@@ -131,10 +139,11 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── review.md                # /review
 │   ├── doc.md                   # /doc
 │   ├── ship.md                  # /ship
-│   └── save.md                  # /save
+│   ├── save.md                  # /save
+│   ├── learn.md                 # /learn
+│   └── curate.md                # /curate
 │
-├── hooks/                       # 自動化スクリプト（4個）
-│   ├── session-save.js          # セッション保存（/save コマンドから手動呼び出し）
+├── hooks/                       # 自動化スクリプト（3個）
 │   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
 │   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
 │   └── pre-commit-guard.js      # main直接pushを防止（PreToolUse hook）
@@ -175,6 +184,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 | `/doc` | ドキュメント・READMEを生成・更新する |
 | `/ship` | フォーマット→型チェック→テスト→レビュー→コミット→PRを一気に実行 |
 | `/save` | 現在のセッションを手動保存する |
+| `/learn` | 気づいたパターンをその場で instincts/ に記録する |
+| `/curate` | instincts/ を精査して curated/ に昇格させる |
 
 ---
 

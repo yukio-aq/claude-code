@@ -500,3 +500,36 @@ async def lifespan(app: FastAPI):
 **根拠:** CPython の GIL がある場合でも、`if _model is None` のチェックと代入の間に別スレッドが割り込める。lifespan フックで起動時に一度だけ初期化して DI で渡す設計のほうがテストしやすく、競合の心配もない。
 
 ---
+
+## 照合・監査に必要なデータを生成時に永続化しない
+
+**問題:** 後から照合・比較が必要になるデータを「ID や数値だけ」で保存すると、照合ステップで参照先（名前・状態）が変わっていたり取得不能になり、正しく検証できなくなる。
+
+**発生状況:** 予想・注文・申請など「生成時点のスナップショット」を後で正解と照合する処理を実装するとき。
+
+**悪い例:**
+```typescript
+// NG: 数値配列だけ保存 → 照合時に名前が取得できない
+await db.insert(predictions).values({
+  raceId,
+  predictedOrder: [1, 2, 3],  // 馬番だけ → 後から馬名が取れない
+})
+```
+
+**良い例:**
+```typescript
+// OK: 照合に必要な全情報をスナップショットとして保存
+await db.insert(predictions).values({
+  raceId,
+  predictedOrder: [1, 2, 3],
+  predictionsDetail: JSON.stringify([
+    { rank: 1, horseName: 'アーモンドアイ', confidence: 0.85 },
+    { rank: 2, horseName: 'コントレイル',   confidence: 0.72 },
+    { rank: 3, horseName: 'グランアレグリア', confidence: 0.68 },
+  ]),
+})
+```
+
+**根拠:** 外部データ（馬名・商品名・ユーザー名等）は変更・削除される可能性がある。照合・監査・履歴表示に必要な情報は、生成・確定した瞬間のスナップショットを JSON カラム等に保存しておく。注文の商品名・価格スナップショットや、承認フローの申請内容コピーも同じ原則。
+
+---

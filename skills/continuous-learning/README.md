@@ -68,3 +68,5 @@ curated/ は以下のエージェントが実装・レビュー前に参照す�
 - `backend-implementer`
 - `frontend-reviewer`
 - `backend-reviewer`
+- `architecture-reviewer`
+- `database-reviewer`

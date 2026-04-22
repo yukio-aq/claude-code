@@ -524,3 +524,34 @@ expect(mockFn).toHaveBeenCalledTimes(4) // 何回目のリトライで何秒待�
 **適用すべきでないケース:** 遅延の順序・精度を検証する必要がなく「最終的に成功/失敗する」だけを確認したい場合は `runAllTimersAsync()` で十分。
 
 ---
+
+## アクション系エンドポイントはリソース ID のみ受け取る
+
+**概要:** 既存リソースへのアクション（verify・approve・cancel 等）は、リクエストボディでデータを再送させず、URL の ID だけを受け取ってサーバー側で DB から復元する。
+
+**適用条件:** `POST /resources/:id/action` 形式で既存レコードに対して操作を行うとき。
+
+**良い例:**
+```typescript
+// OK: ID だけ受け取り、サーバー側で必要なデータを DB から取得
+app.post('/races/:predictionId/verify', async (c) => {
+  const { predictionId } = c.req.param()
+  const prediction = await db.query.predictions.findFirst({
+    where: eq(predictions.id, predictionId)
+  })
+  return verify(prediction)
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: 既に DB にあるデータをフロントから再送させる（冗長・不整合リスク）
+app.post('/races/verify', async (c) => {
+  const { predictionId, predictedOrder, raceId, ...rest } = await c.req.json()
+  return verify({ predictionId, predictedOrder, raceId, ...rest })
+})
+```
+
+**適用すべきでないケース:** 操作時点の入力（コメント・承認理由等）が必要な場合はボディに含める。あくまで「DB に既にある情報」の再送が不要ということ。
+
+---
