@@ -146,7 +146,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ├── hooks/                       # 自動化スクリプト（3個）
 │   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
 │   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
-│   └── pre-commit-guard.js      # main直接pushを防止（PreToolUse hook）
+│   └── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
 │
 ├── rules/                       # 常時適用ルール（7個）
 │   ├── api-design.md            # API設計・レスポンス形式
