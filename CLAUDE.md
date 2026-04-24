@@ -153,11 +153,14 @@
 ```
 ~/desktop/claude-code/
 ├── CLAUDE.md          # このファイル（グローバル指針）
-├── agents/            # サブエージェント定義（34個）
+├── agents/            # サブエージェント定義（34個・8カテゴリ）
 ├── hooks/             # 自動化スクリプト（3個）
+│   ├── bash-guard.js        # PreToolUse(Bash): 危険コマンド / force push / コミット前ガード
+│   ├── format-check.js      # PostToolUse(Write|Edit|MultiEdit): フォーマットチェック
+│   └── session-load.js      # UserPromptSubmit: 前回セッション引き継ぎ注入
 ├── commands/          # スラッシュコマンド（10個）
-├── rules/             # 常時適用ルール（7個）
-├── skills/            # ドメイン知識・ベストプラクティス
+├── rules/             # 常時適用ルール（4個）
+├── skills/            # ドメイン知識・ベストプラクティス（15カテゴリ）
 └── mcp-configs/       # MCPサーバー設定
 
 # ~/.claude/ へのシンボリックリンクで有効化
@@ -168,8 +171,7 @@
 
 ## セッション管理
 
-- Stop hookでセッション終了時に自動保存（session-save hook）
-- /save コマンドで任意のタイミングで手動保存
-- 次回起動時に前回の要約を自動注入（session-load hook）
+- /save コマンドで手動保存（自動保存なし・Stop hook は廃止済み）
+- 次回起動時に前回の要約を自動注入（UserPromptSubmit hook: session-load.js）
 - 24時間以上前のセッションは警告付き表示
 - セッションファイルはプロジェクトごとに分離
