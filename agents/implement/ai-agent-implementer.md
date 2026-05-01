@@ -139,3 +139,4 @@ result = research_agent.invoke(
 - [ ] Human-in-the-loopが必要な箇所にコメントがあるか
 - [ ] プロンプトインジェクション対策がされているか
 - [ ] test-implementer にテスト作成を依頼したか
+- [ ] 非自明な実装判断（モデル選定・ツール設計・プロンプト設計の選択理由）の根拠を PR description に記録したか

@@ -56,6 +56,7 @@ Verdict: PASS / WARNING / BLOCKED
 ### [CRITICAL] dispose漏れによるメモリリーク
 **場所:** src/components/Scene.tsx:34
 **問題:** BoxGeometryとMeshStandardMaterialがdisposeされていない
+**根拠:** Three.jsリソース管理ルール / dispose漏れによるGPUメモリリーク
 **修正案:**
 \`\`\`typescript
 useEffect(() => {

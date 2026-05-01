@@ -560,3 +560,108 @@ await db.insert(predictions).values({
 **根拠:** 外部データ（馬名・商品名・ユーザー名等）は変更・削除される可能性がある。照合・監査・履歴表示に必要な情報は、生成・確定した瞬間のスナップショットを JSON カラム等に保存しておく。注文の商品名・価格スナップショットや、承認フローの申請内容コピーも同じ原則。
 
 ---
+
+## ジェネリクス API ラッパーの型引数を呼び出し側に任せる
+
+**問題:** `apiFetch<T>()` のようなラッパーを作っても、呼び出し側が型引数を渡さないと全呼び出しが `Promise<unknown>` になり型安全性が失われる。
+
+**発生状況:** API 通信の共通ラッパーを定義した後、各呼び出し箇所で `<ResponseType>` の指定を忘れたとき。
+
+**悪い例:**
+```typescript
+// NG: 型引数なし → Promise<unknown> に推論される
+const users = await apiFetch('/users') // Promise<unknown>
+const data = users.map(u => u.name)    // 型エラーにならず実行時にクラッシュ
+```
+
+**良い例:**
+```typescript
+// OK: ラッパー定義側で型を確定させる薄い関数を用意する
+export const fetchUsers = () => apiFetch<User[]>('/users') // Promise<User[]>
+
+// または呼び出し側で必ず明示する
+const users = await apiFetch<User[]>('/users')
+```
+
+**根拠:** TypeScript のジェネリクスは型引数が省略されると `unknown` に推論される。呼び出し側の注意に頼るより、型引数付きの薄いラッパー関数を用意して呼び出し側に型引数を渡させない設計のほうが安全。
+
+---
+
+## `URLSearchParams` に `undefined` を含むオブジェクトを渡す
+
+**問題:** `new URLSearchParams(params)` に `undefined` 値が含まれると、クエリ文字列に `key=undefined` が混入する。
+
+**発生状況:** オプションクエリパラメータを持つ API 呼び出しで、条件によっては値が `undefined` になる場合。
+
+**悪い例:**
+```typescript
+// NG: page が undefined のとき ?page=undefined がクエリに混入する
+const params = { limit: '10', page: undefined }
+const url = `/api/items?${new URLSearchParams(params as Record<string, string>)}`
+// → /api/items?limit=10&page=undefined
+```
+
+**良い例:**
+```typescript
+// OK: undefined を事前に除外する
+const params = { limit: '10', page: undefined }
+const filtered = Object.fromEntries(
+  Object.entries(params).filter(([, v]) => v !== undefined)
+) as Record<string, string>
+const url = `/api/items?${new URLSearchParams(filtered)}`
+// → /api/items?limit=10
+```
+
+**根拠:** `URLSearchParams` は `undefined` を文字列 `"undefined"` として扱う仕様。サーバー側でのパース失敗や意図しない絞り込み条件の混入につながる。
+
+---
+
+## `res.ok` を確認せずに `res.json()` を呼ぶ
+
+**問題:** HTTP エラー時にサーバーが HTML を返すと、`res.json()` で "Unexpected token '<'" という不可解なエラーになる。
+
+**発生状況:** `fetch` の結果をそのまま `res.json()` に渡す簡易実装。
+
+**悪い例:**
+```typescript
+// NG: 500 エラーで HTML が返ったとき JSON パースエラーになる
+const res = await fetch('/api/items')
+const data = await res.json() // "Unexpected token '<', "<!DOCTYPE"... is not valid JSON"
+```
+
+**良い例:**
+```typescript
+// OK: res.ok で HTTP エラーを先に処理する
+const res = await fetch('/api/items')
+if (!res.ok) {
+  throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+}
+const data = await res.json()
+```
+
+**根拠:** `fetch` は HTTP エラー（4xx・5xx）でも Promise を reject しない。`res.ok` チェックを省略すると、エラーレスポンスが HTML の場合に JSON パースエラーとして誤報され根本原因の特定が困難になる。
+
+---
+
+## SPA ルーターで `<a href>` を使う
+
+**問題:** React Router / TanStack Router を使うプロジェクトで `<a href="...">` を使うとフルページリロードになり、クライアントサイドナビゲーションが無効化される。
+
+**発生状況:** ナビゲーションリンクを実装するとき、慣習的に `<a>` タグを使ってしまうとき。
+
+**悪い例:**
+```typescript
+// NG: フルリロードが発生し prefetch・スクロール位置保持・ルートキャッシュが無効になる
+<a href="/dashboard">ダッシュボード</a>
+```
+
+**良い例:**
+```typescript
+// OK: クライアントサイドナビゲーション
+import { Link } from '@tanstack/react-router'
+<Link to="/dashboard">ダッシュボード</Link>
+```
+
+**根拠:** `<a>` タグはブラウザのデフォルト遷移を引き起こし SPA の恩恵が失われる。外部リンク・`download` 属性が必要なケースは `<a>` を使う。
+
+---

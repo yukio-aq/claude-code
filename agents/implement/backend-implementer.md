@@ -78,3 +78,4 @@ const userService = {
 - [ ] N+1クエリが発生していないか（skills/performance/SKILL.md）
 - [ ] 一覧取得にページネーションが実装されているか（skills/api-design/SKILL.md）
 - [ ] test-implementer にテスト作成を依頼したか
+- [ ] 非自明な実装判断（複数アプローチがあった・標準でない選択をした・パフォーマンストレードオフがあった）の根拠を PR description に記録したか

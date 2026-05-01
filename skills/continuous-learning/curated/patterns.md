@@ -555,3 +555,77 @@ app.post('/races/verify', async (c) => {
 **適用すべきでないケース:** 操作時点の入力（コメント・承認理由等）が必要な場合はボディに含める。あくまで「DB に既にある情報」の再送が不要ということ。
 
 ---
+
+## API 通信は共通ラッパー経由に集約する
+
+**概要:** `fetch('/api/...')` をコンポーネントや route で直接呼ばず、`lib/api.ts` 等の共通ラッパー経由で行う。エラー処理・ベース URL・認証ヘッダーを一箇所に集約できる。
+
+**適用条件:** フロントエンドで複数箇所から API を呼び出すプロジェクト全般。
+
+**良い例:**
+```typescript
+// lib/api.ts
+export const apiFetch = async <T>(path: string, options?: RequestInit): Promise<T> => {
+  const res = await fetch(`${BASE_URL}${path}`, options)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+// 呼び出し側は api.ts 経由のみ
+import { apiFetch } from '@/lib/api'
+const users = await apiFetch<User[]>('/users')
+```
+
+**アンチパターン:**
+```typescript
+// NG: コンポーネント内で直接 fetch → エラー処理が各所に散らばり、ベース URL 変更時に取り残しが出る
+const res = await fetch(`${BASE_URL}/users`)
+if (!res.ok) throw new Error(...)
+const data = await res.json()
+```
+
+**適用すべきでないケース:** Next.js の Server Actions で直接 DB を操作するケースや、外部ドメインへの1回限りの fetch など、ラッパーが不要なほどシンプルな場合。
+
+---
+
+## モーダルはフォーカス管理・キーボードトラップ・Escape キーをセットで実装する
+
+**概要:** モーダルを開いたときのフォーカス移動、Tab キーによるモーダル内循環、Escape キーでの閉じ機能を必ずセットで実装する（WCAG 2.1 APG Dialog Pattern）。
+
+**適用条件:** ダイアログ・モーダル・ドロワーなど、バックグラウンドコンテンツをブロックするオーバーレイ実装全般。
+
+**良い例:**
+```typescript
+// shadcn/ui の Dialog は Radix UI ベースで三要件を内包している
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+
+// カスタム実装の場合
+useEffect(() => {
+  if (!open) return
+  const el = modalRef.current?.querySelector<HTMLElement>('[autofocus], button, [href]')
+  el?.focus() // フォーカスをモーダル内最初の要素へ移動
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose()
+    if (e.key === 'Tab') trapFocus(e, modalRef.current) // Tab をモーダル内に閉じ込める
+  }
+  document.addEventListener('keydown', handleKeyDown)
+  return () => document.removeEventListener('keydown', handleKeyDown)
+}, [open])
+```
+
+**アンチパターン:**
+```typescript
+// NG: 表示切り替えだけでフォーカス管理なし → スクリーンリーダーでモーダルが認識されない
+{isOpen && (
+  <div className="fixed inset-0 bg-black/50">
+    <div className="bg-white p-4">
+      <button onClick={onClose}>×</button>
+    </div>
+  </div>
+)}
+```
+
+**適用すべきでないケース:** Toast・Tooltip など非インタラクティブな浮き要素にはフォーカストラップ不要。shadcn/ui の Dialog・Sheet 等を使う場合は既に対応済みのため個別実装不要。
+
+---

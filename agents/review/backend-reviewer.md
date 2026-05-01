@@ -73,6 +73,7 @@ Verdict: WARNING — HIGH を解消してからコミット
 ### [CRITICAL] SQLインジェクションの危険
 **場所:** src/routes/users.ts:45
 **問題:** ユーザー入力を文字列結合でSQLクエリに組み込んでいる
+**根拠:** rules/security.md / OWASP A03: Injection
 **修正案:** パラメータ化クエリを使用する
 \`\`\`typescript
 // ❌ 危険

@@ -56,6 +56,7 @@ Verdict: PASS / WARNING / BLOCKED
 ### [HIGH] 循環参照の危険
 **場所:** Sources/Features/UserList/UserListViewModel.swift:45
 **問題:** クロージャ内でselfを強参照している
+**根拠:** Swift循環参照防止ルール / 強参照サイクルによるメモリリーク
 **修正案:** `[weak self]` を追加する
 ```
 

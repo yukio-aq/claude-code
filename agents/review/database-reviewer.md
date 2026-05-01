@@ -96,6 +96,7 @@ Verdict: WARNING — HIGH を解消してからマイグレーションを実行
 **場所:** migrations/0012_remove_old_field.sql:3
 **問題:** `ALTER TABLE users DROP COLUMN old_field` をアプリコード更新前に実行すると
          既存アプリがカラムを参照してランタイムエラーになる。
+**根拠:** skills/database/SKILL.md / ゼロダウンタイムマイグレーション原則
 **修正案:** 3ステップで安全に削除する（skills/database/SKILL.md 参照）
 ```
 

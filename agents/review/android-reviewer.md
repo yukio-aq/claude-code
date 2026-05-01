@@ -56,6 +56,7 @@ Verdict: PASS / WARNING / BLOCKED
 **場所:** app/src/main/.../UserListFragment.kt:67
 **問題:** `lifecycleScope.launch` で直接collectしているため、
           バックグラウンド時もFlowが収集され続ける
+**根拠:** Androidライフサイクル管理ルール / バックグラウンド収集によるリソースリーク
 **修正案:** `repeatOnLifecycle(Lifecycle.State.STARTED)` を使用する
 ```
 

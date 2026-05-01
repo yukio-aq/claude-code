@@ -73,6 +73,7 @@ Verdict: WARNING — HIGH を解消してからコミット
 ### [HIGH] 不要な再レンダリング
 **場所:** src/components/UserList.tsx:24
 **問題:** インラインで定義されたオブジェクトが毎回新しい参照を生成している
+**根拠:** skills/performance/SKILL.md / 不要な再レンダリングによるパフォーマンス劣化
 **修正案:** useMemoでメモ化するか、コンポーネント外に定義する
 ```
 
