@@ -53,8 +53,10 @@ Native PHP Attributes の使用、Form Request によるバリデーション分
 - [ ] `console.log` が残っていないか
 - [ ] トランザクションが必要な箇所に設定されているか
 
-### 確認済みアンチパターン（skills/continuous-learning/curated/anti-patterns.md）
-- [ ] curated/anti-patterns.md に記録された既知のミスパターンが使われていないか
+### 確認済みパターン / アンチパターン（skills/continuous-learning/curated/）
+- [ ] `curated/api-backend.md` に記録されたパターン・アンチパターンが守られているか
+- [ ] `curated/typescript.md` に記録されたパターン・アンチパターンが守られているか
+- [ ] `curated/ai-security.md` に記録されたアンチパターンが使われていないか（LLM バックエンドを含む場合）
 
 ## 出力フォーマット
 

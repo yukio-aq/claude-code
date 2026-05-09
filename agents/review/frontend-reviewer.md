@@ -45,8 +45,10 @@ Next.js固有のパターンは skills/frameworks/nextjs/SKILL.md、Vue.js固有
 - [ ] Skeleton が spinner だけになっていないか
 - [ ] ホバー・フォーカス状態にスタイルがあるか
 
-### 確認済みアンチパターン（skills/continuous-learning/curated/anti-patterns.md）
-- [ ] curated/anti-patterns.md に記録された既知のミスパターンが使われていないか
+### 確認済みパターン / アンチパターン（skills/continuous-learning/curated/）
+- [ ] `curated/react.md` に記録されたパターン・アンチパターンが守られているか
+- [ ] `curated/typescript.md` に記録されたパターン・アンチパターンが守られているか
+- [ ] `curated/ui-design.md` に記録されたアンチパターンが使われていないか
 
 ### TypeScript
 - [ ] `any` 型が使われていないか

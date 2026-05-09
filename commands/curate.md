@@ -30,15 +30,10 @@ ls ~/desktop/claude-code/skills/continuous-learning/instincts/*.md 2>/dev/null |
 
 ### 昇格基準
 
-**patterns.md に昇格（✅）:**
+**カテゴリファイルに昇格（✅ パターン / ⚠️ アンチパターン）:**
 - 具体的なコード例がある、または書けるパターン
 - 複数プロジェクトに適用できる汎用性がある
-- 既存の `curated/patterns.md` に載っていない
-
-**anti-patterns.md に昇格（⚠️）:**
-- 具体的なバグ・問題を引き起こすミスパターン
-- 「やってはいけない理由」が明確
-- 既存の `curated/anti-patterns.md` に載っていない
+- 既存の対象 curated ファイルに載っていない
 
 **スキップ（❌）— 積極的にスキップする:**
 - 抽象的すぎてコードに落とせないもの（「設計を意識する」「テストを書く」等）
@@ -48,23 +43,33 @@ ls ~/desktop/claude-code/skills/continuous-learning/instincts/*.md 2>/dev/null |
 
 **厳しくフィルタすること。** instincts の大半はノイズ。10件あれば昇格に値するのは1〜2件が相場。
 
+### カテゴリファイルの選択
+
+パターンの内容に応じて書き込み先を決定する:
+
+| 内容 | 書き込み先 |
+|---|---|
+| React コンポーネント・状態管理・SPA ナビ | `curated/react.md` |
+| TypeScript 型・非同期・ブラウザ API・fetch | `curated/typescript.md` |
+| Vitest・テスト設計・mock・タイマー | `curated/testing.md` |
+| API 設計・DB・バックエンド・Python | `curated/api-backend.md` |
+| Tailwind・レイアウト・UI コンポーネント・a11y | `curated/ui-design.md` |
+| LLM・プロンプト・セキュリティ | `curated/ai-security.md` |
+
 ### 昇格前の品質チェック（昇格対象に対して必ず確認）
 
 - **1エントリ = 1問題**: 複数の問題が混在している場合は分割してからそれぞれを昇格させる
 - **根拠の完全性**: `根拠` セクションがエントリ内のすべての NG パターンをカバーしているか
 - **悪い例と良い例の対称性**: 悪い例の数と良い例の数が対応しているか（NG 3つならOK 3つ）
 
-**Step 4**: 昇格対象があれば、既存の curated ファイルを Read で読み込む。
+**Step 4**: 昇格対象があれば、対象の curated ファイルを Read で読み込む（カテゴリごとに1ファイル）。
 
-- `skills/continuous-learning/curated/patterns.md`
-- `skills/continuous-learning/curated/anti-patterns.md`
+**Step 5**: 昇格対象を適切なフォーマットで、対象ファイルの該当セクション（`## パターン` または `## アンチパターン`）の末尾に追記する（Write）。
 
-**Step 5**: 昇格対象を適切なフォーマットで各ファイルの末尾に追記する（Write）。
-
-### patterns.md 追記フォーマット
+### パターン追記フォーマット（`## パターン` セクション内）
 
 ```markdown
-## {パターン名}
+### {パターン名}
 
 **概要:** {何をするパターンか（1〜2文）}
 
@@ -85,10 +90,10 @@ ls ~/desktop/claude-code/skills/continuous-learning/instincts/*.md 2>/dev/null |
 ---
 ```
 
-### anti-patterns.md 追記フォーマット
+### アンチパターン追記フォーマット（`## アンチパターン` セクション内）
 
 ```markdown
-## {アンチパターン名}
+### {アンチパターン名}
 
 **問題:** {何が問題か（1〜2文）}
 
@@ -123,12 +128,10 @@ rm {処理したファイルのパス ...}
 ## /curate 完了
 
 ### 昇格
-✅ patterns.md: {件数}件
-  - {パターン名}
-  ...
-⚠️ anti-patterns.md: {件数}件
-  - {アンチパターン名}
-  ...
+✅ パターン: {件数}件
+  - {パターン名} → curated/{ファイル名}
+⚠️ アンチパターン: {件数}件
+  - {アンチパターン名} → curated/{ファイル名}
 
 ### スキップ: {件数}件
 （ノイズ・重複・抽象的すぎるため除外）

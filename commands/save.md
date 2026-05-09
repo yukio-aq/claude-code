@@ -72,7 +72,7 @@ echo "CLAUDE_CODE_ROOT=$CLAUDE_CODE_ROOT"
 
 - 具体的なコード例が書けるパターン・アンチパターン
 - 複数プロジェクトに適用できる汎用性がある
-- 既存の `curated/patterns.md` / `curated/anti-patterns.md` にまだ載っていない
+- 既存の `curated/` 配下の該当カテゴリファイルにまだ載っていない
 
 ### 記録しない（積極的にスキップ）
 

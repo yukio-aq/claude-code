@@ -70,9 +70,9 @@ CREATE INDEX CONCURRENTLY idx_users_email ON users(email);
 - [ ] 複数テーブルへの書き込みがトランザクションに包まれているか
 - [ ] 同時更新が起こりうる箇所に楽観的ロックがあるか
 
-### 確認済みアンチパターン（skills/continuous-learning/curated/anti-patterns.md）
+### 確認済みパターン / アンチパターン（skills/continuous-learning/curated/）
 
-- [ ] curated/anti-patterns.md に記録された既知のミスパターンが使われていないか
+- [ ] `curated/api-backend.md` に記録されたパターン・アンチパターンが守られているか
 
 ---
 

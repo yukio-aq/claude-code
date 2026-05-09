@@ -58,7 +58,7 @@ staleTime の未設定・ queryKey 漏れ・ QueryClient の不安定生成は�
 2. デザインシステム・UIライブラリの使用有無を確認する
 3. 状態管理の方針を確認する（useState / Zustand / TanStack Query等）
 4. qa-engineer のテスト戦略があれば読み込む
-5. `skills/continuous-learning/curated/patterns.md` と `curated/anti-patterns.md` を確認する（過去に確認済みのプロジェクト固有パターン）
+5. `skills/continuous-learning/curated/react.md` / `curated/typescript.md` / `curated/ui-design.md` / `curated/testing.md` を確認する（確認済みパターン・アンチパターン）
 
 ## コンポーネント設計
 
