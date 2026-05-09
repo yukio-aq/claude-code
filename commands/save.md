@@ -59,7 +59,14 @@ echo "SESSION_ID=$SESSION_ID"
 ln -sf "{SESSION_FILE_PATH}" "{SESSION_DIR}/latest.md"
 ```
 
-**Step 4**: このセッションの会話を振り返り、具体的なパターンを **0〜3件** 厳選して instincts/ に記録する。
+**Step 4**: claude-code プロジェクトのルートを Bash で特定する。
+
+```bash
+CLAUDE_CODE_ROOT=$(dirname "$(readlink "$HOME/.claude/skills")" 2>/dev/null || echo "$HOME/Desktop/claude-code")
+echo "CLAUDE_CODE_ROOT=$CLAUDE_CODE_ROOT"
+```
+
+**Step 5**: このセッションの会話を振り返り、具体的なパターンを **0〜3件** 厳選して instincts/ に記録する。
 
 ### 記録する基準（すべて満たすもの）
 
@@ -91,7 +98,7 @@ ln -sf "{SESSION_FILE_PATH}" "{SESSION_DIR}/latest.md"
 
 ### 書き込み先と形式
 
-パス: `{PROJECT_ROOT}/skills/continuous-learning/instincts/{TODAY}-{category}.md`
+パス: `{CLAUDE_CODE_ROOT}/skills/continuous-learning/instincts/{TODAY}-{category}.md`
 
 ファイルが存在する場合は Read して `## パターン` セクションの末尾に1行追記。
 存在しない場合は Write で新規作成:
@@ -111,7 +118,7 @@ last_seen: {TODAY}
 
 抽出件数を表示する（0件の場合は「新規パターンなし」と表示）。
 
-**Step 5**: 完了メッセージを出力する。
+**Step 6**: 完了メッセージを出力する。
 
 ```
 ✅ Session saved → {SESSION_FILE_PATH}

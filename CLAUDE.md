@@ -91,15 +91,16 @@
 
 ### 新機能の開発
 ```
-0. requirements-analyst → 要件が曖昧な場合のみ。要件定義書を作成してから進む
-1. planner       → 実装計画.md を作成（要件定義書を入力として渡す）
-2. architect     → 技術選定が必要なら ADR を作成
-3. qa-engineer   → テスト戦略を決定（テストケース一覧を先に作る）
-4. *-implementer → テストを書きながら実装（TDDベース・並走）
+0. domain-analyst      → 顧客業界の知識が必要な場合のみ。用語集・ドメインモデル・課題を収集してから進む
+1. requirements-analyst → 要件が曖昧な場合のみ。要件定義書を作成してから進む（domain-analyst の成果物を渡す）
+2. planner       → 実装計画.md を作成（要件定義書を入力として渡す）
+3. architect     → 技術選定が必要なら ADR を作成
+4. qa-engineer   → テスト戦略を決定（テストケース一覧を先に作る）
+5. *-implementer → テストを書きながら実装（TDDベース・並走）
                    実装完了時点でテストが揃っている状態を必須とする
-5. test-implementer → カバレッジ計測・不足テストの補完
-6. *-reviewer    → コードレビュー
-7. pr-author     → コミット・PR作成
+6. test-implementer → カバレッジ計測・不足テストの補完
+7. *-reviewer    → コードレビュー
+8. pr-author     → コミット・PR作成
 ```
 
 ### バグ修正
