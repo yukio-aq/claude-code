@@ -1,0 +1,48 @@
+name: backend-reviewer-error-handling
+agent: backend-reviewer
+description: エラーハンドリングの問題（握り潰し・finally欠如・型安全性）を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/services/payment.ts"
+    content: |
+      let isProcessing = false
+
+      export async function processPayment(orderId: string, amount: number) {
+        isProcessing = true
+
+        try {
+          await beginTransaction()
+          await chargeCard(amount)
+          await updateOrderStatus(orderId, 'paid')
+          await commitTransaction()
+          isProcessing = false  // finally ではなく try の中でリセット
+        } catch (e) {
+          // エラーを握り潰している
+          console.log('payment failed')
+          isProcessing = false
+        }
+      }
+
+      async function beginTransaction() {}
+      async function chargeCard(amount: number) {}
+      async function updateOrderStatus(id: string, status: string) {}
+      async function commitTransaction() {}
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/services/payment.ts をレビューしてください。
+  エラーハンドリングの問題点を指摘し、修正案を示してください。
+
+judge:
+  - type: llm_judge
+    description: isProcessing が finally でリセットされていないことを指摘している
+    check: レビュー結果にfinallyまたはisProcessingのリセット漏れに関する指摘があるか
+
+  - type: llm_judge
+    description: エラーを握り潰している（catch で再スローしていない）ことを指摘している
+    check: レビュー結果にエラーの握り潰し・再スロー（rethrow）・エラー伝播に関する指摘があるか
+
+  - type: llm_judge
+    description: トランザクションのロールバックがないことを指摘している
+    check: レビュー結果にロールバック（rollback）の欠如に関する指摘があるか

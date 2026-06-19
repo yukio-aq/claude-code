@@ -1,6 +1,15 @@
 ---
 name: performance
 description: フロントエンド・バックエンド・AIエージェント・3D・モバイルのパフォーマンス計測基準と最適化手法。frontend-implementer / backend-implementer / frontend-reviewer / backend-reviewer が参照する。
+when_to_use:
+  - パフォーマンスのボトルネックを特定・最適化するとき
+  - バンドルサイズ削減・レンダリング最適化を行うとき
+  - Core Web Vitalsのスコアを改善するとき
+  - クエリ・API レスポンスタイムを改善するとき
+not_for:
+  - 負荷テスト・ベンチマーク設計（performance-testingを使う）
+  - SLO・監視ダッシュボードの構築（observabilityを使う）
+last_updated: 2026-04-17
 ---
 
 # パフォーマンスルール

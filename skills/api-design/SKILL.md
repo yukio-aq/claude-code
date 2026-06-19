@@ -1,6 +1,15 @@
 ---
 name: api-design
 description: API設計・レスポンス形式・エラーコード・バリデーション・パフォーマンスのベストプラクティス。backend-implementer / backend-reviewer が参照する。
+when_to_use:
+  - REST / GraphQL APIエンドポイントを設計・実装するとき
+  - レスポンス形式・エラーコード・バリデーション戦略を決めるとき
+  - APIのパフォーマンス設計（ページネーション・キャッシュ）を検討するとき
+not_for:
+  - DBスキーマ・マイグレーション設計（databaseを使う）
+  - フロントエンドのみのタスク
+  - AIエージェントのツール定義（ai-agent-patternsを使う）
+last_updated: 2026-04-17
 ---
 
 # API設計ルール

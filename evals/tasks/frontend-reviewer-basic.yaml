@@ -1,0 +1,57 @@
+name: frontend-reviewer-basic
+agent: frontend-reviewer
+description: アンチパターンを含むコンポーネントを正しく指摘できるか
+
+setup:
+  - path: "{tmpdir}/src/components/UserCard.tsx"
+    content: |
+      // 意図的にアンチパターンを仕込んだコンポーネント
+      import { useState, useEffect } from 'react'
+
+      export function UserCard({ userId }: { userId: any }) {
+        const [user, setUser] = useState(null)
+        const [loading, setLoading] = useState(false)
+
+        useEffect(() => {
+          setLoading(true)
+          fetch(`/api/users/${userId}`)
+            .then(r => r.json())
+            .then(data => {
+              setUser(data)
+              setLoading(false)  // finally ではなく then の中でリセット
+            })
+        }, [])  // userId を deps に含めていない
+
+        if (loading) return <div>loading...</div>
+
+        return (
+          <div>
+            <h1>{(user as any)?.name}</h1>
+          </div>
+        )
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/components/UserCard.tsx をレビューしてください。
+  問題点を指摘し、修正案を示してください。
+
+judge:
+  - type: llm_judge
+    description: useEffect の依存配列に userId が含まれていないことを指摘している
+    file: "{tmpdir}/src/components/UserCard.tsx"
+    keyword: "userId"
+    check: レビュー結果に「useEffect」と「deps」または「依存」に関する指摘があるか
+
+  - type: llm_judge
+    description: ローディング状態のリセットが finally でないことを指摘している
+    file: "{tmpdir}/src/components/UserCard.tsx"
+    keyword: "finally"
+    check: レビュー結果に「finally」または「エラー時」のローディングリセットに関する指摘があるか
+
+  - type: llm_judge
+    description: any 型の使用を指摘している
+    file: "{tmpdir}/src/components/UserCard.tsx"
+    keyword: "any"
+    check: レビュー結果に「any」型に関する指摘があるか

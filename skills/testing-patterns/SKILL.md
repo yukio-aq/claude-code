@@ -1,6 +1,16 @@
 ---
 name: testing-patterns
 description: テスト設計パターン（Test Double・テストデータビルダー・依存注入）。test-implementer / qa-engineer / *-reviewer が参照する。
+when_to_use:
+  - テストを設計・実装するとき（ユニット・統合）
+  - モック・スタブ・フェイクの使い分けを判断するとき
+  - テスト可能な設計（依存注入）にリファクタするとき
+  - テストデータの生成戦略を設計するとき
+not_for:
+  - E2Eテスト設計（testing-patterns/playwright-e2e.mdを使う）
+  - 負荷テスト（performance-testingを使う）
+  - テストカバレッジの計測基準（rules/testing.mdを参照）
+last_updated: 2026-03-31
 ---
 
 # テスト設計パターン

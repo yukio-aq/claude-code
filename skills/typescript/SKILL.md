@@ -1,6 +1,15 @@
 ---
 name: typescript
 description: TypeScript固有の型設計パターン。frontend-implementer / backend-implementer / frontend-reviewer / backend-reviewer が参照する。
+when_to_use:
+  - .ts / .tsx ファイルを実装・レビューするとき
+  - 型設計・型エラーに対処するとき（Branded Types・Discriminated Union等）
+  - 型安全な設計（型ガード・型推論）を実装するとき
+not_for:
+  - JavaScript onlyプロジェクト
+  - ランタイムロジック・アルゴリズムの問題（型ではなくロジックの問題）
+  - フレームワーク固有の実装パターン（frameworks/以下を使う）
+last_updated: 2026-03-31
 ---
 
 # TypeScript 型設計スキル

@@ -1,0 +1,49 @@
+name: backend-reviewer-security
+agent: backend-reviewer
+description: 認証チェック漏れ・バリデーション欠落・情報漏洩を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/routes/user.ts"
+    content: |
+      import { db } from '../db'
+
+      // 認証チェックなし・バリデーションなしの実装
+      export async function updateUser(req: any) {
+        const { id } = req.params
+        const { name, email, role } = req.body  // role を直接受け入れている
+
+        const result = await db.query(
+          'UPDATE users SET name=$1, email=$2, role=$3 WHERE id=$4 RETURNING *',
+          [name, email, role, id]
+        )
+
+        // エラーレスポンスにスタックトレースを含める
+        if (result.rows.length === 0) {
+          throw new Error(`User ${id} not found. Stack: ${new Error().stack}`)
+        }
+
+        return result.rows[0]  // パスワードハッシュも含めて返す
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/routes/user.ts をレビューしてください。
+  セキュリティ上の問題点を指摘し、修正案を示してください。
+
+judge:
+  - type: llm_judge
+    description: 認証・認可チェックがないことを指摘している
+    check: レビュー結果に認証（auth）または認可（権限）チェックの欠如に関する指摘があるか
+
+  - type: llm_judge
+    description: role を外部入力から直接受け入れている問題を指摘している
+    check: レビュー結果にroleの直接受け入れ・権限昇格・Mass Assignmentに関する指摘があるか
+
+  - type: llm_judge
+    description: スタックトレースの漏洩を指摘している
+    check: レビュー結果にスタックトレース・内部情報の漏洩に関する指摘があるか
+
+  - type: llm_judge
+    description: パスワードハッシュを含むレスポンスの問題を指摘している
+    check: レビュー結果にパスワード・機密情報をレスポンスに含める問題の指摘があるか

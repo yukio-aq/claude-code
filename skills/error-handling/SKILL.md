@@ -1,6 +1,15 @@
 ---
 name: error-handling
 description: エラー設計パターン（カスタムエラー階層・Result型・エラーの伝播）。backend-implementer / frontend-implementer / backend-reviewer / frontend-reviewer が参照する。
+when_to_use:
+  - カスタムエラークラス階層を設計するとき
+  - Result型・Either型パターンを実装するとき
+  - エラーの伝播戦略（throw vs return）を設計するとき
+not_for:
+  - ロギング・分散トレーシング（observabilityを使う）
+  - APIのバリデーションエラー設計（api-designを使う）
+  - テストでのエラーケース検証（testing-patternsを使う）
+last_updated: 2026-03-31
 ---
 
 # エラーハンドリングパターン

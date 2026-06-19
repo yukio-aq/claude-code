@@ -1,0 +1,63 @@
+name: frontend-reviewer-performance
+agent: frontend-reviewer
+description: 不要な再レンダリング・インライン関数・key問題を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/components/TaskList.tsx"
+    content: |
+      import { useState } from 'react'
+
+      type Task = { id: number; title: string; done: boolean }
+
+      export function TaskList({ tasks }: { tasks: Task[] }) {
+        const [filter, setFilter] = useState<'all' | 'done' | 'todo'>('all')
+
+        // フィルタのたびに新しい関数参照が生成される
+        const filtered = tasks.filter(t => {
+          if (filter === 'done') return t.done
+          if (filter === 'todo') return !t.done
+          return true
+        })
+
+        return (
+          <div>
+            <div>
+              {['all', 'done', 'todo'].map(f => (
+                // key に index ではなく値を使っているのは良いが…
+                <button key={f} onClick={() => setFilter(f as any)}>
+                  {f}
+                </button>
+              ))}
+            </div>
+            <ul>
+              {filtered.map((task, index) => (
+                // key に index を使っている
+                <li key={index}>
+                  {task.title}
+                  {/* インライン関数をそのまま渡している */}
+                  <button onClick={() => console.log('delete', task.id)}>削除</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/components/TaskList.tsx をレビューしてください。
+  パフォーマンスと型安全性の問題点を指摘してください。
+
+judge:
+  - type: llm_judge
+    description: key に index を使っている問題を指摘している
+    check: レビュー結果にkeyにindexを使う問題またはtask.idをkeyに使うべきという指摘があるか
+
+  - type: llm_judge
+    description: as any の使用を指摘している
+    check: レビュー結果にas anyまたはany型に関する指摘があるか
+
+  - type: llm_judge
+    description: useMemo または useCallback による最適化を提案している
+    check: レビュー結果にuseMemoまたはuseCallbackまたはメモ化に関する提案があるか

@@ -1,0 +1,49 @@
+name: frontend-implementer-form
+agent: frontend-implementer
+description: フォームの送信状態・バリデーション・エラー表示を正しく実装できるか
+
+setup:
+  - path: "{tmpdir}/src/components/LoginForm.tsx"
+    content: |
+      // TODO: implement
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/components/LoginForm.tsx を実装してください:
+  - email と password のログインフォーム
+  - 送信中は送信ボタンを disabled にして "送信中..." と表示する
+  - 送信完了（成功・失敗どちらでも）後は送信中状態を解除する（finally を使う）
+  - email が空のとき「メールアドレスを入力してください」を表示する
+  - password が8文字未満のとき「8文字以上で入力してください」を表示する
+  - any 型を使わないこと
+
+judge:
+  - type: file_exists
+    description: LoginForm.tsx が実装されている
+    path: "{tmpdir}/src/components/LoginForm.tsx"
+
+  - type: grep
+    description: 送信中フラグ（isSubmitting/loading 等）がある
+    pattern: "isSubmitting|isLoading|submitting|loading"
+    file: "{tmpdir}/src/components/LoginForm.tsx"
+
+  - type: grep
+    description: finally でフラグをリセットしている
+    pattern: "finally"
+    file: "{tmpdir}/src/components/LoginForm.tsx"
+
+  - type: grep
+    description: disabled 制御がある
+    pattern: "disabled"
+    file: "{tmpdir}/src/components/LoginForm.tsx"
+
+  - type: grep
+    description: バリデーションメッセージがある
+    pattern: "入力してください|以上で入力"
+    file: "{tmpdir}/src/components/LoginForm.tsx"
+
+  - type: not_grep
+    description: any 型を使っていない
+    pattern: ":\s*any\b"
+    file: "{tmpdir}/src/components/LoginForm.tsx"

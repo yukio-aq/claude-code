@@ -58,7 +58,6 @@
 - 確認なしでのファイル削除は絶対にしない
 - 既存ファイルの大規模リファクタは指示なしにしない — スコープ外の変更は提案に留める
 - 自分の変更によって不要になったコードは削除する。作業前から存在するデッドコードには触れない
-- 設計（ADR）外のライブラリ追加・変更はしない — 詳細は `rules/dependencies.md` を参照
 - テストをスキップした実装をしない — テストが書けない設計は設計を見直す
 - `any` 型の使用は原則禁止 — 使う場合はコメントで理由を明記
 - `console.log` をコミットに含めない — デバッグログは削除またはloggerに置き換える
@@ -117,38 +116,6 @@
 3. refactor-implementer → 計画書に従ってフェーズ単位で実行
 4. architecture-reviewer → 設計品質の確認（必要に応じて）
 5. pr-author           → フェーズ単位でコミット・PR作成
-```
-
----
-
-## テスト方針
-
-- TDDベース・実装と常に並走する
-- 実装完了時点でテストが揃っていることが必須
-- 厳密にテストファーストである必要はないが、実装が終わったのにテストがない状態は許容しない
-- バグ修正時は再現テストを書いてから修正する
-
----
-
-## コミット規約（Conventional Commits）
-
-```
-<type>: <description>
-
-型の一覧:
-  feat     新機能
-  fix      バグ修正
-  refactor リファクタリング（機能変更なし）
-  test     テスト追加・修正
-  docs     ドキュメントのみの変更
-  chore    ビルド・設定・依存関係
-  perf     パフォーマンス改善
-  ci       CI/CD設定
-
-例:
-  feat: add user authentication with JWT
-  fix: resolve N+1 query in user list endpoint
-  refactor: extract payment logic into service layer
 ```
 
 ---

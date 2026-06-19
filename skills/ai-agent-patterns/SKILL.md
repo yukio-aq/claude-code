@@ -1,6 +1,15 @@
 ---
 name: ai-agent-patterns
 description: Mastra/LangChainのAIエージェント設計・実装パターン。ai-agent-designer / ai-agent-implementer / ai-agent-reviewer が参照する。
+when_to_use:
+  - AIエージェント・ツール定義・ワークフローを設計・実装するとき
+  - Mastra / LangChain / LlamaIndex を使うとき
+  - エージェント間の連携やオーケストレーションを設計するとき
+not_for:
+  - 通常のWeb API実装（api-designを使う）
+  - プロンプトエンジニアリングのみで完結するタスク
+  - LLMを使わないバックエンドロジック
+last_updated: 2026-03-31
 ---
 
 # AIエージェント設計パターン（Mastra / LangChain）

@@ -1,3 +1,9 @@
+---
+last_updated: 2026-05-09
+confidence: high
+review_after: 2026-11-09
+---
+
 # React — パターン & アンチパターン
 
 React コンポーネント・状態管理・ブラウザ API 連携に関するパターン。
@@ -174,6 +180,68 @@ useEffect(() => {
 
 ---
 
+### React Query の queryKey は階層配列で統一する
+
+**概要:** queryKey を `["domain", "subDomain", id]` のような階層配列で定義することで、上位キーで関連するクエリをまとめて無効化できる。
+
+**適用条件:** TanStack Query（React Query）を使うすべてのプロジェクト。
+
+**良い例:**
+```typescript
+// 階層配列で定義 → ドメイン単位の一括無効化が可能
+const { data: formState } = useQuery({
+  queryKey: ['adapter', 'formState', runId],
+})
+const { data: users } = useQuery({
+  queryKey: ['adapter', 'users', runId],
+})
+
+// 'adapter' 以下を全無効化
+queryClient.invalidateQueries({ queryKey: ['adapter'] })
+// 特定 run のフォーム状態だけ無効化
+queryClient.invalidateQueries({ queryKey: ['adapter', 'formState', runId] })
+```
+
+**アンチパターン:**
+```typescript
+// NG: フラット文字列 → 関連クエリをまとめて無効化できない
+const { data } = useQuery({ queryKey: ['formState'] })
+```
+
+**適用すべきでないケース:** クエリが1〜2種類しかなく、関連性による一括無効化が不要なほどシンプルなケース。
+
+---
+
+### React Query `enabled` で依存値が揃うまでクエリを停止する
+
+**概要:** `enabled: !!dependency` を使って、必要なパラメータが揃ってからクエリを実行する。undefined のまま API を叩くことを防ぐ。
+
+**適用条件:** クエリのパラメータが非同期で確定する場合（URL パラメータ・ユーザー選択・ルート遷移後に決まる値）。
+
+**良い例:**
+```typescript
+const { runId } = useParams()
+
+const { data } = useQuery({
+  queryKey: ['adapter', 'formState', runId],
+  queryFn: () => fetchFormState(runId!),
+  enabled: !!runId, // runId が確定するまでクエリを停止
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: 依存値チェックなし → runId が undefined のまま API を叩く
+const { data } = useQuery({
+  queryKey: ['adapter', 'formState', runId],
+  queryFn: () => fetchFormState(runId!),
+})
+```
+
+**適用すべきでないケース:** パラメータが常に存在することが保証されている場合（ルート定義で必須の path param 等）。
+
+---
+
 ### API 通信は共通ラッパー経由に集約する
 
 **概要:** `fetch('/api/...')` をコンポーネントや route で直接呼ばず、`lib/api.ts` 等の共通ラッパー経由で行う。エラー処理・ベース URL・認証ヘッダーを一箇所に集約できる。
@@ -206,6 +274,155 @@ const data = await res.json()
 
 ---
 
+### useEffect 内の fetch は AbortController でキャンセルする（StrictMode 対策）
+
+**概要:** useEffect 内で fetch を発行するとき AbortController を使い、cleanup でキャンセルする。React StrictMode の二重マウントでも状態更新が走らず副作用が二重実行されない。
+
+**適用条件:** useEffect 内で fetch を発行するとき全般。特に React StrictMode（開発環境）では二重マウントが発生するため必須。
+
+**良い例:**
+```typescript
+useEffect(() => {
+  const controller = new AbortController()
+  const run = async () => {
+    try {
+      const res = await fetch(url, { method: 'POST', signal: controller.signal })
+      const data = await res.json()
+      setState(data)
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') return // 正常なキャンセル → 握り潰す
+      throw err
+    }
+  }
+  run()
+  return () => { controller.abort() } // unmount 時に fetch をキャンセル
+}, [url])
+```
+
+**アンチパターン:**
+```typescript
+// NG: cleanup なし → StrictMode で二重 POST が発行される
+useEffect(() => {
+  fetch(url, { method: 'POST' }).then(r => r.json()).then(setState)
+}, [url])
+```
+
+**適用すべきでないケース:** fetch ではなく副作用がタイマーベースの場合（その場合は releaseTimerRef パターンを使う）。
+
+---
+
+### StrictMode 二重発火の cleanup 遅延は releaseTimerRef パターンで防ぐ
+
+**概要:** React StrictMode は開発環境で useEffect を mount→unmount→mount と二重発火させる。cleanup でリソース解放リクエスト（ロック解除・セッション終了等）を送る場合、即時送信すると再マウント時に誤って解放してしまう。`setTimeout(0)` で遅延させ、再マウント時に `clearTimeout` でキャンセルする。
+
+**適用条件:** useEffect の cleanup でサーバーへリクエストを送る場合（ロック解除・セッション終了・アナリティクス送信等）。
+
+**良い例:**
+```typescript
+const releaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+useEffect(() => {
+  acquireLock()
+  return () => {
+    // StrictMode の即時 unmount では再マウントが来るため遅延させる
+    releaseTimerRef.current = setTimeout(() => {
+      releaseLock()
+    }, 0)
+  }
+}, [])
+
+// 再マウント時（StrictMode）はタイマーをキャンセルして解放しない
+useEffect(() => {
+  if (releaseTimerRef.current) {
+    clearTimeout(releaseTimerRef.current)
+    releaseTimerRef.current = null
+  }
+}, [])
+```
+
+**アンチパターン:**
+```typescript
+// NG: cleanup で即時解放 → StrictMode で mount→unmount→mount が発生すると
+//     unmount 時にロックが解除され、再マウント後は未ロック状態になる
+useEffect(() => {
+  acquireLock()
+  return () => { releaseLock() }
+}, [])
+```
+
+**適用すべきでないケース:** AbortController でキャンセルできる in-flight fetch には不要。本番環境（StrictMode なし）では二重発火しないため問題は顕在化しないが、開発環境の再現性のために常に実装する。
+
+---
+
+### タブ閉じ時の認証付きリクエストは `fetch(keepalive: true)` を使う
+
+**概要:** `navigator.sendBeacon` はタブ閉じ時に確実に送信されるが、`Authorization` などのカスタムヘッダーを付けられない。認証ヘッダーが必要な場合は `fetch(url, { keepalive: true })` を使う。
+
+**適用条件:** ページ離脱時（`beforeunload`・useEffect cleanup）に認証付きリクエストを送る場合。
+
+**良い例:**
+```typescript
+// タブ閉じ・ページ離脱時に認証付きで送信
+const sendBeforeUnload = (token: string) => {
+  fetch('/api/sessions/end', {
+    method: 'POST',
+    keepalive: true, // ページ終了後もリクエストを完遂させる
+    headers: { Authorization: `Bearer ${token}` },
+  })
+}
+
+window.addEventListener('beforeunload', () => sendBeforeUnload(tokenRef.current))
+```
+
+**アンチパターン:**
+```typescript
+// NG: sendBeacon はカスタムヘッダー不可 → 認証が必要なエンドポイントに使えない
+navigator.sendBeacon('/api/sessions/end', JSON.stringify({ data }))
+// Authorization ヘッダーを付ける手段がなく、401 になる
+```
+
+**適用すべきでないケース:** 認証不要なエンドポイントへの送信（アナリティクス等）は `sendBeacon` のほうがシンプル。
+
+---
+
+### state を追加したら set / read / reset の3点セットを確認する
+
+**概要:** 新しい state を追加するとき、セットする箇所・読む箇所・リセットする箇所の3点が揃っているかを確認する。どれか1つが欠けると state が意図通りに動作しない。
+
+**適用条件:** React コンポーネントや状態管理に新しい state を追加するとき全般。
+
+**良い例:**
+```typescript
+const [loadedId, setLoadedId] = useState<string | null>(null)
+
+// set — ロード完了時にセット
+const handleLoad = (id: string) => {
+  setLoadedId(id)
+}
+
+// read — 現在の state を参照して判定
+const isLoaded = loadedId === currentId
+
+// reset — 初期状態に戻す
+const handleReset = () => {
+  setLoadedId(null)
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: setLoadedId(id) を呼ぶ箇所がない → loadedId は常に null のまま
+const [loadedId, setLoadedId] = useState<string | null>(null)
+
+// set する箇所が存在しない
+
+const isLoaded = loadedId === currentId  // 常に false になる
+```
+
+**適用すべきでないケース:** `useMemo` 等で導出される読み取り専用の派生 state や、append-only でリセットが不要な state にはこのチェックは当てはまらない。
+
+---
+
 ## アンチパターン
 
 ### SPA ルーターで `<a href>` を使う
@@ -228,5 +445,73 @@ import { Link } from '@tanstack/react-router'
 ```
 
 **根拠:** `<a>` タグはブラウザのデフォルト遷移を引き起こし SPA の恩恵が失われる。外部リンク・`download` 属性が必要なケースは `<a>` を使う。
+
+---
+
+### React Query でクライアントサイドフィルタリング時に queryKey を固定にする
+
+**問題:** queryKey を検索条件と無関係に固定すると、2回目の同一条件検索でキャッシュが返り再フェッチが走らない。ユーザーの操作が無視される。
+
+**発生状況:** React Query でフィルタ・検索ボタンを押すたびにデータを取得し直したいとき。
+
+**悪い例:**
+```typescript
+// NG: queryKey が固定 → 検索ボタンを押しても2回目はキャッシュが返る
+const { data } = useQuery({
+  queryKey: ['items'],  // 検索条件が含まれていない
+  queryFn: () => fetchItems(searchTerm),
+})
+const handleSearch = () => refetch()  // stale でなければ再実行されない
+```
+
+**良い例:**
+```typescript
+// OK: invalidateQueries で確実にキャッシュを無効化して再実行させる
+const queryClient = useQueryClient()
+const { data } = useQuery({
+  queryKey: ['items', searchTerm],
+  queryFn: () => fetchItems(searchTerm),
+})
+const handleSearch = () => {
+  queryClient.invalidateQueries({ queryKey: ['items'] })
+}
+```
+
+**根拠:** React Query はキャッシュが fresh な間は再フェッチしない。検索条件を queryKey に含めるか、`invalidateQueries` で明示的にキャッシュを無効化しないと、同一条件での再検索が機能しない。
+
+---
+
+### useMutation の pending 状態を個別のローカル state で管理する
+
+**問題:** 承認・却下など複数のミューテーションの pending を独立したローカル state で管理すると、`onMutate` の非同期タイミングで state 更新が間に合わず両ボタンが同時押しできる競合が生じる。
+
+**発生状況:** 承認・却下・削除など排他的な複数アクションを持つリストアイテムの UI。
+
+**悪い例:**
+```typescript
+// NG: ローカル state で管理 → タイミング競合で両ボタンが同時に押せる
+const [processingId, setProcessingId] = useState<string | null>(null)
+
+const handleApprove = (id: string) => {
+  setProcessingId(id)
+  approveMutation.mutate(id)
+}
+
+<button disabled={processingId === item.id} onClick={() => handleApprove(item.id)}>承認</button>
+<button disabled={processingId === item.id} onClick={() => handleReject(item.id)}>却下</button>
+```
+
+**良い例:**
+```typescript
+// OK: ミューテーション自体の isPending で一元管理する
+const approveMutation = useMutation({ mutationFn: approve })
+const rejectMutation = useMutation({ mutationFn: reject })
+const isProcessing = approveMutation.isPending || rejectMutation.isPending
+
+<button disabled={isProcessing} onClick={() => approveMutation.mutate(item.id)}>承認</button>
+<button disabled={isProcessing} onClick={() => rejectMutation.mutate(item.id)}>却下</button>
+```
+
+**根拠:** `useMutation` の `isPending` はミューテーション実行中に確実に `true` になる。独自のローカル state は非同期タイミングのズレで更新が遅れることがあり、競合が発生する。ミューテーション自体が持つ状態を使うのが正確。
 
 ---

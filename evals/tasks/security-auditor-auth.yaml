@@ -1,0 +1,59 @@
+name: security-auditor-auth
+agent: security-auditor
+description: 認証バイパス・JWT検証欠落・セッション固定化を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/middleware/auth.ts"
+    content: |
+      import jwt from 'jsonwebtoken'
+
+      export function authMiddleware(req: any, res: any, next: any) {
+        const token = req.headers.authorization?.split(' ')[1]
+
+        if (!token) {
+          return res.status(401).json({ error: 'unauthorized' })
+        }
+
+        // JWT を検証せずにデコードしている（verify ではなく decode）
+        const decoded = jwt.decode(token)
+        req.user = decoded
+
+        // 開発環境バイパス（本番にコミットされている）
+        if (process.env.NODE_ENV === 'development') {
+          req.user = { id: 'dev-user', role: 'admin' }
+        }
+
+        next()
+      }
+
+      export function requireAdmin(req: any, res: any, next: any) {
+        // req.user が null の場合を考慮していない
+        if (req.user.role === 'admin') {
+          next()
+        } else {
+          res.status(403).json({ error: 'forbidden' })
+        }
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/middleware/auth.ts のセキュリティ監査をしてください。
+  認証・認可の問題点を列挙し、深刻度と修正案を示してください。
+
+judge:
+  - type: llm_judge
+    description: JWT を verify せず decode しているだけの問題を検出している
+    check: レビュー結果にjwt.decodeのみでverifyしていない問題または署名検証の欠如に関する指摘があるか
+
+  - type: llm_judge
+    description: 開発環境バイパスが本番コードに含まれている問題を検出している
+    check: レビュー結果にNODE_ENV developmentバイパスまたは認証スキップの危険性に関する指摘があるか
+
+  - type: llm_judge
+    description: req.user が null の場合のクラッシュリスクを検出している
+    check: レビュー結果にreq.userがnullまたはundefinedの場合のエラーまたはnullチェック欠如に関する指摘があるか
+
+  - type: llm_judge
+    description: 各問題に修正案を示している
+    check: レビュー結果にjwt.verify・nullチェック・バイパス削除などの修正案があるか

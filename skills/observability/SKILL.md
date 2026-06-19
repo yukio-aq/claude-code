@@ -1,6 +1,16 @@
 ---
 name: observability
 description: オブザーバビリティ（OpenTelemetry・LGTM スタック・SLO設計・GenAIトレーシング）のベストプラクティス。observability-engineer / backend-implementer / backend-reviewer が参照する。
+when_to_use:
+  - ログ・メトリクス・トレースを実装・整備するとき
+  - SLO / SLI を定義・計測するとき
+  - OpenTelemetry・Grafana・Prometheusを導入するとき
+  - LLMエージェントのトレーシングを設計するとき
+not_for:
+  - パフォーマンスの計測基準・最適化（performanceを使う）
+  - エラーハンドリング設計（error-handlingを使う）
+  - 負荷テスト（performance-testingを使う）
+last_updated: 2026-03-31
 ---
 
 # オブザーバビリティ ベストプラクティス

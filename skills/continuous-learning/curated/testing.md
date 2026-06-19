@@ -1,3 +1,9 @@
+---
+last_updated: 2026-05-09
+confidence: high
+review_after: 2026-11-09
+---
+
 # テスト — パターン & アンチパターン
 
 Vitest を中心としたユニット・統合テストの設計パターン。
@@ -132,6 +138,175 @@ expect(mockFn).toHaveBeenCalledTimes(4) // 何回目のリトライで何秒待�
 
 ---
 
+### 外部 HTTP サーバーの統合テストは `http.createServer(port: 0)` でモックサーバーを立てる
+
+**概要:** `vi.mock` で HTTP クライアントをモックせず、OS が割り当てるランダムポート（port 0）に実際の HTTP サーバーを立てて統合テストする。シリアライズ/デシリアライズを含む実際のリクエストパスを通せる。
+
+**適用条件:** 外部 HTTP エンドポイントを呼び出すクライアント（auth-service・payment-gateway 等）の統合テスト。
+
+**良い例:**
+```typescript
+import { createServer, type Server } from 'http'
+
+let server: Server
+let baseUrl: string
+
+beforeAll(async () => {
+  server = createServer((req, res) => {
+    res.setHeader('Content-Type', 'application/json')
+    if (req.url === '/tokens/exchange' && req.method === 'POST') {
+      res.writeHead(200)
+      res.end(JSON.stringify({ access_token: 'mock-token' }))
+    } else {
+      res.writeHead(404)
+      res.end(JSON.stringify({ error: 'not_found' }))
+    }
+  })
+
+  await new Promise<void>((resolve) => {
+    server.listen(0, () => { // port 0 = OS が空きポートを自動割り当て
+      const addr = server.address()
+      if (addr && typeof addr === 'object') {
+        baseUrl = `http://localhost:${addr.port}`
+      }
+      resolve()
+    })
+  })
+})
+
+afterAll(() => { server.close() })
+
+it('should exchange token', async () => {
+  const client = new AuthServiceClient(baseUrl)
+  const token = await client.exchangeToken('user-token')
+  expect(token).toBe('mock-token')
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: fetch をモックすると実際のシリアライズ/ヘッダー処理を通らない
+vi.mock('node-fetch', () => ({
+  default: vi.fn().mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve({ access_token: 'mock-token' }),
+  }),
+}))
+```
+
+**適用すべきでないケース:** ユニットテストでビジネスロジックだけ検証したい場合はモックで十分。モックサーバーのルーティングは最低限に保ち、本物の API サーバーを再実装しない。
+
+---
+
+### `vi.hoisted()` で `vi.mock` ファクトリに変数を渡す
+
+**概要:** `vi.mock()` ファクトリ内からファクトリ外の変数を参照するとホイスティングの順序で `undefined` になる。`vi.hoisted()` で事前に生成したオブジェクトをファクトリ内で参照することで解決する。
+
+**適用条件:** Vitest で `vi.mock()` ファクトリ内からモック関数（`vi.fn()`）を外部で制御したいとき。
+
+**良い例:**
+```typescript
+// 1. vi.hoisted で事前生成
+const { mockSend } = vi.hoisted(() => ({
+  mockSend: vi.fn(),
+}))
+
+// 2. vi.mock ファクトリ内で参照（hoist 済みなので undefined にならない）
+vi.mock('@aws-sdk/client-ses', () => ({
+  SESClient: vi.fn().mockImplementation(() => ({ send: mockSend })),
+}))
+
+// 3. テスト内で制御
+mockSend.mockResolvedValue({ MessageId: 'test-id' })
+```
+
+**アンチパターン:**
+```typescript
+// NG: ファクトリ外の変数をファクトリ内で参照 → hoist 順序で undefined になる
+const mockSend = vi.fn()
+vi.mock('@aws-sdk/client-ses', () => ({
+  SESClient: vi.fn().mockImplementation(() => ({ send: mockSend })), // undefined
+}))
+```
+
+**適用すべきでないケース:** モック関数を外部から制御する必要がなく、ファクトリ内でインライン定義できる場合は `vi.hoisted()` は不要。
+
+---
+
+### モジュールレベル定数は純粋関数として切り出してユニットテストする
+
+**概要:** `const X = Number(process.env.FOO)` のようにモジュールロード時に評価される定数は、env を変えても再 import しないと変わらないためテストしにくい。パース関数として切り出してエクスポートし、そちらをユニットテストする。
+
+**適用条件:** 環境変数から計算される定数をテストしたいとき。
+
+**良い例:**
+```typescript
+// OK: 純粋なパース関数として切り出してエクスポート
+export const parseTimeoutMs = (value: string | undefined): number => {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 5000
+}
+
+export const TIMEOUT_MS = parseTimeoutMs(process.env.TIMEOUT_MS)
+
+// テスト
+import { parseTimeoutMs } from './config'
+it('should use default when env is missing', () => {
+  expect(parseTimeoutMs(undefined)).toBe(5000)
+})
+it('should parse valid number', () => {
+  expect(parseTimeoutMs('3000')).toBe(3000)
+})
+```
+
+**アンチパターン:**
+```typescript
+// NG: env を操作して再 import しても、モジュールは評価済みなので変わらない
+process.env.TIMEOUT_MS = '3000'
+const { TIMEOUT_MS } = await import('./config')
+expect(TIMEOUT_MS).toBe(3000) // 失敗する
+```
+
+**適用すべきでないケース:** 定数のテストが不要な場合はモジュールレベルで直接定義してよい。
+
+---
+
+### API エンドポイントのテストにバリデーション異常系（422）を含める
+
+**概要:** 新しいエンドポイントのテストには正常系だけでなく、必須フィールド欠落・不正値による 422 Unprocessable Entity ケースを必ず追加する。バリデーション制約の動作を検証しないとリグレッションに気づけない。
+
+**適用条件:** Pydantic・Zod・class-validator 等でリクエストバリデーションを行う API エンドポイントのテストを書くとき。
+
+**良い例:**
+```python
+# 正常系
+def test_create_record_success(client):
+    res = client.post("/records", json={"work_date": "2026-06-16", "status": "active"})
+    assert res.status_code == 200
+
+# バリデーション異常系: フィールド不正値
+def test_create_record_invalid_status(client):
+    res = client.post("/records", json={"work_date": "2026-06-16", "status": "INVALID"})
+    assert res.status_code == 422
+
+# バリデーション異常系: 必須フィールド欠落
+def test_create_record_missing_required(client):
+    res = client.post("/records", json={"status": "active"})  # work_date なし
+    assert res.status_code == 422
+```
+
+**アンチパターン:**
+```python
+# NG: 正常系のみ → バリデーション制約を削除しても気づかない
+def test_create_record(client):
+    res = client.post("/records", json={"work_date": "2026-06-16", "status": "active"})
+    assert res.status_code == 200
+```
+
+**適用すべきでないケース:** バリデーションロジックが存在しないエンドポイント（ID を受け取って DB 削除するだけ等）。
+
+---
+
 ## アンチパターン
 
 ### ESM プロジェクトの `vi.mock` ファクトリ内で `require()` を使う
@@ -189,5 +364,51 @@ await rejection
 ```
 
 **根拠:** Promise の reject ハンドラは reject が発生する前にアタッチしておく必要がある。`runAllTimersAsync()` がタイマーを即時消化する性質上、呼び出し前にハンドラを設定しないと unhandled rejection として扱われる。
+
+---
+
+### モジュールレベルの mutable dict をテスト間で共有する
+
+**問題:** モジュールレベルで定義した `dict` をテストデータとして共有すると、あるテストが dict を直接変更した場合に後続テスト全体の入力データが汚染される。
+
+**発生状況:** `TEST_PAYLOAD = {...}` のようなモジュールレベル定数をテスト間で共有するとき。
+
+**悪い例:**
+```python
+# NG: モジュールレベルで共有 → テストが直接変更すると後続テストに影響
+TEST_PAYLOAD = {"status": "pending", "amount": 100}
+
+def test_approve():
+    TEST_PAYLOAD["status"] = "approved"  # モジュールレベルの dict を直接変更
+    res = client.post("/approve", json=TEST_PAYLOAD)
+    assert res.status_code == 200
+
+def test_reject():
+    # TEST_PAYLOAD["status"] が "approved" に汚染されている
+    res = client.post("/reject", json=TEST_PAYLOAD)  # 意図しない入力
+    assert res.status_code == 200
+```
+
+**良い例:**
+```python
+# OK: テスト内でローカル定義する
+def test_approve():
+    payload = {"status": "pending", "amount": 100}
+    payload["status"] = "approved"
+    res = client.post("/approve", json=payload)
+    assert res.status_code == 200
+
+# OK: pytest.fixture で毎回新しいインスタンスを生成する
+@pytest.fixture
+def base_payload():
+    return {"status": "pending", "amount": 100}
+
+def test_reject(base_payload):
+    base_payload["status"] = "rejected"
+    res = client.post("/reject", json=base_payload)
+    assert res.status_code == 200
+```
+
+**根拠:** Python の dict はミュータブルなため、テスト内で変更するとモジュールレベルの参照先が書き換わる。各テストは独立して実行できる必要がある。fixture かテスト関数ローカルで毎回新しい dict を生成する。
 
 ---

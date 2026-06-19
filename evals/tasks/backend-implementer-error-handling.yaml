@@ -1,0 +1,60 @@
+name: backend-implementer-error-handling
+agent: backend-implementer
+description: エラーハンドリング（finally・ロールバック・型安全なエラー）を正しく実装できるか
+
+setup:
+  - path: "{tmpdir}/src/services/order.ts"
+    content: |
+      // TODO: implement
+  - path: "{tmpdir}/src/db.ts"
+    content: |
+      export const db = {
+        beginTransaction: async () => {},
+        commit: async () => {},
+        rollback: async () => {},
+        execute: async (sql: string, params?: unknown[]) => ({ rowCount: 0 }),
+      }
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module" }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/services/order.ts に注文作成サービスを実装してください:
+  - createOrder(userId: string, items: OrderItem[]) 関数を作成する
+  - 処理: トランザクション開始 → 在庫確認 → 注文レコード作成 → 在庫を減らす → コミット
+  - エラー時は必ずロールバックすること
+  - ローディング/処理中フラグがある場合は finally でリセットすること
+  - エラーは握り潰さず呼び出し元に伝播させること
+  - any 型を使わないこと
+
+judge:
+  - type: file_exists
+    description: src/services/order.ts が実装されている
+    path: "{tmpdir}/src/services/order.ts"
+
+  - type: grep
+    description: try/finally または try/catch/finally を使っている
+    pattern: "finally"
+    file: "{tmpdir}/src/services/order.ts"
+
+  - type: grep
+    description: rollback を呼んでいる
+    pattern: "rollback"
+    file: "{tmpdir}/src/services/order.ts"
+
+  - type: grep
+    description: エラーを再スロー（throw）している
+    pattern: "throw"
+    file: "{tmpdir}/src/services/order.ts"
+
+  - type: not_grep
+    description: catch でエラーを握り潰していない（catch{} または catch(e){}）
+    pattern: "catch\s*\([^)]*\)\s*\{\s*\}"
+    file: "{tmpdir}/src/services/order.ts"
+
+  - type: not_grep
+    description: any 型を使っていない
+    pattern: ":\s*any\b"
+    file: "{tmpdir}/src/services/order.ts"

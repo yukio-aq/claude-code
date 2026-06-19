@@ -1,6 +1,15 @@
 ---
 name: performance-testing
 description: パフォーマンステスト（k6 負荷テスト・Lighthouse CI・Core Web Vitals・LLMパフォーマンス）のベストプラクティス。qa-engineer / test-implementer / observability-engineer が参照する。
+when_to_use:
+  - 負荷テスト・ストレステストを設計・実装するとき
+  - Lighthouse CIをCI/CDに組み込むとき
+  - LLMのレイテンシ・スループットを計測するとき
+not_for:
+  - ユニットテスト・統合テスト（testing-patternsを使う）
+  - 実装コードのパフォーマンス最適化（performanceを使う）
+  - E2Eテスト（testing-patterns/playwright-e2e.mdを使う）
+last_updated: 2026-03-31
 ---
 
 # パフォーマンステスト ベストプラクティス

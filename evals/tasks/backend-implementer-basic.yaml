@@ -1,0 +1,46 @@
+name: backend-implementer-basic
+agent: backend-implementer
+description: REST エンドポイントを型安全・バリデーション付きで実装できるか
+
+setup:
+  - path: "{tmpdir}/src/routes/users.ts"
+    content: |
+      // TODO: implement
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module" }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/routes/users.ts に以下を実装してください:
+  - GET /users  → User 型の配列を返す
+  - POST /users → name（必須）と email（必須・メール形式）を受け取りユーザーを作成する
+  - バリデーションエラー時は 400 を返す
+  - TypeScript で実装し、any 型は使わないこと
+  - 入力バリデーションは Zod を使うこと
+
+judge:
+  - type: file_exists
+    description: src/routes/users.ts が存在する
+    path: "{tmpdir}/src/routes/users.ts"
+
+  - type: grep
+    description: Zod スキーマを使っている
+    pattern: "z\\.object"
+    file: "{tmpdir}/src/routes/users.ts"
+
+  - type: grep
+    description: User 型が定義されている
+    pattern: "type User|interface User"
+    file: "{tmpdir}/src/routes/users.ts"
+
+  - type: not_grep
+    description: any 型を使っていない
+    pattern: ":\\s*any\\b"
+    file: "{tmpdir}/src/routes/users.ts"
+
+  - type: grep
+    description: 400 エラーハンドリングがある
+    pattern: "400|BadRequest|status.*400"
+    file: "{tmpdir}/src/routes/users.ts"

@@ -1,0 +1,54 @@
+name: backend-reviewer-n-plus-one
+agent: backend-reviewer
+description: N+1クエリ問題と関連する非効率なDB操作を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/routes/posts.ts"
+    content: |
+      import { db } from '../db'
+
+      // N+1 問題を含む実装
+      export async function getPosts() {
+        const posts = await db.query('SELECT * FROM posts')
+
+        // 各投稿のauthorを個別取得（N+1）
+        const postsWithAuthor = await Promise.all(
+          posts.rows.map(async (post: any) => {
+            const author = await db.query(
+              'SELECT * FROM users WHERE id = $1',
+              [post.author_id]
+            )
+            return { ...post, author: author.rows[0] }
+          })
+        )
+
+        return postsWithAuthor
+      }
+
+      export async function getPostById(id: string) {
+        // 存在確認と取得を別々に実行（非効率）
+        const exists = await db.query('SELECT id FROM posts WHERE id = $1', [id])
+        if (exists.rows.length === 0) return null
+
+        const post = await db.query('SELECT * FROM posts WHERE id = $1', [id])
+        return post.rows[0]
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/routes/posts.ts をレビューしてください。
+  パフォーマンス・DB操作の問題点を指摘し、修正案を示してください。
+
+judge:
+  - type: llm_judge
+    description: N+1クエリ問題（ループ内の個別クエリ）を指摘している
+    check: レビュー結果に「N+1」またはループ内の個別クエリに関する指摘があるか
+
+  - type: llm_judge
+    description: JOIN または IN句での一括取得を修正案として提示している
+    check: レビュー結果に「JOIN」または「IN」または「一括」取得に関する修正案があるか
+
+  - type: llm_judge
+    description: 存在確認と取得の二重クエリ問題を指摘している
+    check: レビュー結果に二重クエリ・二回クエリ・存在確認の非効率性に関する指摘があるか

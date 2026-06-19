@@ -1,6 +1,15 @@
 ---
 name: docs-lookup
 description: Tavilyを使ったリアルタイム情報収集のガイドライン。architect / ai-agent-designer / ai-agent-implementer / qa-engineer が参照する。
+when_to_use:
+  - ライブラリ・フレームワークの最新APIや仕様を確認したいとき
+  - 未知の技術・サービスの概要を調査するとき
+  - 既存知識が古い可能性があり最新情報が必要なとき
+not_for:
+  - プロジェクト内の既存コード調査（Grep/Readで十分）
+  - コードレビュー・実装タスク
+  - 社内ドキュメント・ローカルファイルの参照
+last_updated: 2026-03-31
 ---
 
 # ドキュメント検索パターン（Tavily）

@@ -1,3 +1,9 @@
+---
+last_updated: 2026-05-09
+confidence: high
+review_after: 2026-11-09
+---
+
 # UI / デザイン — パターン & アンチパターン
 
 UI コンポーネント・Tailwind・レイアウト・アクセシビリティに関するパターン。

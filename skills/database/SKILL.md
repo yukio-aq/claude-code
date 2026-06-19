@@ -1,6 +1,15 @@
 ---
 name: database
 description: DB設計・マイグレーション・クエリ最適化のベストプラクティス。backend-implementer / backend-reviewer / database-reviewer が参照する。
+when_to_use:
+  - DBスキーマを設計・変更するとき
+  - マイグレーションファイルを作成するとき
+  - クエリのパフォーマンス問題・N+1を解決するとき
+not_for:
+  - APIエンドポイント設計（api-designを使う）
+  - キャッシュ層・インメモリDB（Redis等）の設計
+  - フロントエンドの状態管理
+last_updated: 2026-03-31
 ---
 
 # データベーススキル

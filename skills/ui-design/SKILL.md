@@ -1,6 +1,15 @@
 ---
 name: ui-design
 description: リッチなUI実装のためのデザイン品質ルール。"AIらしい"テンプレデザインを避け、プロダクショングレードのUIを生成するための原則・アンチパターン・チェックリスト。frontend-implementer / ui-designer / frontend-reviewer が参照する。
+when_to_use:
+  - UIコンポーネントを設計・実装するとき
+  - デザインレビュー・UIの方向性を決めるとき
+  - "それっぽいAI生成デザイン"を避けたいとき
+not_for:
+  - バックエンドのみのタスク
+  - ユニットテスト（testing-patternsを使う）
+  - データ可視化・チャート設計（observabilityを参照）
+last_updated: 2026-04-16
 ---
 
 # UI デザイン品質スタンダード

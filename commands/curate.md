@@ -51,10 +51,16 @@ ls ~/desktop/claude-code/skills/continuous-learning/instincts/*.md 2>/dev/null |
 |---|---|
 | React コンポーネント・状態管理・SPA ナビ | `curated/react.md` |
 | TypeScript 型・非同期・ブラウザ API・fetch | `curated/typescript.md` |
-| Vitest・テスト設計・mock・タイマー | `curated/testing.md` |
-| API 設計・DB・バックエンド・Python | `curated/api-backend.md` |
+| Vitest・テスト設計・mock・タイマー（言語問わず） | `curated/testing.md` |
+| API 設計・DB・バックエンド（Python / Go / Node 問わず） | `curated/api-backend.md` |
 | Tailwind・レイアウト・UI コンポーネント・a11y | `curated/ui-design.md` |
-| LLM・プロンプト・セキュリティ | `curated/ai-security.md` |
+| LLM プロンプトインジェクション・認証・セキュリティ脆弱性 | `curated/ai-security.md` |
+| AIエージェント設計・ツール定義・ワークフロー・オーケストレーション（言語問わず） | `curated/agent-patterns.md` |
+
+**非 React/TS スタックの場合の補足:**
+- Swift / Kotlin / Python の型パターン → `curated/typescript.md` の型設計セクションに「{言語}版」として追記する
+- 言語固有のテストパターン → `curated/testing.md` にフレームワーク名のサブセクションで追記する
+- バックエンド言語非依存の API パターン → `curated/api-backend.md` の「API 設計（共通）」セクションに追記する
 
 ### 昇格前の品質チェック（昇格対象に対して必ず確認）
 
@@ -122,7 +128,13 @@ ls ~/desktop/claude-code/skills/continuous-learning/instincts/*.md 2>/dev/null |
 rm {処理したファイルのパス ...}
 ```
 
-**Step 7**: 昇格結果をレポートする。
+**Step 7**: curated/ ファイルの陳腐化チェックを行う。
+
+各 curated ファイルの frontmatter から `review_after` を読み取り、今日の日付（`date +%Y-%m-%d` で取得）と比較する。
+
+期限切れのファイルがある場合は「要再評価」としてレポートに含める。期限内であればスキップ。
+
+**Step 8**: 昇格結果をレポートする。
 
 ```
 ## /curate 完了
@@ -139,5 +151,10 @@ rm {処理したファイルのパス ...}
 ### クリーンアップ
 🗑️ 削除した instincts ファイル: {件数}件
   - {ファイル名}
+
+### 陳腐化チェック
+🔄 要再評価（review_after 経過）: {件数}件
+  - curated/{ファイル名}（review_after: {日付}）
   ...
+✅ 期限内: {件数}件
 ```

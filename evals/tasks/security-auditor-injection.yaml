@@ -1,0 +1,51 @@
+name: security-auditor-injection
+agent: security-auditor
+description: SQLインジェクション・XSS・パストラバーサルを検出できるか
+
+setup:
+  - path: "{tmpdir}/src/routes/search.ts"
+    content: |
+      import { db } from '../db'
+      import { readFileSync } from 'fs'
+
+      export async function searchUsers(req: any) {
+        const { keyword, file } = req.query
+
+        // SQLインジェクション: 文字列結合
+        const users = await db.query(
+          `SELECT * FROM users WHERE name LIKE '%${keyword}%'`
+        )
+
+        // パストラバーサル: ユーザー入力をパスに使用
+        const content = readFileSync(`./templates/${file}`, 'utf-8')
+
+        // XSS: サニタイズなしでHTMLに出力
+        return {
+          users: users.rows,
+          template: `<div>${content}</div>`,
+          message: `検索結果: ${keyword}`,  // エスケープなし
+        }
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/routes/search.ts のセキュリティ監査をしてください。
+  脆弱性を列挙し、各脆弱性の深刻度・根拠・修正案を示してください。
+
+judge:
+  - type: llm_judge
+    description: SQLインジェクション脆弱性を検出している
+    check: レビュー結果にSQLインジェクションまたは文字列結合クエリの危険性に関する指摘があるか
+
+  - type: llm_judge
+    description: パストラバーサル脆弱性を検出している
+    check: レビュー結果にパストラバーサルまたはディレクトリトラバーサルまたはファイルパスのサニタイズに関する指摘があるか
+
+  - type: llm_judge
+    description: XSSリスクを検出している
+    check: レビュー結果にXSSまたはクロスサイトスクリプティングまたはエスケープに関する指摘があるか
+
+  - type: llm_judge
+    description: 各脆弱性に修正案を示している
+    check: レビュー結果にパラメータ化クエリ・サニタイズ・バリデーションなどの具体的な修正案があるか

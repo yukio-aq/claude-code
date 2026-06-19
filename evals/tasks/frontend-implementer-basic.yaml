@@ -1,0 +1,57 @@
+name: frontend-implementer-basic
+agent: frontend-implementer
+description: 型安全なReactコンポーネントをany型なしで実装できるか
+
+setup:
+  - path: "{tmpdir}/src/components/UserList.tsx"
+    content: |
+      // TODO: implement
+  - path: "{tmpdir}/src/types.ts"
+    content: |
+      export type User = {
+        id: string
+        name: string
+        email: string
+        role: 'admin' | 'member'
+      }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/components/UserList.tsx を実装してください:
+  - User 型（src/types.ts から import）のリストを props で受け取り表示する
+  - ローディング中（isLoading: boolean）は "読み込み中..." を表示する
+  - データが空のときは "ユーザーがいません" を表示する
+  - role が 'admin' のユーザーには [管理者] バッジを表示する
+  - any 型を使わないこと
+  - Props の型定義を明示すること
+
+judge:
+  - type: file_exists
+    description: UserList.tsx が実装されている
+    path: "{tmpdir}/src/components/UserList.tsx"
+
+  - type: grep
+    description: User 型を import している
+    pattern: "import.*User.*from"
+    file: "{tmpdir}/src/components/UserList.tsx"
+
+  - type: grep
+    description: Props の型定義がある
+    pattern: "type.*Props|interface.*Props"
+    file: "{tmpdir}/src/components/UserList.tsx"
+
+  - type: not_grep
+    description: any 型を使っていない
+    pattern: ":\s*any\b"
+    file: "{tmpdir}/src/components/UserList.tsx"
+
+  - type: grep
+    description: ローディング状態を処理している
+    pattern: "isLoading|loading"
+    file: "{tmpdir}/src/components/UserList.tsx"
+
+  - type: grep
+    description: 空状態を処理している
+    pattern: "length.*===.*0|\.length.*==.*0|users\.length"
+    file: "{tmpdir}/src/components/UserList.tsx"

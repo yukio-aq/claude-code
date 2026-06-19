@@ -1,0 +1,44 @@
+name: frontend-implementer-hooks
+agent: frontend-implementer
+description: useEffect の依存配列・クリーンアップ・カスタムフックを正しく実装できるか
+
+setup:
+  - path: "{tmpdir}/src/hooks/useUser.ts"
+    content: |
+      // TODO: implement
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/hooks/useUser.ts に以下のカスタムフックを実装してください:
+  - useUser(userId: string) フック
+  - API: fetch(`/api/users/${userId}`) でユーザーを取得する
+  - 戻り値: { user: User | null, isLoading: boolean, error: string | null }
+  - userId が変わったら再フェッチする
+  - コンポーネントのアンマウント時にフェッチをキャンセルする（AbortController を使う）
+  - any 型を使わないこと
+
+judge:
+  - type: file_exists
+    description: useUser.ts が実装されている
+    path: "{tmpdir}/src/hooks/useUser.ts"
+
+  - type: grep
+    description: useEffect の依存配列に userId が含まれている
+    pattern: "\[.*userId.*\]"
+    file: "{tmpdir}/src/hooks/useUser.ts"
+
+  - type: grep
+    description: AbortController を使っている
+    pattern: "AbortController"
+    file: "{tmpdir}/src/hooks/useUser.ts"
+
+  - type: grep
+    description: クリーンアップ関数（return）でアボートしている
+    pattern: "return\s*\(\s*\)\s*=>"
+    file: "{tmpdir}/src/hooks/useUser.ts"
+
+  - type: not_grep
+    description: any 型を使っていない
+    pattern: ":\s*any\b"
+    file: "{tmpdir}/src/hooks/useUser.ts"

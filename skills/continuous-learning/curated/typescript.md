@@ -1,3 +1,9 @@
+---
+last_updated: 2026-05-09
+confidence: high
+review_after: 2026-11-09
+---
+
 # TypeScript / JavaScript — パターン & アンチパターン
 
 TypeScript・JavaScript の型設計・非同期処理・ブラウザ API に関する汎用パターン。
@@ -259,5 +265,119 @@ try {
 ```
 
 **根拠:** フォールバックはエラーを隠蔽する。モックに切り替わった瞬間から「動いているように見えるが実際は壊れている」状態になり、根本原因の発見が著しく遅れる。開発中だけモックを使いたい場合は環境変数フラグで明示的に切り替える。
+
+---
+
+### TypeScript 型アサーションは外部 API レスポンスの実行時 null ガードにならない
+
+**問題:** `const data: T = await res.json()` の型注釈は TypeScript のコンパイル時のみ有効で、実行時に外部 API が `null` / `undefined` を返した場合を防げない。
+
+**発生状況:** fetch の結果に型注釈か `as` アサーションを付けてそのまま使うとき。
+
+**悪い例:**
+```ts
+// NG: TypeScript は通るが、data.services が null のとき TypeError
+const data: { services: ConnectionInfo[] } = await res.json();
+return data.services.filter((s) => s.name.startsWith("salesforce"));
+```
+
+**良い例:**
+```ts
+// OK: ?? [] でフォールバックして実行時も安全にする
+const data: { services?: ConnectionInfo[] } = await res.json();
+return (data.services ?? []).filter((s) => s.name.startsWith("salesforce"));
+```
+
+**根拠:** 外部 API のレスポンスは型が保証されない。`res.json()` の結果に型注釈や `as` を付けても、実行時に `null` / `undefined` が来れば TypeError になる。コレクション型フィールドは `?? []`、単一値は `?? defaultValue` でフォールバックする。
+
+---
+
+### 外部 API の `string | undefined` 型をガードなしでキーに使う
+
+**問題:** `event.id` などの外部 API 型が `string | undefined` の場合、そのままキーや識別子に使うと `"calendar-undefined"` のような文字列で衝突する。
+
+**発生状況:** googleapis や外部 SDK のイベント/レコードの ID をマップのキーや複合キーに使うとき。
+
+**悪い例:**
+```ts
+// NG: event.id が undefined のとき "calendar-undefined" になる
+const key = `calendar-${event.id}`
+map.set(key, event)
+```
+
+**良い例:**
+```ts
+// OK: undefined を事前にガードしてスキップする
+if (!event.id) continue;
+const key = `calendar-${event.id}`
+map.set(key, event)
+```
+
+**根拠:** TypeScript のテンプレートリテラルは `undefined` を `"undefined"` 文字列として暗黙変換する。型エラーにならないままキーが衝突するため、キーへの利用前に明示的なガードが必要。
+
+---
+
+### URL パラメータの数値変換後に NaN 検証を省く
+
+**問題:** `searchParams.get()` の戻り値は文字列なので `Number()` で変換すると、未指定・非数値文字列のとき `NaN` になる。NaN のまま計算に使うと全ての算術が NaN に伝播する。
+
+**発生状況:** URL クエリパラメータ（`?page=2` 等）を数値として扱うとき。
+
+**悪い例:**
+```typescript
+// NG: "abc" や null のとき NaN になり、計算が壊れる
+const page = Number(searchParams.get('page'))
+const offset = page * 10  // NaN * 10 = NaN
+```
+
+**良い例:**
+```typescript
+// OK: Number.isNaN() で検証してデフォルト値にフォールバック
+const rawPage = searchParams.get('page')
+const page = rawPage !== null && !Number.isNaN(Number(rawPage))
+  ? Number(rawPage)
+  : 1
+const offset = page * 10
+```
+
+**根拠:** URL パラメータは任意の文字列が来る。`Number()` は非数値に対して `NaN` を返し、NaN を含む算術演算は全て NaN に伝播する。`Number.isNaN()` でバリデーションしてからデフォルト値にフォールバックする。
+
+---
+
+### API リクエストボディのフィールドを手書き列挙して型定義と二重管理する
+
+**問題:** リクエストボディを `{ fieldA: payload.fieldA, fieldB: payload.fieldB }` のように手書きで列挙すると、フィールド追加時に型定義とボディの両方を修正しないといけない。漏れが発生しやすい。
+
+**発生状況:** TypeScript の API 関数でペイロードオブジェクトをリクエストボディに変換するとき。
+
+**悪い例:**
+```typescript
+// NG: 型定義とボディの二重管理 → フィールド追加時に漏れが発生する
+async function updateRecord(payload: UpdateRecordPayload) {
+  return apiFetch('/records', {
+    method: 'POST',
+    body: JSON.stringify({
+      route: payload.route,
+      comment: payload.comment,
+      attachmentFileIds: payload.attachmentFileIds,
+      // 新フィールドを追加し忘れる可能性
+    }),
+  })
+}
+```
+
+**良い例:**
+```typescript
+// OK: 送らないフィールドだけ除外して残りを spread → フィールド追加時に自動で含まれる
+async function updateRecord(payload: UpdateRecordPayload) {
+  const { _internalField, ...bodyFields } = payload
+  return apiFetch('/records', {
+    method: 'POST',
+    body: JSON.stringify(bodyFields),
+  })
+}
+```
+
+**根拠:** 手書き列挙はフィールド追加のたびに型定義とボディの2箇所を修正する必要がある。destructuring + rest spread を使うと除外フィールドのみを明示的に指定でき、新フィールドは自動的に含まれる。
 
 ---
