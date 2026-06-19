@@ -2,8 +2,9 @@
 
 Claude Code をテックリードとして使い倒すための設定・エージェント・ワークフロー集。
 
-34個の専門エージェント・10のスラッシュコマンド・自動化フックで、
+34個の専門エージェント・11のスラッシュコマンド・自動化フックで、
 設計からコミットまでの開発フローを自動化する。
+エージェントの品質を定点観測する eval システムと、継続学習による知見蓄積サイクルを内蔵。
 
 ---
 
@@ -131,7 +132,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── ops/
 │       └── observability-engineer.md # OpenTelemetry・SLO設計
 │
-├── commands/                    # スラッシュコマンド（10個）
+├── commands/                    # スラッシュコマンド（11個）
 │   ├── requirements.md          # /requirements
 │   ├── plan.md                  # /plan
 │   ├── adr.md                   # /adr
@@ -141,7 +142,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── ship.md                  # /ship
 │   ├── save.md                  # /save
 │   ├── learn.md                 # /learn
-│   └── curate.md                # /curate
+│   ├── curate.md                # /curate
+│   └── eval.md                  # /eval
 │
 ├── hooks/                       # 自動化スクリプト（3個）
 │   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
@@ -149,22 +151,35 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
 │
 ├── rules/                       # 常時適用ルール（7個）
-│   ├── api-design.md            # API設計・レスポンス形式
-│   ├── testing.md               # テスト方針・カバレッジ基準
-│   ├── security.md              # セキュリティ禁止事項
-│   ├── git.md                   # ブランチ戦略・コミット規約
-│   ├── performance.md           # パフォーマンス計測基準
-│   ├── dependencies.md          # ライブラリ管理・設計遵守
-│   └── maintenance.md           # スキル情報の鮮度管理
+│   ├── principles.md                 # 実装・レビューの行動原則（悪例/良例）
+│   ├── accountability.md             # 判断根拠の記録ルール
+│   ├── testing.md                    # テスト方針・カバレッジ基準
+│   ├── security.md                   # セキュリティ禁止事項
+│   ├── git.md                        # ブランチ戦略・コミット規約
+│   ├── dependencies.md               # ライブラリ管理・設計遵守
+│   └── capability-surface-selection.md  # rules/skills/hooks/MCP の使い分け基準
 │
 ├── skills/                      # ドメイン知識・ベストプラクティス
 │   ├── ai-agent-patterns/       # Mastra/LangChain/LlamaIndex設計パターン
+│   ├── agent-eval/              # エージェント品質評価フレームワーク（YAML タスク形式）
+│   ├── orchestration/           # マルチエージェント協調パターン（parallel / adversarial 等）
 │   ├── architecture/            # ADRテンプレート・システム設計・技術選定
 │   ├── coding-standards/        # 領域別コーディング規約（frontend/backend/ios/android/3D）
 │   ├── docs-lookup/             # Tavily検索パターン
 │   └── continuous-learning/     # セッションからの学習蓄積
 │       ├── instincts/           # 自動抽出されたパターン（未精査）
-│       └── curated/             # 確認済みベストプラクティス
+│       └── curated/             # 確認済みベストプラクティス（定期鮮度チェック付き）
+│           ├── agent-patterns.md    # LLMエージェント設計パターン（クロススタック）
+│           ├── ai-security.md
+│           ├── api-backend.md
+│           ├── react.md
+│           ├── testing.md
+│           ├── typescript.md
+│           └── ui-design.md
+│
+├── evals/                       # エージェント品質評価（/eval コマンドで使用）
+│   ├── tasks/                   # タスク定義 YAML（git 管理）
+│   └── results/                 # 実行結果 JSON（gitignore・ローカルのみ）
 │
 └── mcp-configs/
     └── mcp-servers.json         # MCPサーバー設定リファレンス
@@ -186,6 +201,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 | `/save` | 現在のセッションを手動保存する |
 | `/learn` | 気づいたパターンをその場で instincts/ に記録する |
 | `/curate` | instincts/ を精査して curated/ に昇格させる |
+| `/eval [agent-name]` | エージェントの品質を定点観測（月1回の健診を推奨） |
 
 ---
 
@@ -286,6 +302,21 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 週1程度で `/curate` を実行すると、instincts/ の未精査パターンを精査して `curated/` に昇格できる。
 `curated/` のパターンはエージェントが実装・レビュー時に自動参照する。
 
+各 curated ファイルには `review_after` フィールドがあり、`/curate` 実行時に期限切れのファイルを検出して再精査を促す（情報の陳腐化を防ぐ）。
+
+### エージェント品質の定点観測（agent-eval）
+
+`/eval` コマンドで特定エージェントを実際に動かし、YAML タスク定義の採点基準（pass/fail）で品質を測定する。
+モデル更新後・エージェント定義変更後・動作に違和感を感じた時に月1程度で実行する。
+
+```bash
+/eval                        # タスク一覧を表示
+/eval backend-implementer    # backend-implementer を全タスクで採点
+/eval frontend-reviewer      # frontend-reviewer を全タスクで採点
+```
+
+タスク定義は `evals/tasks/*.yaml`（git管理）。採点結果は `evals/results/`（gitignore）に保存される。
+
 ---
 
 ## ルール
@@ -294,13 +325,13 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 | ファイル | 内容 |
 |---|---|
-| `api-design.md` | レスポンス統一エンベロープ・HTTPステータス・エラーコード命名 |
+| `principles.md` | 実装・レビューの行動原則（確認/シンプル/必要箇所のみ/推奨案/大変更確認/ゴール駆動） |
+| `accountability.md` | 判断根拠の記録ルール（ADR・PR description・レビュー指摘フォーマット） |
 | `testing.md` | カバレッジ基準（ビジネスロジック95% / API 90% / UI 80%） |
 | `security.md` | APIキーハードコード禁止・入力バリデーション・認証認可 |
 | `git.md` | ブランチ戦略・Conventional Commits・PRルール |
-| `performance.md` | LCP 2.5秒・INP 100ms・API p95 500ms・60fps |
 | `dependencies.md` | ライブラリ追加禁止・設計（ADR）の遵守 |
-| `maintenance.md` | スキル情報の鮮度管理・定期見直しルール |
+| `capability-surface-selection.md` | rules / skills / hooks / MCP の使い分け基準とルーティングフロー |
 
 ---
 

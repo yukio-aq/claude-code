@@ -13,8 +13,9 @@
 4. [専門エージェントの呼び出し方](#専門エージェントの呼び出し方)
 5. [セッション管理](#セッション管理)
 6. [パターン蓄積（continuous-learning）](#パターン蓄積continuous-learning)
-7. [カスタマイズ方法](#カスタマイズ方法)
-8. [よくある使い方のヒント](#よくある使い方のヒント)
+7. [エージェント品質の定点観測（agent-eval）](#エージェント品質の定点観測agent-eval)
+8. [カスタマイズ方法](#カスタマイズ方法)
+9. [よくある使い方のヒント](#よくある使い方のヒント)
 
 ---
 
@@ -55,6 +56,9 @@ Claude Code のチャット欄で `/` を入力すると一覧が出る。
 | `/doc` | ドキュメント・README を生成・更新 | オンボーディング資料や API リファレンスを作りたいとき |
 | `/ship` | フォーマット → 型チェック → テスト → レビュー → コミット → PR を一気に実行 | 実装が完成してコミットする前 |
 | `/save` | 現在のセッションを手動保存 | 重要な決定をした直後・作業を中断する前 |
+| `/learn <内容>` | 気づいたパターンをその場で instincts/ に記録 | ベストプラクティスに気づいた瞬間 |
+| `/curate` | instincts/ を精査して curated/ に昇格 | 週1程度・知見が溜まったタイミングで |
+| `/eval [agent-name]` | エージェントの品質を YAML タスクで採点 | モデル更新後・動作に違和感を感じたとき（月1推奨） |
 
 ---
 
@@ -225,6 +229,68 @@ curated/（確認済みベストプラクティス）
 
 `curated/` のパターンは次回からエージェントが自動的に参照するため、チームの知見が蓄積されていく。
 
+### curated/ の鮮度管理
+
+各 curated ファイルには `review_after` フロントマターが設定されており、`/curate` 実行時に期限切れを自動検出する。
+
+```yaml
+---
+last_updated: 2026-05-09
+confidence: high
+review_after: 2026-11-09
+---
+```
+
+期限を過ぎたファイルが検出されると、最新情報との照合・更新が促される。  
+ライブラリやフレームワークのベストプラクティスは半年〜1年で変わるため、この仕組みで陳腐化を防ぐ。
+
+---
+
+## エージェント品質の定点観測（agent-eval）
+
+### 何ができるか
+
+`/eval` コマンドで特定エージェントに合成タスクを与え、YAML 定義の採点基準（grep / llm_judge 等）でスコアを測定する。  
+エージェントが期待通りに動いているか、数値で把握できる。
+
+### 基本的な使い方
+
+```
+/eval                        # タスク一覧を表示（タスクがある場合）
+/eval backend-implementer    # backend-implementer の全タスクを実行して採点
+/eval frontend-reviewer      # frontend-reviewer の全タスクを実行して採点
+/eval security-auditor       # security-auditor の全タスクを実行して採点
+```
+
+### いつ実行するか
+
+| タイミング | 理由 |
+|---|---|
+| モデルアップデート後 | モデル変更で挙動が変わることがある |
+| エージェント定義を変更したとき | 修正が意図した改善になっているか確認 |
+| 「あのエージェント最近おかしい？」と感じたとき | 直感を数値で確認 |
+| 月1回の定期健診 | 品質の経時変化を記録 |
+
+### タスク定義ファイルの構成
+
+```yaml
+# evals/tasks/backend-implementer-basic.yaml
+name: backend-implementer-basic
+agent: backend-implementer
+description: REST エンドポイントを型安全・バリデーション付きで実装できるか
+
+setup:           # エージェントに渡す初期ファイル（/tmp/eval-{name}/ に展開）
+prompt:          # エージェントへの指示
+judge:           # 採点基準（grep / not_grep / file_exists / test / llm_judge）
+```
+
+現在のタスク一覧:
+- `backend-implementer-{basic,security,error-handling}` — API実装3種
+- `frontend-implementer-{basic,hooks,form}` — コンポーネント実装3種
+- `backend-reviewer-{n-plus-one,security,error-handling}` — レビュー観点3種
+- `frontend-reviewer-{basic,performance}` — レビュー観点2種
+- `security-auditor-{injection,auth}` — セキュリティ検出2種
+
 ---
 
 ## カスタマイズ方法
@@ -326,8 +392,10 @@ description: コマンドの説明
 
 | ファイル | 主なルール |
 |---|---|
-| `rules/api-design.md` | 統一エンベロープ・HTTPステータス・エラーコード命名規則 |
+| `rules/principles.md` | 実装・レビューの6つの行動原則（悪例/良例付き） |
+| `rules/accountability.md` | 判断根拠の記録方法・レビュー指摘フォーマット |
 | `rules/testing.md` | カバレッジ基準（ビジネスロジック 95% / API 90% / UI 80%）・テスト命名規則 |
 | `rules/security.md` | APIキーのハードコード禁止・入力バリデーション・認証認可チェック |
 | `rules/git.md` | ブランチ戦略・Conventional Commits・PRルール |
-| `rules/performance.md` | LCP 2.5秒以下・INP 100ms以下・API p95 500ms以下 |
+| `rules/dependencies.md` | ライブラリ追加禁止ルール・設計（ADR）遵守 |
+| `rules/capability-surface-selection.md` | rules / skills / hooks / MCP の使い分けフロー |
