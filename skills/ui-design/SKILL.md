@@ -343,5 +343,10 @@ shadcn/ui は出発点であり、**デフォルト値をそのまま使わな�
 | `references/stripe.md` | グラジエントメッシュ × 細ウェイト(300) × tnum 数値 | 金融・決済系・データリッチ参考 |
 | `references/raycast.md` | 純黒 × 白CTA × Inter+ss03 × シャドウなし | デベロッパーツール・CLI 系参考 |
 | `references/vercel.md` | Geist × 100px pill × polarity-flip × スタックシャドウ | デベロッパープラットフォーム・ミニマル参考 |
+| `references/shopify.md` | 2トラック（ダーク/ライト）× NHGD 330 thin × アロエグリーン | コマース・EC プラットフォーム参考 |
+| `references/apple.md` | 写真タイル交互積み × SF Pro × Action Blue 単色 | プレミアムプロダクト・ハードウェアブランド参考 |
+| `references/nike.md` | 純黒/白/グレー × Futura campaign-tile × pill everywhere | スポーツアパレル・フォトファーストコマース参考 |
+| `references/bmw.md` | ライトキャンバス × BMW ブルー × 700/300 コントラスト × 0px 矩形 | 自動車・コーポレートブランド参考 |
+| `references/ferrari.md` | ニアブラック × ロッソコルサ一点集中 × 0px sharp × シネマ写真 | プレミアムスポーツカー・ラグジュアリーブランド参考 |
 
 各ファイルには awesome-design-md (github.com/voltagent/awesome-design-md) のデータを元に作成した正確なトークン値を含む。

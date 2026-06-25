@@ -315,6 +315,70 @@ app.post('/upload', async (c) => {
 
 ---
 
+### CLI スクリプトの起動前に必要な環境変数を検証する
+
+**概要:** 外部サービスの初期化（LLM クライアント・ストレージ等）を呼び出す前に、必要な環境変数が設定されているかチェックして `sys.exit(1)` で明示終了する。
+
+**適用条件:** API キー・接続文字列など必須の環境変数を要求する CLI スクリプトや初期化処理。
+
+**良い例:**
+```python
+# OK: 起動時に必要な env を全チェックして早期終了
+import os, sys
+
+def check_env():
+    required = ["OPENAI_API_KEY", "DATABASE_URL", "S3_BUCKET"]
+    missing = [k for k in required if not os.environ.get(k)]
+    if missing:
+        print(f"Error: missing required env vars: {', '.join(missing)}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    check_env()  # 外部サービスの初期化より前に呼ぶ
+    setup_llamaindex()  # ここで初めてクライアントを作る
+    main()
+```
+
+**アンチパターン:**
+```python
+# NG: env チェックなし → 初期化中に KeyError / AuthenticationError が出る
+def main():
+    client = OpenAI()  # OPENAI_API_KEY が未設定でも起動する
+```
+
+**適用すべきでないケース:** 環境変数が任意（省略時にデフォルト動作する）場合は不要。
+
+---
+
+### 冪等実行フラグでの「存在前提」API は try/except でスキップする
+
+**概要:** `delete_collection()` など対象が存在しない場合に例外を送出する API を、`--rebuild` のような冪等実行フラグ付きで呼ぶ場合は、`try/except` で握り潰してスキップログを出す。
+
+**適用条件:** `--rebuild` / `--reset` など、存在有無に関わらず処理を完結させるべき冪等操作。
+
+**良い例:**
+```python
+# OK: 存在しなくてもスキップして処理を続行
+def rebuild_collection(client, name: str):
+    try:
+        client.delete_collection(name)
+    except Exception as e:
+        print(f"[skip] collection '{name}' not found or already deleted: {e}")
+    client.create_collection(name)  # 削除後に再作成
+```
+
+**アンチパターン:**
+```python
+# NG: 存在しない場合に例外が上がって --rebuild が失敗する
+def rebuild_collection(client, name: str):
+    client.delete_collection(name)   # ValueError / NotFoundError が上がる
+    client.create_collection(name)
+```
+
+**適用すべきでないケース:** 対象が存在すること自体が前提条件の処理では、例外をそのままスローして正しい状態を強制する。
+
+---
+
 ### クロスプラットフォームのブラウザ起動
 
 **概要:** `exec("open ...")` は macOS 専用。`process.platform` で OS ごとのコマンドを切り替えてクロスプラットフォームに対応する。
@@ -343,6 +407,85 @@ exec(`open ${url}`)
 ---
 
 ## アンチパターン
+
+### `yaml.safe_load()` の戻り値を None チェックせずに使う
+
+**問題:** 空ファイルや `---` だけの YAML を `yaml.safe_load()` に渡すと `None` が返る。直後に `.get()` を呼ぶと `AttributeError` になる。
+
+**発生状況:** YAML 設定ファイルを読み込む CLI ツールや初期化スクリプトで、ファイルが空の状態を想定していないとき。
+
+**悪い例:**
+```python
+# NG: 空 YAML → None → AttributeError
+import yaml
+
+with open("config.yaml") as f:
+    data = yaml.safe_load(f)
+
+api_key = data.get("api_key")  # data が None の場合 AttributeError
+```
+
+**良い例:**
+```python
+# OK: isinstance で dict かチェックしてからアクセス
+import yaml
+
+with open("config.yaml") as f:
+    data = yaml.safe_load(f)
+
+if not isinstance(data, dict):
+    raise ValueError("config.yaml が空または不正なフォーマットです")
+
+api_key = data.get("api_key")
+```
+
+**根拠:** `yaml.safe_load()` は空ファイル・`---` のみ・`null` 等で `None` を返す。`or {}` でフォールバックする (`data = yaml.safe_load(f) or {}`) も簡便だが、明示的な型チェックのほうが設定不備を早期検出できる。
+
+---
+
+### `async` 関数内で `threading.Lock` を使いイベントループをブロックする
+
+**問題:** `async` 関数内で `threading.Lock` を `with lock:` で取得すると、ロック待ちの間イベントループ全体がブロックされ、他のコルーチンが実行されなくなる。
+
+**発生状況:** `asyncio` ベースのアプリケーションで、グローバルシングルトンの遅延初期化などに `threading.Lock` を使うとき。
+
+**悪い例:**
+```python
+# NG: threading.Lock がイベントループをブロック
+import threading
+
+_client = None
+_lock = threading.Lock()
+
+async def get_client():
+    global _client
+    if _client is None:
+        with _lock:              # ロック待ちでイベントループが止まる
+            if _client is None:
+                _client = await init_client()
+    return _client
+```
+
+**良い例:**
+```python
+# OK: asyncio.Lock + async with でイベントループをブロックしない
+import asyncio
+
+_client = None
+_lock = asyncio.Lock()
+
+async def get_client():
+    global _client
+    if _client is None:
+        async with _lock:        # await で解放されるため他のコルーチンが実行できる
+            if _client is None:
+                _client = await init_client()
+    return _client
+```
+
+**根拠:** `threading.Lock` の `acquire()` はスレッドをブロックする同期的な待機を行う。`asyncio` のイベントループはシングルスレッドのため、ロック待ちで `await` が発行されず他のコルーチンが一切実行されなくなる。`async` コンテキストでは `asyncio.Lock` + `async with` を使う。
+
+---
 
 ### DB 書き込みとファイル保存をアトミックに扱わない
 
