@@ -330,3 +330,18 @@ shadcn/ui は出発点であり、**デフォルト値をそのまま使わな�
 | [stripe.com](https://stripe.com) | データリッチなUIの整理方法 |
 | [rauno.me](https://rauno.me) | マイクロインタラクションの参考 |
 | [craft.mds.is](https://craft.mds.is) | コンポーネントの仕上がり品質 |
+
+---
+
+## 企業別デザインシステム参照
+
+詳細なカラートークン・タイポグラフィ仕様・コンポーネント定義・Do/Don't は `references/` を参照する。
+
+| ファイル | ブランド特性 | 用途 |
+|---|---|---|
+| `references/linear.md` | ダークキャンバス × シングルラベンダーアクセント × 製品UI主役 | ダークモード・SaaS ツール参考 |
+| `references/stripe.md` | グラジエントメッシュ × 細ウェイト(300) × tnum 数値 | 金融・決済系・データリッチ参考 |
+| `references/raycast.md` | 純黒 × 白CTA × Inter+ss03 × シャドウなし | デベロッパーツール・CLI 系参考 |
+| `references/vercel.md` | Geist × 100px pill × polarity-flip × スタックシャドウ | デベロッパープラットフォーム・ミニマル参考 |
+
+各ファイルには awesome-design-md (github.com/voltagent/awesome-design-md) のデータを元に作成した正確なトークン値を含む。
