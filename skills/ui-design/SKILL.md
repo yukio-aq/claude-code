@@ -350,3 +350,29 @@ shadcn/ui は出発点であり、**デフォルト値をそのまま使わな�
 | `references/ferrari.md` | ニアブラック × ロッソコルサ一点集中 × 0px sharp × シネマ写真 | プレミアムスポーツカー・ラグジュアリーブランド参考 |
 
 各ファイルには awesome-design-md (github.com/voltagent/awesome-design-md) のデータを元に作成した正確なトークン値を含む。
+
+### 参照の使い方
+
+**参照はスタイルのコピー元ではない。** 各社の設計判断には rationale（理由）がある。その rationale がプロジェクトに当てはまるときだけ原則を移植する。色・字体・ブランドカラーは移植しない。
+
+**抽出ステップ:**
+1. 各ファイルの「Do's and Don'ts」と「キー特性サマリー」を読む
+2. 「なぜそのデザインか」の理由を取り出す
+3. その理由がプロジェクトに成立するか判断する
+4. 成立する場合のみ、**プロジェクト固有のトークン**に翻訳して適用する
+
+**業種別推奨参照（起点として）:**
+
+| 業種・文脈 | 起点にしやすい参照 |
+|---|---|
+| 小売 EC・コマース | Shopify, Nike, Apple |
+| 製造・精密機械・自動車 | BMW, Ferrari |
+| プレミアム / ラグジュアリー | Ferrari, Apple |
+| SaaS・開発者ツール | Linear, Raycast, Vercel |
+| 金融・データリッチ | Stripe |
+| BtoB 業務システム | Linear, Vercel, Stripe |
+
+**複数社からの原則合成が有効なケース:**
+- KPI ダッシュボード → Stripe（tnum） + Ferrari（スペック大数値） + Nike（アラートのみ発色）
+- 製品カタログ → Apple（クロムを消す） + BMW（dark hero + light body リズム）
+- EC 管理画面 → Shopify（2トラック密度分離） + Linear（サーフェスラダー）
