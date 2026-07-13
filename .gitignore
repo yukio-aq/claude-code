@@ -20,5 +20,6 @@ Thumbs.db
 # Node
 node_modules/
 
-# Eval 実行結果（コスト情報・一時ファイルが含まれる）
+# Eval 実行結果・ワークスペース（コスト情報・一時ファイルが含まれる）
 evals/results/
+evals/workspace/
