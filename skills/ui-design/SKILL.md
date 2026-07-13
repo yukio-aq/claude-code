@@ -5,6 +5,15 @@ when_to_use:
   - UIコンポーネントを設計・実装するとき
   - デザインレビュー・UIの方向性を決めるとき
   - "それっぽいAI生成デザイン"を避けたいとき
+keywords:
+  - フロントエンド
+  - コンポーネント
+  - デザイン
+  - UI
+  - 画面
+  - ページ
+links:
+  related: [typescript, testing-patterns]
 not_for:
   - バックエンドのみのタスク
   - ユニットテスト（testing-patternsを使う）

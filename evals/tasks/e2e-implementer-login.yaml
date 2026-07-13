@@ -1,0 +1,53 @@
+name: e2e-implementer-login
+agent: e2e-implementer
+description: Page Object Model・web-first アサーション・waitForTimeout禁止を守った E2E テストを実装できるか
+
+setup:
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module", "dependencies": { "@playwright/test": "^1.40.0" } }
+  - path: "{tmpdir}/tests/pages/LoginPage.ts"
+    content: |
+      // TODO: implement
+  - path: "{tmpdir}/tests/auth/login.spec.ts"
+    content: |
+      // TODO: implement
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  ログインフローの E2E テストを実装してください:
+
+  tests/pages/LoginPage.ts に Page Object クラスを実装する:
+  - email フィールド・password フィールド・submit ボタンのロケーターを定義する
+  - ロケーターは getByRole / getByLabel を優先する
+  - fill / click などのアクションメソッドを実装する
+
+  tests/auth/login.spec.ts にテストを実装する:
+  - 正しい認証情報でダッシュボードにリダイレクトされること
+  - 誤ったパスワードでエラーメッセージが表示されること
+  - waitForTimeout は絶対に使わないこと
+
+judge:
+  - type: file_exists
+    description: LoginPage.ts が実装されている
+    path: "{tmpdir}/tests/pages/LoginPage.ts"
+
+  - type: file_exists
+    description: login.spec.ts が実装されている
+    path: "{tmpdir}/tests/auth/login.spec.ts"
+
+  - type: grep
+    description: getByRole または getByLabel を使っている（堅牢なロケーター）
+    pattern: "getByRole|getByLabel"
+    file: "{tmpdir}/tests/pages/LoginPage.ts"
+
+  - type: not_grep
+    description: waitForTimeout を使っていない
+    pattern: "waitForTimeout"
+    file: "{tmpdir}/tests/auth/login.spec.ts"
+
+  - type: grep
+    description: 正常系・異常系の両テストケースがある
+    pattern: "should.*valid|should.*invalid|should.*error|should.*redirect|dashboard|エラー"
+    file: "{tmpdir}/tests/auth/login.spec.ts"

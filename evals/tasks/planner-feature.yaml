@@ -1,0 +1,36 @@
+name: planner-feature
+agent: planner
+description: 機能要件からフェーズ分け・依存関係を整理した実装計画を作成できるか
+
+setup:
+  - path: "{workspace}/docs/requirements/notification-feature.md"
+    content: |
+      # 通知機能 要件
+
+      ## 概要
+      ユーザーへのプッシュ通知・メール通知機能を追加する。
+
+      ## 要件
+      1. アプリ内通知（リアルタイム、WebSocket）
+      2. メール通知（非同期、キュー経由）
+      3. 通知設定（種別ごとにON/OFF）
+      4. 通知履歴の閲覧・既読管理
+
+working_dir: "{workspace}"
+
+prompt: |
+  docs/requirements/notification-feature.md の要件に基づいて実装計画を作成してください。
+  フェーズ分け・タスク分解・依存関係を整理した計画書を出力してください。
+
+judge:
+  - type: llm_judge
+    description: 複数フェーズに分割されている
+    check: 実装計画に2つ以上のフェーズまたはステップが定義されているか
+
+  - type: llm_judge
+    description: 各フェーズにタスクが列挙されている
+    check: 実装計画に各フェーズまたはステップで実装すべき具体的なタスクが列挙されているか
+
+  - type: llm_judge
+    description: 依存関係または実装順序が示されている
+    check: 実装計画にタスク間の依存関係または推奨実装順序が示されているか

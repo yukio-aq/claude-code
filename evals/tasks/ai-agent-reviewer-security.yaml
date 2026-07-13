@@ -1,0 +1,52 @@
+name: ai-agent-reviewer-security
+agent: ai-agent-reviewer
+description: プロンプトインジェクション・maxSteps欠如・スキーマ未定義・コスト爆発を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/agents/search-agent.ts"
+    content: |
+      import { Agent, createTool } from '@mastra/core'
+      import { anthropic } from '@ai-sdk/anthropic'
+
+      // maxSteps が設定されていない（無限ループリスク）
+      export const searchAgent = new Agent({
+        name: 'search-agent',
+        // ユーザー入力をシステムプロンプトに直接埋め込んでいる（プロンプトインジェクション）
+        instructions: `You are a search agent. User profile: ${userProfile}. Search for: ${userQuery}`,
+        // 全クエリに Opus を使用（コスト爆発リスク）
+        model: anthropic('claude-opus-4-8'),
+        tools: { searchTool },
+      })
+
+      // inputSchema・outputSchema なし
+      export const searchTool = createTool({
+        id: 'search',
+        description: 'Search the web',
+        execute: async ({ context }) => {
+          return await fetch(`/api/search?q=${context.query}`)
+        },
+      })
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/agents/search-agent.ts をレビューしてください。
+  AIエージェントとしての問題点（セキュリティ・安全性・コスト）を指摘し、修正案を示してください。
+  レビュー結果を /tmp/eval-ai-agent-reviewer-security/review.md に書き出してください。
+
+judge:
+  - type: llm_judge
+    description: プロンプトインジェクションリスクを指摘している
+    check: レビュー結果にユーザー入力をシステムプロンプトに直接埋め込むプロンプトインジェクションリスクへの指摘があるか
+
+  - type: llm_judge
+    description: maxSteps 欠如（無限ループリスク）を指摘している
+    check: レビュー結果にmaxStepsが設定されていないことによる無限ループリスクへの指摘があるか
+
+  - type: llm_judge
+    description: ツールの inputSchema/outputSchema 未定義を指摘している
+    check: レビュー結果にinputSchemaまたはoutputSchemaが定義されていない問題への指摘があるか
+
+  - type: llm_judge
+    description: Opus の過剰使用によるコスト爆発を指摘している
+    check: レビュー結果に全クエリにOpusを使うことによるコスト爆発リスクへの指摘があるか

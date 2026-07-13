@@ -1,0 +1,41 @@
+name: qa-engineer-strategy
+agent: qa-engineer
+description: 機能要件からテストピラミッド・テストケース・カバレッジ基準を設計できるか
+
+setup:
+  - path: "{tmpdir}/docs/requirements/user-registration.md"
+    content: |
+      # ユーザー登録機能 要件定義
+
+      ## 機能概要
+      新規ユーザーがメールアドレスとパスワードでアカウントを作成できる。
+
+      ## 要件
+      1. メールアドレスとパスワードを入力してアカウントを作成できる
+      2. メールアドレスは既存アカウントと重複できない
+      3. パスワードは8文字以上・英大文字・数字を含む必要がある
+      4. 登録成功後、確認メールを送信する
+      5. メールアドレスの形式が不正な場合はエラーを表示する
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  docs/requirements/user-registration.md の要件に基づいてテスト戦略を設計してください。
+  結果を /tmp/eval-qa-engineer-strategy/review.md に書き出してください。
+
+judge:
+  - type: file_exists
+    description: テスト戦略ドキュメントが作成されている
+    path: "{tmpdir}/review.md"
+
+  - type: llm_judge
+    description: テストピラミッド（Unit/Integration/E2E）が定義されている
+    check: テスト戦略にUnit・Integration・E2Eの構成または各レベルの対象・割合に関する記述があるか
+
+  - type: llm_judge
+    description: 正常系・異常系・境界値のテストケースが列挙されている
+    check: テスト戦略に正常系（登録成功）・異常系（重複メール・バリデーションエラー）・境界値のテストケースが含まれているか
+
+  - type: llm_judge
+    description: カバレッジ基準が設定されている
+    check: テスト戦略にカバレッジの目標値または基準が記載されているか

@@ -1,0 +1,33 @@
+name: database-reviewer-migration
+agent: database-reviewer
+description: 危険なマイグレーション操作（CONCURRENTLY なし・即座のカラム削除）を検出できるか
+
+setup:
+  - path: "{tmpdir}/migrations/0005_add_index_and_cleanup.sql"
+    content: |
+      -- ユーザーテーブルにインデックスを追加し、不要カラムを削除する
+
+      CREATE INDEX idx_users_email ON users(email);
+
+      ALTER TABLE users DROP COLUMN legacy_phone;
+      ALTER TABLE users DROP COLUMN old_avatar_url;
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  migrations/0005_add_index_and_cleanup.sql をレビューしてください。
+  マイグレーションの安全性の問題点を指摘し、修正案を示してください。
+  レビュー結果を /tmp/eval-database-reviewer-migration/review.md に書き出してください。
+
+judge:
+  - type: llm_judge
+    description: CONCURRENTLY なしのインデックス追加（テーブルロック）を指摘している
+    check: レビュー結果にCONCURRENTLYなしのインデックス追加によるテーブルロックまたはダウンタイムリスクの指摘があるか
+
+  - type: llm_judge
+    description: カラムの即座削除（3ステップ必要）を指摘している
+    check: レビュー結果にALTER TABLE DROP COLUMNの即座削除が危険であること、または3ステップでの安全な削除が必要という指摘があるか
+
+  - type: llm_judge
+    description: 修正案（CONCURRENTLY / 段階的削除）を提示している
+    check: レビュー結果にCREATE INDEX CONCURRENTLYまたは段階的カラム削除の具体的な修正案があるか

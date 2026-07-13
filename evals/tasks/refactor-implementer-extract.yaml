@@ -1,0 +1,59 @@
+name: refactor-implementer-extract
+agent: refactor-implementer
+description: 計画書に従って神クラスから EmailService を安全に抽出できるか
+
+setup:
+  - path: "{workspace}/docs/plans/refactor-user-manager.md"
+    content: |
+      # UserManager リファクタリング計画
+
+      ## Phase 1: EmailService を抽出する
+      - `sendWelcomeEmail` と `sendPasswordResetEmail` を `EmailService` クラスに移動する
+      - 移動先: `src/services/EmailService.ts`
+      - `UserManager` からは `EmailService` をインジェクションして呼び出す
+      - 既存のテストが通ることを確認する
+
+      ## Phase 2（将来）: AuthService を抽出する（今回はスコープ外）
+
+  - path: "{workspace}/src/UserManager.ts"
+    content: |
+      export class UserManager {
+        async login(email: string, password: string) {
+          return { userId: '123', token: 'abc' }
+        }
+
+        async sendWelcomeEmail(userId: string) {
+          console.log(`Sending welcome email to user ${userId}`)
+        }
+
+        async sendPasswordResetEmail(email: string) {
+          console.log(`Sending password reset email to ${email}`)
+        }
+      }
+
+working_dir: "{workspace}"
+
+prompt: |
+  docs/plans/refactor-user-manager.md の Phase 1 を実行してください。
+  EmailService を src/services/EmailService.ts に抽出し、
+  UserManager からは EmailService を使うように修正してください。
+
+judge:
+  - type: file_exists
+    description: EmailService.ts が作成されている
+    path: "{workspace}/src/services/EmailService.ts"
+
+  - type: grep
+    description: EmailService クラスに sendWelcomeEmail が実装されている
+    pattern: "sendWelcomeEmail"
+    file: "{workspace}/src/services/EmailService.ts"
+
+  - type: grep
+    description: EmailService クラスに sendPasswordResetEmail が実装されている
+    pattern: "sendPasswordResetEmail"
+    file: "{workspace}/src/services/EmailService.ts"
+
+  - type: grep
+    description: UserManager が EmailService を使うように変更されている
+    pattern: "EmailService"
+    file: "{workspace}/src/UserManager.ts"

@@ -1,0 +1,51 @@
+name: code-investigator-bug
+agent: code-investigator
+description: 非同期処理のバグ（競合状態）を特定できるか
+
+setup:
+  - path: "{workspace}/src/services/notification-service.ts"
+    content: |
+      import { db } from './db'
+
+      export async function sendNotifications(userIds: string[]) {
+        const results = []
+        for (const userId of userIds) {
+          const user = await db.users.findById(userId)
+          const prefs = await db.preferences.findByUserId(userId)
+          if (prefs.notifications === false) continue
+          await db.notifications.create({ userId, message: 'Hello!' })
+          results.push(userId)
+        }
+        return results
+      }
+
+      // 呼び出し元でバグが発生している
+      export async function broadcastToAll() {
+        const userIds = await db.users.findAllIds()
+        // N+1 問題: 1000ユーザーいると1001クエリが実行される
+        const notified = sendNotifications(userIds)  // await を忘れている
+        console.log(`Notified: ${notified.length} users`)  // undefinedになる
+        return notified
+      }
+
+working_dir: "{workspace}"
+
+prompt: |
+  src/services/notification-service.ts のバグを調査してください。
+  - 何がどこで起きているか
+  - なぜそのバグが発生するか
+  - どう修正すべきか
+  を調査レポートとして出力してください。
+
+judge:
+  - type: llm_judge
+    description: broadcastToAll の await 欠落バグを特定している
+    check: 調査結果にbroadcastToAll関数でsendNotificationsの呼び出しにawaitが欠落していることへの言及があるか
+
+  - type: llm_judge
+    description: notified.length が undefined になる原因を説明している
+    check: 調査結果にawait欠落のためnotifiedがPromiseオブジェクトになりlengthがundefinedになることへの説明があるか
+
+  - type: llm_judge
+    description: N+1 クエリ問題を指摘している
+    check: 調査結果にN+1クエリ問題（ユーザーごとに個別DBアクセスが発生すること）への言及があるか

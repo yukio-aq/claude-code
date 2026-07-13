@@ -5,6 +5,12 @@ when_to_use:
   - カスタムエラークラス階層を設計するとき
   - Result型・Either型パターンを実装するとき
   - エラーの伝播戦略（throw vs return）を設計するとき
+keywords:
+  - エラーハンドリング
+  - エラー処理
+  - 例外処理
+links:
+  related: [api-design, observability]
 not_for:
   - ロギング・分散トレーシング（observabilityを使う）
   - APIのバリデーションエラー設計（api-designを使う）

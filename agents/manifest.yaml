@@ -1,0 +1,90 @@
+# agents/manifest.yaml
+# スキルルーター用エージェントマニフェスト
+# action: implement | review | design | test | ops
+# skills: skill-router が検出したスキルと照合するキー
+
+# ── フロントエンド ────────────────────────────────────────────
+- name: frontend-implementer
+  action: implement
+  skills: [ui-design, typescript, testing-patterns]
+  description: React/Next.js/Vue.jsのコンポーネント・状態管理・スタイリングを実装
+
+- name: frontend-reviewer
+  action: review
+  skills: [ui-design, typescript]
+  description: フロントエンドのコードレビュー（.tsx/.ts + components/pages/app/）
+
+- name: ui-designer
+  action: design
+  skills: [ui-design]
+  description: 実装前のビジュアル設計・コンポーネント仕様定義・デザインレビュー
+
+# ── バックエンド ──────────────────────────────────────────────
+- name: backend-implementer
+  action: implement
+  skills: [api-design, database, error-handling, typescript]
+  description: Node.js/Python/PHP APIのエンドポイント・DB操作・認証ロジックを実装
+
+- name: backend-reviewer
+  action: review
+  skills: [api-design, database, error-handling, typescript]
+  description: バックエンドのコードレビュー（.ts/.js/.php + api/routes/services/）
+
+- name: database-reviewer
+  action: review
+  skills: [database]
+  description: DBスキーマ・マイグレーション・クエリのレビュー
+
+- name: security-auditor
+  action: review
+  skills: [api-design, error-handling]
+  description: OWASP Top 10を網羅するセキュリティ横断レビュー
+
+# ── AIエージェント ────────────────────────────────────────────
+- name: ai-agent-implementer
+  action: implement
+  skills: [ai-agent-patterns, orchestration, docs-lookup]
+  description: Mastra/LangChain/LlamaIndexを使ったエージェント・ツール・ワークフローを実装
+
+- name: ai-agent-designer
+  action: design
+  skills: [ai-agent-patterns, docs-lookup]
+  description: AIエージェントシステムの設計・ワークフロー・ツール定義の専門家
+
+- name: ai-agent-reviewer
+  action: review
+  skills: [ai-agent-patterns, orchestration]
+  description: エージェント・ツール・ワークフロー定義のコードレビュー
+
+# ── テスト ────────────────────────────────────────────────────
+- name: test-implementer
+  action: test
+  skills: [testing-patterns, typescript]
+  description: TDDベースのテスト実装（ユニット・統合）
+
+- name: qa-engineer
+  action: test
+  skills: [testing-patterns, performance-testing, docs-lookup]
+  description: テスト戦略の立案・品質管理・カバレッジ計測
+
+- name: e2e-implementer
+  action: test
+  skills: [testing-patterns]
+  description: Playwright E2Eテストの実装（クリティカルフロー・CI統合）
+
+# ── 設計 ──────────────────────────────────────────────────────
+- name: architect
+  action: design
+  skills: [docs-lookup]
+  description: 技術選定・システム設計・ADR作成の専門家
+
+- name: refactor-planner
+  action: design
+  skills: [typescript, testing-patterns]
+  description: 技術的負債の解消計画を立てるリファクタリング専門家
+
+# ── オブザーバビリティ ────────────────────────────────────────
+- name: observability-engineer
+  action: ops
+  skills: [observability, performance, performance-testing]
+  description: OpenTelemetry・LGTM スタック・SLO設計の専門家

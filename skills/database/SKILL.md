@@ -5,6 +5,14 @@ when_to_use:
   - DBスキーマを設計・変更するとき
   - マイグレーションファイルを作成するとき
   - クエリのパフォーマンス問題・N+1を解決するとき
+keywords:
+  - データベース
+  - スキーマ
+  - マイグレーション
+  - クエリ
+  - SQL
+links:
+  related: [api-design, error-handling]
 not_for:
   - APIエンドポイント設計（api-designを使う）
   - キャッシュ層・インメモリDB（Redis等）の設計

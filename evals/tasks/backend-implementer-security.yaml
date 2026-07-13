@@ -40,7 +40,7 @@ judge:
 
   - type: grep
     description: パラメータ化クエリを使っている
-    pattern: "query\(.*\[|query\(.*params"
+    pattern: "(query|execute)\(.*\[|(query|execute)\(.*params"
     file: "{tmpdir}/src/routes/admin.ts"
 
   - type: grep

@@ -1,0 +1,44 @@
+name: qa-reviewer-strategy
+agent: qa-reviewer
+description: テスト戦略ドキュメントのギャップ（E2E過多・セキュリティテスト欠如）を検出できるか
+
+setup:
+  - path: "{workspace}/docs/test-strategies/checkout.md"
+    content: |
+      # チェックアウト機能 テスト戦略
+
+      ## テストピラミッド構成
+      - Unit: 10%
+      - Integration: 20%
+      - E2E: 70%（全シナリオをE2Eで担保する方針）
+
+      ## テストケース
+      ### 正常系
+      - 商品をカートに追加して決済できる（E2E）
+      - クーポンコードを適用できる（E2E）
+      - 複数の支払い方法で決済できる（E2E）
+
+      ### 異常系
+      - 在庫切れ商品を購入しようとするとエラーになる（E2E）
+
+      ## カバレッジ目標
+      - 特に設定しない（E2Eで担保するため）
+
+working_dir: "{workspace}"
+
+prompt: |
+  docs/test-strategies/checkout.md のテスト戦略をレビューしてください。
+  品質上の問題点や改善提案を指摘してください。
+
+judge:
+  - type: llm_judge
+    description: E2E 過多（70%）のテストピラミッド逆転を指摘している
+    check: レビュー結果にE2Eテストが70%と過多であること・テストピラミッドが逆転していることへの指摘があるか
+
+  - type: llm_judge
+    description: Unit テスト不足（10%）を指摘している
+    check: レビュー結果にUnitテストが少なすぎることへの指摘があるか
+
+  - type: llm_judge
+    description: カバレッジ目標の欠如を指摘している
+    check: レビュー結果にカバレッジ目標が設定されていないことへの指摘があるか

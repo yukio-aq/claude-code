@@ -5,6 +5,14 @@ when_to_use:
   - REST / GraphQL APIエンドポイントを設計・実装するとき
   - レスポンス形式・エラーコード・バリデーション戦略を決めるとき
   - APIのパフォーマンス設計（ページネーション・キャッシュ）を検討するとき
+keywords:
+  - API
+  - エンドポイント
+  - REST
+  - GraphQL
+  - バックエンド
+links:
+  related: [database, error-handling]
 not_for:
   - DBスキーマ・マイグレーション設計（databaseを使う）
   - フロントエンドのみのタスク

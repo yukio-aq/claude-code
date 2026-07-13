@@ -1,0 +1,34 @@
+name: database-reviewer-schema
+agent: database-reviewer
+description: スキーマの型違反（SERIAL・FLOAT・TIMESTAMP・JSON）を検出できるか
+
+setup:
+  - path: "{tmpdir}/migrations/0001_create_products.sql"
+    content: |
+      CREATE TABLE products (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        price FLOAT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        metadata JSON
+      );
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  migrations/0001_create_products.sql をレビューしてください。
+  スキーマ設計の問題点を指摘し、修正案を示してください。
+  レビュー結果を /tmp/eval-database-reviewer-schema/review.md に書き出してください。
+
+judge:
+  - type: llm_judge
+    description: SERIAL ではなく UUID を使うべきことを指摘している
+    check: レビュー結果にSERIALをUUIDに変更すべきという指摘があるか
+
+  - type: llm_judge
+    description: 金額カラムに FLOAT ではなく NUMERIC を使うべきことを指摘している
+    check: レビュー結果にFLOATの代わりにNUMERICまたはDECIMALを使うべきという指摘があるか（精度問題・金額カラム）
+
+  - type: llm_judge
+    description: TIMESTAMP ではなく TIMESTAMPTZ を使うべきことを指摘している
+    check: レビュー結果にTIMESTAMPをTIMESTAMPTZに変更すべきという指摘があるか（タイムゾーン問題）

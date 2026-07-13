@@ -6,6 +6,14 @@ when_to_use:
   - SLO / SLI を定義・計測するとき
   - OpenTelemetry・Grafana・Prometheusを導入するとき
   - LLMエージェントのトレーシングを設計するとき
+keywords:
+  - ログ設計
+  - メトリクス
+  - トレーシング
+  - 監視
+  - SLO
+links:
+  related: [error-handling, performance]
 not_for:
   - パフォーマンスの計測基準・最適化（performanceを使う）
   - エラーハンドリング設計（error-handlingを使う）

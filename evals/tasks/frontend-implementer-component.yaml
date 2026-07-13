@@ -1,0 +1,50 @@
+name: frontend-implementer-component
+agent: frontend-implementer
+description: TypeScript の props 型・条件分岐・スタイリングを備えた React コンポーネントを実装できるか
+
+setup:
+  - path: "{workspace}/src/components/UserCard.tsx"
+    content: |
+      // TODO: implement
+
+working_dir: "{workspace}"
+
+prompt: |
+  src/components/UserCard.tsx に React コンポーネントを実装してください:
+
+  Props:
+  - name: string（ユーザー名）
+  - email: string（メールアドレス）
+  - role: "admin" | "member" | "guest"
+  - avatarUrl?: string（省略可能）
+
+  要件:
+  - TypeScript の Props 型を定義する
+  - role が "admin" のとき Admin バッジを表示する
+  - avatarUrl がないときはイニシャル（name の先頭1文字）を表示する
+  - Tailwind CSS でスタイリングする
+
+judge:
+  - type: file_exists
+    description: UserCard.tsx が実装されている
+    path: "{workspace}/src/components/UserCard.tsx"
+
+  - type: grep
+    description: Props 型が定義されている
+    pattern: "type UserCardProps|interface UserCardProps"
+    file: "{workspace}/src/components/UserCard.tsx"
+
+  - type: grep
+    description: role の型が正しく定義されている
+    pattern: '"admin".*"member".*"guest"|"guest".*"admin"'
+    file: "{workspace}/src/components/UserCard.tsx"
+
+  - type: grep
+    description: admin バッジの条件分岐がある
+    pattern: "role.*admin|admin.*role"
+    file: "{workspace}/src/components/UserCard.tsx"
+
+  - type: grep
+    description: avatarUrl の optional 処理がある
+    pattern: "avatarUrl\?"
+    file: "{workspace}/src/components/UserCard.tsx"

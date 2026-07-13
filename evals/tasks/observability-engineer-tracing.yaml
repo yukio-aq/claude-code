@@ -1,0 +1,53 @@
+name: observability-engineer-tracing
+agent: observability-engineer
+description: Express ハンドラへの OpenTelemetry トレーシング追加・スパン属性設定ができるか
+
+setup:
+  - path: "{workspace}/src/routes/orders.ts"
+    content: |
+      import { Router } from 'express'
+      import { OrderService } from '../services/order-service'
+
+      const router = Router()
+      const orderService = new OrderService()
+
+      router.post('/orders', async (req, res) => {
+        const { userId, items } = req.body
+        const order = await orderService.createOrder(userId, items)
+        res.json(order)
+      })
+
+      export default router
+
+  - path: "{workspace}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module", "dependencies": { "express": "^4.18.0", "@opentelemetry/api": "^1.7.0", "@opentelemetry/sdk-node": "^0.46.0" } }
+
+working_dir: "{workspace}"
+
+prompt: |
+  src/routes/orders.ts の POST /orders ハンドラに OpenTelemetry トレーシングを追加してください:
+  - カスタムスパンを作成し、userId と items の件数をスパン属性として記録する
+  - エラー発生時はスパンにエラー情報を記録する
+  - スパンは必ず終了する（finally で span.end() を呼ぶ）
+
+judge:
+  - type: grep
+    description: OpenTelemetry のトレーサー取得または trace.getTracer を使っている
+    pattern: "getTracer|trace\.getActiveSpan|startActiveSpan|startSpan"
+    file: "{workspace}/src/routes/orders.ts"
+
+  - type: grep
+    description: スパンに属性を設定している
+    pattern: "setAttribute|setAttributes"
+    file: "{workspace}/src/routes/orders.ts"
+
+  - type: grep
+    description: エラー時にスパンにエラーを記録している
+    pattern: "recordException|setStatus|SpanStatusCode"
+    file: "{workspace}/src/routes/orders.ts"
+
+  - type: grep
+    description: finally で span.end() を呼んでいる
+    pattern: "span\.end\(\)"
+    file: "{workspace}/src/routes/orders.ts"

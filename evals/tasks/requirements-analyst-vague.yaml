@@ -1,0 +1,32 @@
+name: requirements-analyst-vague
+agent: requirements-analyst
+description: 曖昧な要求を機能要件・非機能要件・境界条件に構造化できるか
+
+setup:
+  - path: "{workspace}/docs/requests/reporting.md"
+    content: |
+      # レポート機能が欲しい
+
+      売上データをグラフで見たい。
+      CSVでもダウンロードできると嬉しい。
+      フィルタリングができればいい。
+      あと遅くならないようにしてほしい。
+
+working_dir: "{workspace}"
+
+prompt: |
+  docs/requests/reporting.md の曖昧な要求を分析して、
+  機能要件・非機能要件・未確認事項（確認が必要な点）に整理してください。
+
+judge:
+  - type: llm_judge
+    description: 機能要件が具体的に列挙されている
+    check: 分析結果に機能要件として売上グラフ表示・CSV出力・フィルタリングなどの具体的な要件が列挙されているか
+
+  - type: llm_judge
+    description: 非機能要件（パフォーマンス等）が定義されている
+    check: 分析結果に「遅くならないように」から導出されたパフォーマンスやレスポンスタイム等の非機能要件が記載されているか
+
+  - type: llm_judge
+    description: 確認が必要な曖昧な点が列挙されている
+    check: 分析結果にフィルタリングの対象・グラフの種類・CSV出力の範囲など未定義事項または確認事項が列挙されているか

@@ -6,6 +6,12 @@ when_to_use:
   - 品質ゲートを満たすまでループさせたいとき
   - エージェントの判断理由を連鎖的に記録したいとき
   - 並列実行できるタスクを自動判定したいとき
+keywords:
+  - ワークフロー
+  - オーケストレーション
+  - 並列実行
+links:
+  related: [ai-agent-patterns, agent-eval]
 not_for:
   - 単一エージェントで完結するタスク（chief-of-staffで十分）
   - 3ファイル未満の小規模変更

@@ -6,6 +6,14 @@ when_to_use:
   - モック・スタブ・フェイクの使い分けを判断するとき
   - テスト可能な設計（依存注入）にリファクタするとき
   - テストデータの生成戦略を設計するとき
+keywords:
+  - テスト
+  - ユニットテスト
+  - 統合テスト
+  - モック
+  - カバレッジ
+links:
+  related: [typescript]
 not_for:
   - E2Eテスト設計（testing-patterns/playwright-e2e.mdを使う）
   - 負荷テスト（performance-testingを使う）

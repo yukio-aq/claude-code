@@ -1,0 +1,34 @@
+name: fix-implementer-null-crash
+agent: fix-implementer
+description: null 入力でクラッシュするバグを最小差分で修正できるか
+
+setup:
+  - path: "{tmpdir}/src/utils/user-format.ts"
+    content: |
+      export function formatUserEmail(user: { name: string; email: string } | null): string {
+        return `${user.name} <${user.email}>`
+      }
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module" }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/utils/user-format.ts の formatUserEmail が null を渡されたときに
+  TypeError でクラッシュするバグを修正してください。
+
+judge:
+  - type: file_exists
+    description: user-format.ts が存在する
+    path: "{tmpdir}/src/utils/user-format.ts"
+
+  - type: grep
+    description: null チェックが追加されている
+    pattern: "null|!user"
+    file: "{tmpdir}/src/utils/user-format.ts"
+
+  - type: not_grep
+    description: any 型を導入していない
+    pattern: ":\s*any\b"
+    file: "{tmpdir}/src/utils/user-format.ts"

@@ -5,6 +5,12 @@ when_to_use:
   - 負荷テスト・ストレステストを設計・実装するとき
   - Lighthouse CIをCI/CDに組み込むとき
   - LLMのレイテンシ・スループットを計測するとき
+keywords:
+  - 負荷テスト
+  - ストレステスト
+  - ベンチマーク
+links:
+  related: [performance, observability]
 not_for:
   - ユニットテスト・統合テスト（testing-patternsを使う）
   - 実装コードのパフォーマンス最適化（performanceを使う）

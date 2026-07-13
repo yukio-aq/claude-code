@@ -5,6 +5,12 @@ when_to_use:
   - モデルアップデート後にエージェント品質が変わっていないか確認するとき
   - エージェント定義を変更した後に品質回帰を検出するとき
   - 「このエージェントは本当に機能しているか」をデータで確かめたいとき
+keywords:
+  - 品質評価
+  - エージェント評価
+  - パスレート
+links:
+  related: [ai-agent-patterns, testing-patterns]
 not_for:
   - ユニット・統合テスト（testing-patternsを使う）
   - 実装コードのバグ修正

@@ -1,0 +1,39 @@
+name: refactor-planner-srp
+agent: refactor-planner
+description: 単一責任原則違反（神クラス）をフェーズ分け計画で安全に分割できるか
+
+setup:
+  - path: "{workspace}/src/UserManager.ts"
+    content: |
+      // 400行超の神クラス: 認証・プロフィール更新・メール送信・課金・統計を全部持っている
+      export class UserManager {
+        async login(email: string, password: string) { /* 認証ロジック */ }
+        async logout(userId: string) { /* セッション破棄 */ }
+        async updateProfile(userId: string, data: any) { /* プロフィール更新 */ }
+        async uploadAvatar(userId: string, file: Buffer) { /* 画像アップロード */ }
+        async sendWelcomeEmail(userId: string) { /* メール送信 */ }
+        async sendPasswordResetEmail(email: string) { /* メール送信 */ }
+        async subscribe(userId: string, plan: string) { /* 課金処理 */ }
+        async cancelSubscription(userId: string) { /* 課金処理 */ }
+        async getMonthlyActiveUsers() { /* 統計 */ }
+        async getChurnRate() { /* 統計 */ }
+      }
+
+working_dir: "{workspace}"
+
+prompt: |
+  src/UserManager.ts をリファクタリングする計画を作成してください。
+  単一責任原則に基づいて責務を分割し、安全に段階的に進められる計画を立ててください。
+
+judge:
+  - type: llm_judge
+    description: 神クラスの問題点（単一責任原則違反）を指摘している
+    check: 計画書にUserManagerが複数の責務を持つ単一責任原則違反の問題への言及があるか
+
+  - type: llm_judge
+    description: 責務ごとに分割先クラス・ファイルが提案されている
+    check: 計画書に認証・プロフィール・メール・課金・統計などの責務を別クラスまたはモジュールに分割する提案があるか
+
+  - type: llm_judge
+    description: 段階的なフェーズまたはステップが定義されている
+    check: 計画書に一度に全部変更しない段階的なリファクタリングのフェーズまたはステップが定義されているか

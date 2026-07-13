@@ -1,0 +1,43 @@
+name: security-auditor-owasp
+agent: security-auditor
+description: SQL インジェクション・ハードコード秘密情報・認可チェック欠如を検出できるか
+
+setup:
+  - path: "{workspace}/src/api/users.ts"
+    content: |
+      import { db } from './db'
+
+      const ADMIN_API_KEY = "sk-prod-abc123xyz789secretkey"  // ハードコードされたシークレット
+
+      export async function searchUsers(req: Request, res: Response) {
+        const { query } = req.query
+        // SQL インジェクション脆弱性
+        const users = await db.query(`SELECT * FROM users WHERE name LIKE '%${query}%'`)
+        res.json(users)
+      }
+
+      export async function deleteUser(req: Request, res: Response) {
+        // 認可チェックなし - 誰でも他のユーザーを削除できる
+        const { userId } = req.params
+        await db.query('DELETE FROM users WHERE id = $1', [userId])
+        res.json({ success: true })
+      }
+
+working_dir: "{workspace}"
+
+prompt: |
+  src/api/users.ts のセキュリティ監査を行ってください。
+  OWASP Top 10 の観点から脆弱性を指摘してください。
+
+judge:
+  - type: llm_judge
+    description: SQL インジェクション脆弱性を指摘している
+    check: レビュー結果にsearchUsersのクエリ文字列結合によるSQLインジェクション脆弱性への指摘があるか
+
+  - type: llm_judge
+    description: ハードコードされたシークレットを指摘している
+    check: レビュー結果にADMIN_API_KEYがハードコードされていることへの指摘があるか
+
+  - type: llm_judge
+    description: deleteUser の認可チェック欠如を指摘している
+    check: レビュー結果にdeleteUserに認可チェックがなく誰でも他ユーザーを削除できることへの指摘があるか

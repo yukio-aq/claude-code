@@ -1,0 +1,54 @@
+name: ai-agent-implementer-tool
+agent: ai-agent-implementer
+description: Mastra ツールを inputSchema・outputSchema・maxSteps 付きで正しく実装できるか
+
+setup:
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module", "dependencies": { "@mastra/core": "^0.1.0", "zod": "^3.0.0" } }
+  - path: "{tmpdir}/src/tools/weather-tool.ts"
+    content: |
+      // TODO: implement
+  - path: "{tmpdir}/src/agents/weather-agent.ts"
+    content: |
+      // TODO: implement
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  以下を実装してください:
+
+  src/tools/weather-tool.ts に Mastra ツールを実装する:
+  - id: "get-weather"
+  - 入力スキーマ（Zod）: city（string）
+  - 出力スキーマ（Zod）: weather（string）・temperature（number）・humidity（number）
+  - execute: ダミーデータを返す（実際のAPI呼び出し不要）
+
+  src/agents/weather-agent.ts に Agent を実装する:
+  - name: "weather-agent"
+  - maxSteps: 10 を必ず設定する
+  - tools に weather-tool を含める
+
+judge:
+  - type: file_exists
+    description: weather-tool.ts が実装されている
+    path: "{tmpdir}/src/tools/weather-tool.ts"
+
+  - type: grep
+    description: Zod で inputSchema が定義されている
+    pattern: "inputSchema"
+    file: "{tmpdir}/src/tools/weather-tool.ts"
+
+  - type: grep
+    description: Zod で outputSchema が定義されている
+    pattern: "outputSchema"
+    file: "{tmpdir}/src/tools/weather-tool.ts"
+
+  - type: file_exists
+    description: weather-agent.ts が実装されている
+    path: "{tmpdir}/src/agents/weather-agent.ts"
+
+  - type: grep
+    description: maxSteps が設定されている（無限ループ防止）
+    pattern: "maxSteps"
+    file: "{tmpdir}/src/agents/weather-agent.ts"

@@ -307,6 +307,94 @@ def test_create_record(client):
 
 ---
 
+### sys.modules スタブでヘビー依存ライブラリをインポート前にモックする
+
+**概要:** LlamaIndex・psycopg など起動コストが高い依存ライブラリは、`sys.modules` に `types.ModuleType` のスタブを差し込むことで、実ライブラリをインストールせずにテストできる。
+
+**適用条件:** CI 環境やユニットテストで、ヘビーな依存（ML ライブラリ・DB ドライバ等）をインストールせずにモジュールをインポート・テストしたいとき。
+
+**良い例:**
+```python
+# conftest.py または各テストファイルのトップレベルで実行する
+import sys
+import types
+
+def _stub_module(name: str) -> types.ModuleType:
+    mod = types.ModuleType(name)
+    sys.modules.setdefault(name, mod)
+    return mod
+
+# スタブ差し込み（import よりも前に実行する）
+_stub_module("llama_index")
+_stub_module("llama_index.core")
+_stub_module("psycopg")
+
+# 各テストでシングルトンをリセットする
+import pytest
+
+@pytest.fixture(autouse=True)
+def reset_singleton():
+    sys.modules.pop("app.services.rag.setup", None)  # キャッシュ済みモジュールを破棄
+    yield
+```
+
+**アンチパターン:**
+```python
+# NG: ヘビーな依存を実際にインポートしてしまう → CI が遅い・インストール必須
+from llama_index.core import VectorStoreIndex  # LlamaIndex が未インストールなら ImportError
+
+# NG: unittest.mock.patch だけでは import 時点のエラーを防げない
+with patch("llama_index.core.VectorStoreIndex"):  # import 自体は走ってしまう
+    ...
+```
+
+**適用すべきでないケース:** 実際の DB・ベクターストアと組み合わせた統合テストではスタブを使わず実依存を使う。ユニットテストのみに適用する。
+
+---
+
+### Pydantic @computed_field のテストは依存元フィールドを経由する
+
+**概要:** Pydantic の `@computed_field` プロパティは setter がないため `mocker.patch.object()` で直接モックできない。依存元のフィールド（`@computed_field` が参照するフィールド）をモックして間接的に制御する。
+
+**適用条件:** pytest-mock で Pydantic モデルの `@computed_field` の計算結果をテストで制御したいとき。
+
+**良い例:**
+```python
+# settings.py
+from pydantic_settings import BaseSettings
+from pydantic import computed_field
+
+class Settings(BaseSettings):
+    database_url: str = "postgresql://localhost/mydb"
+
+    @computed_field
+    @property
+    def async_database_url(self) -> str:
+        return self.database_url.replace("postgresql://", "postgresql+psycopg_async://")
+
+# テスト: 依存元 (database_url) をモックして computed_field の結果を間接制御
+def test_async_url(mocker):
+    mocker.patch.object(
+        Settings,
+        "database_url",
+        new_callable=mocker.PropertyMock,
+        return_value="postgresql://testhost/testdb",
+    )
+    settings = Settings()
+    assert settings.async_database_url == "postgresql+psycopg_async://testhost/testdb"
+```
+
+**アンチパターン:**
+```python
+# NG: @computed_field は setter がないため直接モックできない → TypeError
+mocker.patch.object(Settings, "async_database_url", return_value="mock://url")
+# TypeError: cannot set 'async_database_url' attribute of immutable type 'Settings'
+```
+
+**適用すべきでないケース:** `@computed_field` が外部 API を呼ぶなど依存元フィールドだけでは制御できない場合は、その外部呼び出しをモックする。
+
+---
+
 ## アンチパターン
 
 ### ESM プロジェクトの `vi.mock` ファクトリ内で `require()` を使う

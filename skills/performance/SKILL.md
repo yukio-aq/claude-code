@@ -6,6 +6,13 @@ when_to_use:
   - バンドルサイズ削減・レンダリング最適化を行うとき
   - Core Web Vitalsのスコアを改善するとき
   - クエリ・API レスポンスタイムを改善するとき
+keywords:
+  - パフォーマンス
+  - 最適化
+  - 速度改善
+  - チューニング
+links:
+  related: [performance-testing, database]
 not_for:
   - 負荷テスト・ベンチマーク設計（performance-testingを使う）
   - SLO・監視ダッシュボードの構築（observabilityを使う）

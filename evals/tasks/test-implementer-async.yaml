@@ -1,0 +1,62 @@
+name: test-implementer-async
+agent: test-implementer
+description: 非同期サービスのテストをモックを使って正常系・エラーケースを実装できるか
+
+setup:
+  - path: "{tmpdir}/src/services/auth-service.ts"
+    content: |
+      export interface UserRepository {
+        findByEmail(email: string): Promise<{ id: string; email: string; passwordHash: string } | null>
+      }
+
+      export async function login(
+        email: string,
+        password: string,
+        userRepo: UserRepository,
+      ): Promise<{ token: string }> {
+        const user = await userRepo.findByEmail(email)
+        if (!user) throw new Error('USER_NOT_FOUND')
+        if (user.passwordHash !== password) throw new Error('INVALID_PASSWORD')
+        return { token: `token-${user.id}` }
+      }
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module" }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/services/auth-service.ts の login 関数のテストを
+  src/services/auth-service.test.ts に実装してください。
+  UserRepository はモックして使用してください。
+  正常系・ユーザー不存在・パスワード不一致の3ケースをカバーしてください。
+
+judge:
+  - type: file_exists
+    description: auth-service.test.ts が作成されている
+    path: "{tmpdir}/src/services/auth-service.test.ts"
+
+  - type: grep
+    description: UserRepository をモックしている
+    pattern: "mock|vi\.fn|jest\.fn"
+    file: "{tmpdir}/src/services/auth-service.test.ts"
+
+  - type: grep
+    description: USER_NOT_FOUND エラーケースをテストしている
+    pattern: "USER_NOT_FOUND"
+    file: "{tmpdir}/src/services/auth-service.test.ts"
+
+  - type: grep
+    description: INVALID_PASSWORD エラーケースをテストしている
+    pattern: "INVALID_PASSWORD"
+    file: "{tmpdir}/src/services/auth-service.test.ts"
+
+  - type: grep
+    description: 正常系でトークンが返ることをテストしている
+    pattern: "token"
+    file: "{tmpdir}/src/services/auth-service.test.ts"
+
+  - type: not_grep
+    description: any 型を使っていない
+    pattern: ":\s*any\b"
+    file: "{tmpdir}/src/services/auth-service.test.ts"

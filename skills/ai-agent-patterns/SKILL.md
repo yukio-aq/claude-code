@@ -5,6 +5,14 @@ when_to_use:
   - AIエージェント・ツール定義・ワークフローを設計・実装するとき
   - Mastra / LangChain / LlamaIndex を使うとき
   - エージェント間の連携やオーケストレーションを設計するとき
+keywords:
+  - AIエージェント
+  - エージェント
+  - LLM
+  - Mastra
+  - LangChain
+links:
+  related: [orchestration, agent-eval]
 not_for:
   - 通常のWeb API実装（api-designを使う）
   - プロンプトエンジニアリングのみで完結するタスク

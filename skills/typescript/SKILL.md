@@ -5,6 +5,12 @@ when_to_use:
   - .ts / .tsx ファイルを実装・レビューするとき
   - 型設計・型エラーに対処するとき（Branded Types・Discriminated Union等）
   - 型安全な設計（型ガード・型推論）を実装するとき
+keywords:
+  - TypeScript
+  - 型エラー
+  - tsx
+links:
+  related: [testing-patterns, error-handling]
 not_for:
   - JavaScript onlyプロジェクト
   - ランタイムロジック・アルゴリズムの問題（型ではなくロジックの問題）

@@ -1,0 +1,56 @@
+name: architecture-reviewer-layers
+agent: architecture-reviewer
+description: Serviceのレイヤー迂回とRepositoryへのビジネスロジック混入を検出できるか
+
+setup:
+  - path: "{tmpdir}/src/services/order-service.ts"
+    content: |
+      import { prisma } from '../db'
+
+      // Service が Repository を経由せず DB に直接アクセスしている
+      export class OrderService {
+        async createOrder(userId: string, items: { productId: string; quantity: number }[]) {
+          const user = await prisma.user.findUnique({ where: { id: userId } })
+          if (!user) throw new Error('User not found')
+          const order = await prisma.order.create({
+            data: { userId, status: 'pending' }
+          })
+          return order
+        }
+      }
+  - path: "{tmpdir}/src/repositories/product-repository.ts"
+    content: |
+      import { prisma } from '../db'
+
+      export class ProductRepository {
+        async findById(id: string) {
+          const product = await prisma.product.findUnique({ where: { id } })
+
+          // Repository にビジネスロジック（通知送信）が混入している
+          if (product && product.stock === 0) {
+            await prisma.notification.create({
+              data: { type: 'OUT_OF_STOCK', productId: id }
+            })
+          }
+          return product
+        }
+      }
+  - path: "{tmpdir}/src/db.ts"
+    content: |
+      export const prisma = {} as any
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/ 配下のコードをレビューしてください。
+  アーキテクチャ・レイヤー設計の問題点を指摘してください。
+  レビュー結果を /tmp/eval-architecture-reviewer-layers/review.md に書き出してください。
+
+judge:
+  - type: llm_judge
+    description: Service が Repository を迂回して DB に直接アクセスしていることを指摘している
+    check: レビュー結果にServiceレイヤーがRepositoryを経由せずprismaに直接アクセスしているレイヤー違反への指摘があるか
+
+  - type: llm_judge
+    description: Repository にビジネスロジック（通知送信）が混入していることを指摘している
+    check: レビュー結果にRepositoryレイヤーに通知送信などのビジネスロジックが混入しているレイヤー違反への指摘があるか

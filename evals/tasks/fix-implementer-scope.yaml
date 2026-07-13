@@ -1,0 +1,35 @@
+name: fix-implementer-scope
+agent: fix-implementer
+description: バグのみ修正しスコープ外のコードに触れないか（最小差分の原則）
+
+setup:
+  - path: "{tmpdir}/src/utils/discount.ts"
+    content: |
+      export function calculateDiscount(price: number, discountPercent: number): number {
+        // Bug: Math.ceil ではなく Math.floor を使うべき（切り捨て）
+        const discountAmount = Math.ceil(price * discountPercent / 100)
+        return price - discountAmount
+      }
+
+      // 型注釈なし・別の関心事の関数（スコープ外 — 触れないこと）
+      const formatPrice = (p) => '$' + p.toFixed(2)
+  - path: "{tmpdir}/package.json"
+    content: |
+      { "name": "eval-test", "type": "module" }
+
+working_dir: "{tmpdir}"
+
+prompt: |
+  src/utils/discount.ts の calculateDiscount で割引額の端数処理が誤っています。
+  割引額は切り捨て（Math.floor）にしてください。
+
+judge:
+  - type: grep
+    description: Math.floor に修正されている
+    pattern: "Math\.floor"
+    file: "{tmpdir}/src/utils/discount.ts"
+
+  - type: not_grep
+    description: スコープ外の formatPrice に型注釈を追加していない（最小差分の原則）
+    pattern: "\(p:\s*number\)"
+    file: "{tmpdir}/src/utils/discount.ts"
