@@ -35,6 +35,7 @@ CRITICAL / HIGH があれば差し戻す（Step 4以降に進まない）。
 
 ### Step 5: PR description生成・push
 `pr-author` エージェントを起動してdescriptionを生成する。
+プロジェクト内にPRテンプレート（`.github/PULL_REQUEST_TEMPLATE.md` 等）があればそれを優先して使う。
 確認後に `git push -u origin <branch>` を実行する。
 
 ### Step 6: 自動保存

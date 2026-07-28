@@ -1,0 +1,107 @@
+---
+description: その日の作業内容から日報を生成し、Obsidian の Daily/{案件名}/ に保存する。作業の区切りで手動実行する。
+---
+
+# /nippo
+
+現在の会話・作業内容を要約し、Obsidian vault の `Daily/{案件名}/{today}.md` に日報として保存する。
+
+案件名は原則としてカレントディレクトリの git リポジトリ名から自動判定する（複数案件を並行する場合、各案件のリポジトリ内で `/nippo` を実行する運用を想定）。git リポジトリでない場合は `internal`（社内作業・学習など案件に紐づかない活動）として扱う。
+
+## 引数
+
+```
+/nippo                    # 案件名は自動判定、メモなし
+/nippo <メモ>              # 案件名は自動判定、メモを「次回やること」に追記
+/nippo @<案件名> <メモ>     # 案件名を明示的に上書き（自動判定と実際の案件名が違う場合に使う）
+```
+
+## 実行手順
+
+**Step 1**: 案件名と保存パスを Bash で確定する。
+
+```bash
+VAULT="$HOME/Documents/Obsidian Vault"
+DAILY_DIR="$VAULT/Daily"
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+if [ -n "$REPO_ROOT" ]; then
+  PROJECT=$(basename "$REPO_ROOT")
+else
+  PROJECT="internal"
+fi
+echo "PROJECT(auto)=$PROJECT"
+```
+
+`$ARGUMENTS` が `@案件名 ...` の形式であれば、`@` の直後のトークンで `PROJECT` を上書きし、残りをメモとして扱う。それ以外の場合は `$ARGUMENTS` 全体をメモとして扱い、`PROJECT` は自動判定のまま使う。
+
+```bash
+PROJECT_DIR="$DAILY_DIR/$PROJECT"
+mkdir -p "$PROJECT_DIR"
+TODAY=$(date +%Y-%m-%d)
+NOW=$(date +%H:%M)
+FILEPATH="$PROJECT_DIR/$TODAY.md"
+echo "FILEPATH=$FILEPATH"
+[ -f "$FILEPATH" ] && echo "EXISTS=true" || echo "EXISTS=false"
+```
+
+**Step 2**: 現在の会話を振り返り、以下4項目を要約する。
+
+- **やったこと**: 今日取り組んだタスク・完了した成果物（箇条書き）
+- **決定事項・判断根拠**: 技術選定・設計判断とその理由（なければ「（なし）」）
+- **学び・気づき**: ハマった点・次に活かせる知見（なければ「（なし）」）
+- **次回やること**: 積み残しタスク・次回の開始ポイント（メモがあれば先頭に記載）
+
+**Step 3**: ファイルへの書き込み。
+
+- **EXISTS=false の場合**: Write ツールで新規作成する。
+
+```markdown
+---
+date: {TODAY}
+project: {PROJECT}
+tags: [nippo]
+---
+
+# {TODAY} 日報（{PROJECT}）
+
+## やったこと
+{要約}
+
+## 決定事項・判断根拠
+{要約}
+
+## 学び・気づき
+{要約}
+
+## 次回やること
+{要約}
+```
+
+- **EXISTS=true の場合**: Read ツールで既存内容を読み込み、同日内の追記として末尾に追加してから Write で保存する。
+
+```markdown
+
+---
+
+### 追記 {NOW}
+
+## やったこと
+{要約}
+
+## 決定事項・判断根拠
+{要約}
+
+## 学び・気づき
+{要約}
+
+## 次回やること
+{要約}
+```
+
+**Step 4**: 完了メッセージを出力する。
+
+```
+✅ 日報を保存しました → {FILEPATH}
+案件: {PROJECT}
+```

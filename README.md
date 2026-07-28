@@ -2,9 +2,10 @@
 
 Claude Code をテックリードとして使い倒すための設定・エージェント・ワークフロー集。
 
-34個の専門エージェント・11のスラッシュコマンド・自動化フックで、
+36個の専門エージェント・14のスラッシュコマンド・自動化フックで、
 設計からコミットまでの開発フローを自動化する。
 エージェントの品質を定点観測する eval システムと、継続学習による知見蓄積サイクルを内蔵。
+日報・半期レビューなど個人の業務ログ運用（Obsidian連携）もカバーする。
 
 ---
 
@@ -88,7 +89,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ├── README.md                    # このファイル
 ├── setup.sh                     # 初期セットアップスクリプト
 │
-├── agents/                      # 専門エージェント定義（34個）
+├── agents/                      # 専門エージェント定義（36個）
 │   ├── orchestration/
 │   │   └── chief-of-staff.md        # 大きなタスクの司令塔
 │   ├── design/
@@ -97,7 +98,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── architect.md             # 技術選定・ADR作成
 │   │   ├── refactor-planner.md      # 技術的負債解消計画
 │   │   ├── ui-designer.md           # UIデザイン設計
-│   │   └── ai-agent-designer.md     # AIエージェント設計（Mastra/LangChain/LlamaIndex）
+│   │   ├── ai-agent-designer.md     # AIエージェント設計（Mastra/LangChain/LlamaIndex）
+│   │   └── domain-analyst.md        # 顧客業界のドメイン知識収集（上流工程）
 │   ├── implement/
 │   │   ├── frontend-implementer.md
 │   │   ├── backend-implementer.md
@@ -105,6 +107,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── android-implementer.md
 │   │   ├── 3d-implementer.md
 │   │   ├── ai-agent-implementer.md  # AIエージェント実装（Mastra/LangChain/LlamaIndex）
+│   │   ├── fix-implementer.md       # バグ修正・既存コード修正専門
 │   │   └── refactor-implementer.md  # リファクタ計画書に従って実装
 │   ├── test/
 │   │   ├── qa-engineer.md           # テスト戦略設計
@@ -132,7 +135,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── ops/
 │       └── observability-engineer.md # OpenTelemetry・SLO設計
 │
-├── commands/                    # スラッシュコマンド（11個）
+├── commands/                    # スラッシュコマンド（14個）
+│   ├── domain.md                # /domain
 │   ├── requirements.md          # /requirements
 │   ├── plan.md                  # /plan
 │   ├── adr.md                   # /adr
@@ -143,12 +147,15 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── save.md                  # /save
 │   ├── learn.md                 # /learn
 │   ├── curate.md                # /curate
-│   └── eval.md                  # /eval
+│   ├── eval.md                  # /eval
+│   ├── nippo.md                 # /nippo（Obsidian日報）
+│   └── hanki-review.md          # /hanki-review（Obsidian半期レビュー）
 │
-├── hooks/                       # 自動化スクリプト（3個）
+├── hooks/                       # 自動化スクリプト（4個・settings.jsonで有効化するのは3個）
 │   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
 │   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
-│   └── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
+│   ├── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
+│   └── skill-router.js          # プロンプトから関連スキルを自動検出・提示（UserPromptSubmit hook、未登録・実験中）
 │
 ├── rules/                       # 常時適用ルール（7個）
 │   ├── principles.md                 # 実装・レビューの行動原則（悪例/良例）
@@ -164,7 +171,17 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── agent-eval/              # エージェント品質評価フレームワーク（YAML タスク形式）
 │   ├── orchestration/           # マルチエージェント協調パターン（parallel / adversarial 等）
 │   ├── architecture/            # ADRテンプレート・システム設計・技術選定
-│   ├── coding-standards/        # 領域別コーディング規約（frontend/backend/ios/android/3D）
+│   ├── coding-standards/        # 領域別コーディング規約（3D/android/backend/frontend/ios）
+│   ├── frameworks/              # フレームワーク別実装パターン（Next.js/Vue/Django/FastAPI/Laravel/Mastra 等20種）
+│   ├── api-design/              # API設計・レスポンス形式・エラーコード・バリデーション
+│   ├── database/                # DB設計・マイグレーション・クエリ最適化
+│   ├── error-handling/          # エラー設計パターン（カスタムエラー階層・Result型）
+│   ├── observability/           # OpenTelemetry・LGTMスタック・SLO設計・GenAIトレーシング
+│   ├── performance/             # 領域横断のパフォーマンス計測基準・最適化手法
+│   ├── performance-testing/     # k6負荷テスト・Lighthouse CI・LLMパフォーマンス計測
+│   ├── testing-patterns/        # Test Double・テストデータビルダー・依存注入
+│   ├── typescript/              # TypeScript固有の型設計パターン
+│   ├── ui-design/                # プロダクショングレードUIの原則・アンチパターン
 │   ├── docs-lookup/             # Tavily検索パターン
 │   └── continuous-learning/     # セッションからの学習蓄積
 │       ├── instincts/           # 自動抽出されたパターン（未精査）
@@ -191,6 +208,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 | コマンド | 用途 |
 |---|---|
+| `/domain` | 顧客業界のドメイン知識を収集・構造化する（要件定義の前段） |
 | `/requirements` | 要件を精査・構造化して要件定義書を作成する |
 | `/plan` | 実装計画を作成する（planner → architect → qa-engineer） |
 | `/adr` | 技術選定の意思決定をADRとして記録する |
@@ -202,6 +220,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 | `/learn` | 気づいたパターンをその場で instincts/ に記録する |
 | `/curate` | instincts/ を精査して curated/ に昇格させる |
 | `/eval [agent-name]` | エージェントの品質を定点観測（月1回の健診を推奨） |
+| `/nippo [メモ]` | 当日の作業内容から日報を生成し Obsidian の `Daily/{案件名}/` に保存する |
+| `/hanki-review [期間]` | 日報を期間・案件単位で集計し半期の自己評価レビュードラフトを作成する |
 
 ---
 
@@ -211,13 +231,14 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 | モデル | 用途 |
 |---|---|
-| Opus | 設計・判断・プロンプト設計（architect / planner / qa-engineer / ai-agent-designer / ai-agent-implementer / ai-agent-reviewer） |
+| Opus | 設計・判断・プロンプト設計（architect / planner / qa-engineer / domain-analyst / ai-agent-designer / ai-agent-implementer / ai-agent-reviewer） |
 | Sonnet | 実装・レビュー・ドキュメント（それ以外） |
 
 ### エージェント一覧
 
 **設計**
 - `chief-of-staff` — 複数領域にまたがる大きなタスクの司令塔
+- `domain-analyst` — 顧客業界のドメイン知識収集・構造化（requirements-analyst の前段）
 - `requirements-analyst` — 要件の精査・構造化・要件定義書作成
 - `planner` — タスク分解・実装計画書作成（`docs/plans/` に保存）
 - `architect` — 技術選定・ADR作成（`docs/adr/` に保存）
@@ -231,6 +252,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 - `android-implementer` — Kotlin / Jetpack Compose
 - `3d-implementer` — Three.js / React Three Fiber / Unity
 - `ai-agent-implementer` — Mastra / LangChain / LlamaIndex
+- `fix-implementer` — バグ修正・既存コード修正・設定変更専門（言語自動検出・curated パターン適用）
 
 **テスト**
 - `qa-engineer` — テスト戦略設計・カバレッジ基準設定
@@ -241,10 +263,14 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 - `frontend-reviewer` (React/Next.js/Vue.js) / `backend-reviewer` (Node.js/Python/PHP) / `ios-reviewer` / `android-reviewer` / `3d-reviewer` / `ai-agent-reviewer`
 - `security-auditor` — OWASP Top 10を網羅するセキュリティ横断レビュー
 - `database-reviewer` — DBスキーマ・マイグレーション・クエリレビュー
+- `architecture-reviewer` — 設計品質レビュー
+- `qa-reviewer` — テスト戦略・実装レビュー
+- `requirements-reviewer` / `plan-reviewer` / `adr-reviewer` — 各工程ドキュメントのレビュー
+- `code-investigator` — バグ原因究明・影響範囲調査（read-only）
 
 **ドキュメント・リリース・運用**
 - `doc-writer` — オンボーディング・APIリファレンス生成
-- `pr-author` — コミット前チェック・PR description生成
+- `pr-author` — コミット前チェック・PR description生成（プロジェクト内にPRテンプレートがあれば優先使用）
 - `observability-engineer` — OpenTelemetry・LGTM スタック・SLO設計
 
 ---
@@ -254,6 +280,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ### 新機能の開発
 
 ```
+/domain  → （顧客業界の知識が必要な場合のみ）業界調査・用語集作成
+
 /plan    → 実装計画書を作成
            └ 技術選定が必要なら自動で /adr も実行
 
@@ -273,7 +301,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ```
 /review <該当ファイル>  → 問題箇所を特定
 再現テストを書く        → test-implementer
-修正実装               → *-implementer
+修正実装               → fix-implementer
 /ship                  → コミット
 ```
 
@@ -316,6 +344,15 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ```
 
 タスク定義は `evals/tasks/*.yaml`（git管理）。採点結果は `evals/results/`（gitignore）に保存される。
+
+---
+
+## 個人用コマンド（Obsidian連携）
+
+開発フローとは独立した、日々の業務ログ運用のためのコマンド。Obsidian vault の `Daily/{案件名}/` を参照・生成する。
+
+- `/nippo [メモ]` — 現在の会話・作業内容から日報を生成して保存する。案件名はカレントディレクトリの git リポジトリ名から自動判定（非gitは `internal` 扱い）。作業の区切りで手動実行する。
+- `/hanki-review [期間]` — `Daily/{案件名}/` 配下の日報を期間・案件単位で集計し、6項目の自己評価レビュードラフトを生成する。デフォルトは直近6ヶ月・全案件が対象。
 
 ---
 

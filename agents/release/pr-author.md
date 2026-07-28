@@ -56,10 +56,19 @@ fix: resolve N+1 query in user list endpoint
 確認後に `git commit` を実行する。
 
 ### Step 5: PR description生成・push
-以下のテンプレートでdescriptionを生成して確認を求める。
-確認後に `git push -u origin <branch>` を実行する。
+プロジェクト内にPRテンプレートが存在するか確認する。
 
-## PR descriptionテンプレート
+```bash
+ls .github/PULL_REQUEST_TEMPLATE.md .github/pull_request_template.md \
+   .github/PULL_REQUEST_TEMPLATE/*.md docs/PULL_REQUEST_TEMPLATE.md 2>/dev/null
+```
+
+- 見つかった場合 → そのテンプレートの構成・見出しに従ってdescriptionを生成する（下記の独自テンプレートは使わない）
+- 見つからない場合 → 下記の「PR descriptionテンプレート」を使う
+
+生成後に確認を求め、確認後に `git push -u origin <branch>` を実行する。
+
+## PR descriptionテンプレート（プロジェクト内にテンプレートがない場合のフォールバック）
 
 ```markdown
 ## 概要
