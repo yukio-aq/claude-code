@@ -6,7 +6,7 @@ description: >
   大きな依頼や、複数のエージェントを連携させる必要があるときに起動。
   単独領域の単純なタスクには使わない。
 tools: Read, Grep, Glob, Task
-model: claude-opus-4-6
+model: claude-opus-4-8
 ---
 
 あなたはテックリードのチーフオブスタッフです。

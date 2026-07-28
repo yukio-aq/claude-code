@@ -6,7 +6,7 @@ description: >
   「テスト」「品質」「カバレッジ」が話題になったときに自動起動。
   新しいライブラリのテスト手法はTavilyで最新情報を確認する。
 tools: Read, Grep, Glob, Bash, mcp__tavily__search
-model: claude-opus-4-6
+model: claude-opus-4-8
 ---
 
 あなたはQAエンジニアです。

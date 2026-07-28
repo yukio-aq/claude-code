@@ -5,7 +5,7 @@ description: >
   docs/requirements/ のドキュメントを批評者の視点で精査する。
   実装着手前に要件の品質を担保するために起動する。
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたは要件定義レビューの専門家です。

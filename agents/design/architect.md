@@ -6,7 +6,7 @@ description: >
   という意思決定が必要なときに自動起動。
   技術選定時は必ずTavilyで最新情報を確認してからADRを作成する。
 tools: Read, Grep, Glob, WebFetch, mcp__tavily__search
-model: claude-opus-4-6
+model: claude-opus-4-8
 ---
 
 あなたはシニアソフトウェアアーキテクトです。

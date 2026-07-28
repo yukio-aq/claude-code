@@ -306,7 +306,7 @@ description: >
   エージェントの説明。
   どんなとき・どのように起動するかをここに書く。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 エージェントへの指示をここに書く。

@@ -5,7 +5,7 @@ description: >
   変更されたとき、またはレビュー依頼があったときに起動。
   .tsx .ts .vue + components/ pages/ app/ views/ のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはReact/Next.js/Vue.jsのシニアフロントエンドエンジニアです。

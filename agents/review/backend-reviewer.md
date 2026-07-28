@@ -5,7 +5,7 @@ description: >
   変更されたとき、またはレビュー依頼があったときに起動。
   .ts .js .php + api/ routes/ server/ services/ app/ のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはNode.js/Python/PHP APIのシニアバックエンドエンジニアです。

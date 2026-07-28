@@ -5,7 +5,7 @@ description: >
   3Dのコードが変更されたとき、またはレビュー依頼があったときに起動。
   three / r3f / .unity / .cs のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはThree.js/React Three Fiber/Unityのシニア3Dエンジニアです。

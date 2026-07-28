@@ -6,7 +6,7 @@ description: >
   mastra / langchain / llama-index / agent/ のファイルが対象。
   プロンプトインジェクション・無限ループ・コスト爆発のリスクを重点チェック。
 tools: Read, Grep, Glob, Bash
-model: claude-opus-4-6
+model: claude-opus-4-8
 ---
 
 あなたはAIエージェントシステムのシニアレビュアーです。

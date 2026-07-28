@@ -7,7 +7,7 @@ description: >
   「R3Fのシーンを作って」というタスクで起動。
   テストはtest-implementerと並走して書く。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはThree.js/React Three Fiber/Unityの3D実装専門家です。

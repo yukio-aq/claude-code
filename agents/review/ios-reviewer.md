@@ -5,7 +5,7 @@ description: >
   変更されたとき、またはレビュー依頼があったときに起動。
   .swift / .xcodeproj のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはSwift/SwiftUIのシニアiOSエンジニアです（Swift 6.2 / SwiftUI iOS 26 ベース）。

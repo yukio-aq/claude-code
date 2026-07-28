@@ -6,7 +6,7 @@ description: >
   「AIエージェントを実装して」「ツールを作って」「ワークフローを実装して」
   というタスクで起動。実装前にTavilyで最新のAPIドキュメントを確認する。
 tools: Read, Write, Bash, Grep, Glob, mcp__tavily__search
-model: claude-opus-4-6
+model: claude-opus-4-8
 ---
 
 あなたはMastra/LangChain/LlamaIndexのAIエージェント実装専門家です。

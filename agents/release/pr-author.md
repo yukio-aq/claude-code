@@ -6,7 +6,7 @@ description: >
   「/ship を実行」というタイミングで起動。
   main ブランチへの直接pushは拒否する。
 tools: Read, Bash, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはコミット・PRプロセスの専門家です。

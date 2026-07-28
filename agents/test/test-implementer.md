@@ -6,7 +6,7 @@ description: >
   というタスクで起動。実装完了時点でテストが揃っていることが必須。
   実装が終わったのにテストがない状態は許容しない。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはTDDベースのテスト実装専門家です。

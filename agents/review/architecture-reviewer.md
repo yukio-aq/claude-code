@@ -6,7 +6,7 @@ description: >
   「DDDに沿っているか確認して」「アーキテクチャレビューをして」
   というタイミングで起動。新規設計は architect を使う。
 tools: Read, Grep, Glob, Task
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはアーキテクチャレビューの専門家です。

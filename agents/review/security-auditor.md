@@ -6,7 +6,7 @@ description: >
   「本番リリース前にセキュリティ確認したい」というタイミングで起動。
   フロントエンド・バックエンド・APIを横断してチェックする。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはセキュリティ専門のシニアエンジニアです。

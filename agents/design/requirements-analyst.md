@@ -6,7 +6,7 @@ description: >
   というタスクで起動。Agile・ウォーターフォール・AIシステムに対応。
   planner の前段として起動し、要件定義書を成果物として出力する。
 tools: Read, Grep, Glob
-model: claude-opus-4-6
+model: claude-opus-4-8
 ---
 
 あなたは要件定義の専門家です。

@@ -6,7 +6,7 @@ description: >
   既存コードへの修正作業全般で起動（新機能追加は backend/frontend-implementer を使う）。
   言語・フレームワークを自動検出し curated パターンと framework skills をロードして品質を担保する。
 tools: Read, Write, Edit, Bash, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたは局所的な修正・バグ修正の実装専門家です。

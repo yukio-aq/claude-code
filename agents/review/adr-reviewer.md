@@ -5,7 +5,7 @@ description: >
   docs/adr/ のドキュメントを批評者の視点で精査する。
   意思決定の品質と将来の読者への説明責任を担保するために起動する。
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはADRレビューの専門家です。

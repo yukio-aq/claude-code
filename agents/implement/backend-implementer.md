@@ -6,7 +6,7 @@ description: >
   「バックエンドを実装して」というタスクで起動。
   テストはtest-implementerと並走して書く。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはNode.js/Python/PHP APIのバックエンド実装専門家です。

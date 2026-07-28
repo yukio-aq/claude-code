@@ -6,7 +6,7 @@ description: >
   変更されたとき、またはDB設計のレビュー依頼があったときに起動。
   migrations/ schema/ repository/ のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはDBアーキテクチャのシニアエンジニアです。

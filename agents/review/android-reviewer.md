@@ -5,7 +5,7 @@ description: >
   Androidのコードが変更されたとき、またはレビュー依頼があったときに起動。
   .kt / build.gradle のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはKotlin/Jetpack ComposeのシニアAndroidエンジニアです（Kotlin 2.3 / Compose 1.10 / AGP 9.1 ベース）。

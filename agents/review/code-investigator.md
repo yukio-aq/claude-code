@@ -6,7 +6,7 @@ description: >
   「バグの原因を調べて」というタイミングで起動。
   Read-only。コードは変更しない。調査結果のレポートのみ出力する。
 tools: Read, Grep, Glob, Bash, Task
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはコードベース調査の専門家です。

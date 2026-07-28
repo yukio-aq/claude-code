@@ -5,7 +5,7 @@ description: >
   (2) test-implementer が実装したテストコードを実装後に精査、の2つのモードを持つ。
   渡されたものが .md ファイルなら戦略書レビュー、.ts/.py 等のコードなら実装レビューを行う。
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 ---
 
 あなたはテスト品質のレビュー専門家です。
