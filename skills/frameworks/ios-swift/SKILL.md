@@ -5,7 +5,7 @@ description: Swift 6.2 / SwiftUI (iOS 26) / Xcode 26 のベストプラクティ
 
 # Swift / SwiftUI — iOS開発ベストプラクティス
 
-> 情報収集日: 2026-03-23 / Swift 6.2 + SwiftUI (iOS 26) + Xcode 26 ベース
+> 情報収集日: 2026-08-05 / Swift 6.2 + SwiftUI (iOS 26) + Xcode 26 ベース（Swift 6.4 / Xcode 27 / iOS 27 の最新動向は下記バージョン早見表を参照）
 
 ---
 
@@ -13,10 +13,10 @@ description: Swift 6.2 / SwiftUI (iOS 26) / Xcode 26 のベストプラクティ
 
 | ツール | 最新バージョン | 備考 |
 |---|---|---|
-| Swift | 6.2（2025年9月リリース） | 6.3はQ1 2026 embedded向けが中心 |
-| Xcode | 26（WWDC25発表、Xcode 16系は並存） | macOS Sequoia 15.6以上必須 |
-| iOS SDK | iOS 26 | Liquid Glass UI、WebView追加 |
-| Swift Testing | Xcode 16同梱、Xcode 26で強化 | XCTestと共存可 |
+| Swift | 6.4（2026年6月WWDC26で発表） | 6.3は2026年3月に一般リリース（embedded限定ではない）。並行性まわりの細かな挙動変化がある可能性があるため個別の破壊的変更は公式リリースノートで要確認。6.4は破壊的変更なしのエルゴノミクス改善（`defer`内での非同期クリーンアップ対応等） |
+| Xcode | 27（WWDC26で発表、2026年8月時点はベータ） | macOS Tahoe 26.4以上・Apple Silicon必須。Xcode 26系も並存可 |
+| iOS SDK | iOS 27（ベータ、GA予定2026年9月） | 本ドキュメントの本文はiOS 26 / Xcode 26ベースの内容。iOS 27の破壊的変更は別途確認すること |
+| Swift Testing | Xcode 16同梱、Xcode 26/27で強化 | XCTestと共存可 |
 
 ---
 

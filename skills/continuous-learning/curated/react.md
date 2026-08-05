@@ -515,3 +515,31 @@ const isProcessing = approveMutation.isPending || rejectMutation.isPending
 **根拠:** `useMutation` の `isPending` はミューテーション実行中に確実に `true` になる。独自のローカル state は非同期タイミングのズレで更新が遅れることがあり、競合が発生する。ミューテーション自体が持つ状態を使うのが正確。
 
 ---
+
+### 戻り先 state を渡す navigate() の呼び出し元を一部だけ対応する
+
+**問題:** 詳細画面への遷移で戻り先を `state.from` として渡す設計にした場合、同じ遷移先を呼び出す箇所が複数タブ・複数コンポーネントに分散していると一部で渡し漏れが起きる。漏れた経路から遷移したユーザーだけ「戻る」が機能しなくなる。
+
+**発生状況:** 複数タブを持つ一覧画面など、同じ詳細/編集画面への `navigate()` 呼び出しがコンポーネント内に複数箇所存在するとき。
+
+**悪い例:**
+```typescript
+// Tab A: 戻り先を渡している
+navigate(`/items/${id}`, { state: { from: location } })
+
+// Tab B: 同じ画面への遷移だが渡し漏れ → このタブ経由だと「戻る」が機能しない
+navigate(`/items/${id}`)
+```
+
+**良い例:**
+```typescript
+// 共通の遷移関数に集約し、呼び出し元によらず必ず state.from を渡す
+const goToItem = (id: string) => navigate(`/items/${id}`, { state: { from: location } })
+
+// Tab A / Tab B とも同じ関数を呼ぶだけにする
+<button onClick={() => goToItem(item.id)}>詳細</button>
+```
+
+**根拠:** 同じ遷移ロジックをタブ・コンポーネントごとにインラインで書くと、追加や修正のたびに一部だけ渡し漏れが発生しやすい。遷移処理を共通関数に集約すれば、呼び出し元を増やしても渡し忘れが起きない。
+
+---

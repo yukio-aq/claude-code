@@ -5,7 +5,7 @@ description: Vite ビルド設定 と Vitest テストのベストプラクテ�
 
 # Vite + Vitest — ベストプラクティス
 
-> 情報収集日: 2026-03-23 / Vite 8.0 + Vitest 4.x ベース
+> 情報収集日: 2026-08-05 / Vite 8.0 + Vitest 4.x ベース
 > Node.js 20.19+ または 22.12+ 必須
 
 ## Vite の基本設定
@@ -140,8 +140,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      // v4: all がデフォルト true に（カバレッジ対象が広がる）
-      all: true,
+      // v4: all オプションは廃止。未カバーのファイルも含めたい場合は include で明示する
+      include: ['src/**/*.{ts,tsx}'],
       thresholds: {
         functions: 80,
         branches: 80,
@@ -380,5 +380,5 @@ steps:
 - [ ] `poolOptions` を `maxWorkers` に置き換え
 - [ ] `singleThread: true` → `maxWorkers: 1, isolate: false` に変更
 - [ ] `vi.fn().getMockName()` のスナップショットを更新（`'spy'` → `'vi.fn()'`）
-- [ ] カバレッジが `all: true` になったことでカバレッジ数値が下がっていないか確認
+- [ ] `coverage.all` は廃止されたため `coverage.include` を明示し、未カバーファイルの計測漏れがないか確認
 - [ ] `fakeTimers` で `performance.now()` が予期せずモックされていないか確認

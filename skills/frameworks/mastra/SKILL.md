@@ -8,12 +8,14 @@ description: >
 
 # Mastra v1.x — Evented Workflow 実装スキル
 
-> 情報収集日: 2026-03-31
+> 情報収集日: 2026-08-05
 > 詳細なガイド（コード例・フロー図付き）は `skills/frameworks/mastra/guide.md` を参照。
+
+> **本セクションは旧APIの可能性が高い（2026-08-05 公式ドキュメントで裏取り済み）**: 公式ドキュメント（mastra.ai/docs/workflows/overview, mastra.ai/docs/workflows/scheduled-workflows）を直接確認したところ、現行版では「Workflows run using the built-in execution engine by default」とあるのみで、`startEventEngine`・`WorkflowsInMemory`・`EventEmitterPubSub` への言及は見つからなかった。また `schedule` を宣言した Workflow は「A workflow that declares `schedule` is auto-promoted to the evented execution engine」（自動昇格・手動の「register schedule」呼び出し不要、必要なのは並行更新に対応したストレージアダプタ〔例: `@mastra/libsql`〕のみ）と明記されている。これは本セクションが要求する4点の手動セットアップが、少なくとも `schedule` を使う現行のワークフローでは不要になっていることを強く示唆する。ただし本セクションが対象とする「手動トリガー型のEvented Workflow」がAPIとして完全に廃止されたのか、単にドキュメントの前面から退いただけなのかは確定できなかった（該当と思われる旧リファレンスページはURLが404で確認不可）。実装前に必ず利用中のMastraバージョンで動作確認し、可能なら `schedule` ベースの現行方式への移行を検討すること。
 
 ---
 
-## 必須セットアップ（4点すべて揃えること）
+## 必須セットアップ（4点すべて揃えること・旧API疑い — 上記の注記を参照）
 
 ### 1. `mastra.startEventEngine()` をサーバー起動前に呼ぶ
 

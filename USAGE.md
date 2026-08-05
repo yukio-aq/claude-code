@@ -48,6 +48,7 @@ Claude Code のチャット欄で `/` を入力すると一覧が出る。
 
 | コマンド | 何をするか | いつ使うか |
 |---|---|---|
+| `/estimate` | RFP・要件メモを分析し工数・費用見積もりと提案書ドラフトを作成 | 受注前・見積もり依頼を受けたとき |
 | `/requirements` | 要件を精査・構造化して要件定義書を作成 | 要件が曖昧なとき・複数人で認識を揃えたいとき |
 | `/plan` | 実装計画書を作成（技術選定が必要なら ADR も作成） | 新機能の実装前に必ず |
 | `/adr` | 技術選定の意思決定を ADR として記録 | ライブラリ・アーキテクチャを決定したとき |
@@ -170,13 +171,16 @@ Claude Code のチャット欄で `/` を入力すると一覧が出る。
 「doc-writer でこの API のリファレンスドキュメントを作成してください」
 「pr-author でコミットメッセージと PR description を作成してください」
 「observability-engineer で OpenTelemetry のトレーシング設計をしてください」
+
+# 見積もり・提案（受注前）
+「proposal-estimator でこの RFP を分析して工数と費用を見積もってください」
 ```
 
 ### モデル選定（コスト最適化）
 
 | モデル | 対象エージェント |
 |---|---|
-| **Opus**（高精度・高コスト） | architect / planner / qa-engineer / ai-agent-designer / ai-agent-implementer / ai-agent-reviewer / requirements-analyst |
+| **Opus**（高精度・高コスト） | architect / planner / qa-engineer / ai-agent-designer / ai-agent-implementer / ai-agent-reviewer / requirements-analyst / domain-analyst / proposal-estimator |
 | **Sonnet**（標準・推奨） | それ以外の実装・レビュー・ドキュメント系 |
 
 ---

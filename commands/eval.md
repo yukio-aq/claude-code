@@ -75,6 +75,14 @@ judge タイプごとに Bash または Read で確認し、各項目を pass / 
 | `test` | `{command}` の終了コードが 0 → pass |
 | `llm_judge` | 対象ファイルを Read して、prompt の基準で自分（Claude）が pass/fail を判定する |
 
+**FAILした項目は必ず原因を分類する。** この分類が Step 8 の対応を決める。
+
+| 分類 | 見分け方 | 例 |
+|---|---|---|
+| `agent_quality_issues`（本物の見落とし） | エージェントの出力自体が期待される品質に達していない | セキュリティ観点の見落とし、要件の解釈違い等 |
+| `judge_precision_issues`（judgeの基準が粗い） | エージェントの出力は妥当だが、judge の文言・境界条件があいまいで機械的に fail 扱いになった | 「提案」と「言及」の区別が曖昧、閾値が未定義等 |
+| `judge_bugs`（judgeの実装バグ） | grep パターン・スクリプト自体が対象を正しく検出できていない | 複数行にマッチしない正規表現等 |
+
 **Step 6**: 結果をレポートする。
 
 ```
@@ -122,3 +130,44 @@ JSON の最小フォーマット:
   ]
 }
 ```
+
+FAIL したタスクがある場合は `failures` 配列と、全体の `summary` に分類ごとの件数を含める:
+
+```json
+{
+  "tasks": [
+    {
+      "name": "...",
+      "total": 4,
+      "passed": 3,
+      "verdict": "FAIL",
+      "failures": [
+        { "judge": "{judgeのdescription}", "analysis": "{原因の分析}", "category": "agent_quality_issues" }
+      ]
+    }
+  ],
+  "summary": {
+    "agent_quality_issues": 1,
+    "judge_precision_issues": 0,
+    "judge_bugs": 0
+  }
+}
+```
+
+**Step 8**: 見つかった問題をその場で反映する。
+
+`evals/results/` に保存して終わりにしない。分類ごとに以下を**この場で**実施する。
+
+- **`agent_quality_issues`（本物の見落とし）** → 該当エージェントの `agents/**/*.md` を Read し、見落とした観点を具体的なチェックリスト項目として追記する（Edit）。抽象的な注意書きではなく、今回の failure でわかった具体的な観点をそのまま書く
+- **`judge_precision_issues` / `judge_bugs`（judge側の問題）** → エージェントは修正しない。`evals/tasks/{name}.yaml` の該当 judge の pattern・文言・閾値を修正する
+- どちらに該当するか迷う場合は、同じ入力を人間のシニアレビュアーに渡しても同じ結果になるはずかを基準にする。なるはずならエージェントの問題、ならないなら judge の問題
+
+反映した内容を Step 6 のレポート末尾に追記する:
+
+```
+### 反映した修正
+- agents/review/backend-reviewer.md にチェックリスト項目を追加: {内容}
+- evals/tasks/frontend-reviewer-performance.yaml の judge 文言を修正: {内容}
+```
+
+反映不要（全て PASS、または fail が既存の指摘で説明済み）の場合はこのステップをスキップしてよい。

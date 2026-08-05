@@ -9,7 +9,7 @@ description: >
 # Laravel 13.x — 実装スキル
 
 > 公式ドキュメント: https://laravel.com/docs/13.x
-> 情報収集日: 2026-03-31
+> 情報収集日: 2026-08-05
 > PHP 要件: >= 8.3 / ライセンス: MIT
 
 ---
@@ -57,17 +57,21 @@ class User extends Model
 
 ### Laravel AI SDK (Stable)
 
-LLM（OpenAI, Anthropic 等）への統一インターフェース。
+LLM（OpenAI, Anthropic 等）への統一インターフェース。**`AI::` ファサードは存在しない** — エージェントクラスまたは `agent()` ヘルパー経由で呼び出す。プロバイダ・モデルはメソッドチェーンではなく `prompt()` の名前付き引数で渡す。
 
 ```php
-use Illuminate\Support\Facades\AI;
+use Laravel\Ai\Enums\Lab;
 
-$response = AI::chat()
-    ->withModel('claude-3-5-sonnet')
-    ->prompt('Laravel 13 の特徴を教えてください')
-    ->send();
+// 匿名エージェント（agent() ヘルパー）
+$response = agent(
+    instructions: 'あなたはLaravelの専門家です。',
+)->prompt(
+    'Laravel 13 の特徴を教えてください',
+    provider: Lab::Anthropic,
+    model: 'claude-sonnet-5',
+);
 
-echo $response->content();
+echo $response->text; // プロパティアクセス（メソッド呼び出しではない）
 ```
 
 ### Cache::touch()

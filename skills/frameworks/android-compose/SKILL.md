@@ -1,24 +1,24 @@
 ---
 name: android-compose
-description: Kotlin 2.3 / Jetpack Compose 1.10 / AGP 9.1 のベストプラクティス（2026年版）。android-implementer / android-reviewer が参照する。
+description: Kotlin 2.4 / Jetpack Compose 1.11 / AGP 9.2 のベストプラクティス（2026年版）。android-implementer / android-reviewer が参照する。
 ---
 
 # Android — Kotlin / Jetpack Compose ベストプラクティス
 
-> 情報収集日: 2026-03-23 / Kotlin 2.3.20 + Compose 1.10.5 + AGP 9.1.0 ベース
+> 情報収集日: 2026-08-05 / Kotlin 2.4.10 + Compose 1.11 + AGP 9.2.0 ベース
 > JDK 17 / Gradle 9.3.1 / minSdk 26 を前提
 
 ## 2026年時点の推奨スタック
 
 ```
-言語:           Kotlin 2.3.20
-UI:             Jetpack Compose 1.10.5（BOM管理）
+言語:           Kotlin 2.4.10
+UI:             Jetpack Compose 1.11（BOM管理）
 デザイン:        Material3 1.4.0
 アーキテクチャ:   MVVM + Clean Architecture
 状態管理:        StateFlow + collectAsStateWithLifecycle
-DI:             Hilt（KSPでコンパイル）
-ナビゲーション:   Navigation 3（type-safe routes）
-ビルドシステム:   AGP 9.1.0 + Gradle 9.3.1 + JDK 17
+DI:             Hilt 2.60系（KSPでコンパイル）
+ナビゲーション:   Navigation 3 1.1系（type-safe routes）
+ビルドシステム:   AGP 9.2.0 + Gradle 9.3.1 + JDK 17
 注釈処理:        KSP（kaptからの移行完了）
 テスト:          JUnit4 + MockK + kotlinx-coroutines-test
 ```
@@ -30,12 +30,12 @@ DI:             Hilt（KSPでコンパイル）
 ```toml
 # gradle/libs.versions.toml
 [versions]
-kotlin = "2.3.20"
-agp = "9.1.0"
-compose-bom = "2026.03.00"
-hilt = "2.55"
+kotlin = "2.4.10"
+agp = "9.2.0"
+compose-bom = "2026.06.01"  # Compose 1.11.4系。最新のBOMは公式リリースノートで確認
+hilt = "2.60.1"
 lifecycle = "2.9.0"
-navigation3 = "1.0.0"
+navigation3 = "1.1.5"
 
 [libraries]
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
@@ -97,8 +97,9 @@ fun handleResponse(response: Response<User>) = when (response) {
 }
 ```
 
-### Context Parameters（Kotlin 2.2でBeta）
+### Context Parameters（Kotlin 2.4.0でStable化）
 
+Kotlin 2.2 でBeta導入後、Kotlin 2.4.0 で正式Stable化（`-Xcontext-parameters` フラグは不要・撤廃済み。ただしcontext argumentsとcontext parametersへのcallable referenceは引き続き対象外）。
 旧 Context Receivers は Kotlin 2.3 で削除。
 
 ```kotlin
@@ -239,6 +240,14 @@ LazyColumn(state = rememberLazyListState(cacheWindow = cacheWindow)) {
 
 ---
 
+## Compose 1.11 の主要変更
+
+### テストAPI v2がデフォルトに
+
+Compose 1.10 でオプトイン提供されていたテストAPI v2が、1.11でデフォルトになり v1 は非推奨化。v1 は `UnconfinedTestDispatcher` ベースでコルーチンを即時実行していたが、v2 は `StandardTestDispatcher` ベースになり、テスト内で起動したコルーチンは仮想クロックを進めるまでキューイングされる（既存テストが動作しなくなる場合は `advanceUntilIdle()` 等の呼び出し漏れを確認する）。
+
+---
+
 ## Material3 テーマ設定
 
 ```kotlin
@@ -368,6 +377,7 @@ class UserViewModelTest {
 | `kapt` | 非推奨 | `KSP` |
 | `collectAsState()` | 非推奨パターン | `collectAsStateWithLifecycle()` |
 | `Modifier.onFirstVisible` | Compose 1.11で非推奨 | `Modifier.onVisibilityChanged` |
+| Compose テストAPI v1（`UnconfinedTestDispatcher`ベース） | Compose 1.11で非推奨 | テストAPI v2（`StandardTestDispatcher`ベース、デフォルト化） |
 | `GlobalScope` | 禁止 | `viewModelScope` / `lifecycleScope` |
 | `LiveData`（新規） | 非推奨パターン | `StateFlow` |
 | Navigation 2 の文字列ルート | 非推奨パターン | Type-safe routes（`@Serializable`） |

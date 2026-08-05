@@ -8,7 +8,7 @@ description: >
 
 # Alamofire v5.x — ベストプラクティス
 
-> 情報収集日: 2026-04-07 / Alamofire 5.11.0 / Swift 6 ベース
+> 情報収集日: 2026-08-05 / Alamofire 5.12.0 / Swift 6 ベース
 > 公式リポジトリ: https://github.com/Alamofire/Alamofire
 > 要件: iOS 10.0+ / macOS 10.12+ / Swift 6.0+
 
@@ -19,7 +19,7 @@ description: >
 ```swift
 // Package.swift
 dependencies: [
-    .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.11.0"))
+    .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.12.0"))
 ]
 // target の dependencies に追加
 .product(name: "Alamofire", package: "Alamofire")
@@ -333,6 +333,8 @@ if reachability.isReachable { AF.request(...) }
 // ✅ 常にリクエストを送る。リトライは RetryPolicy に任せる
 AF.request(..., interceptor: .retryPolicy)
 ```
+
+> **注記（Alamofire 5.11.0〜）**: `NetworkReachabilityManager` 自体が iOS 17.4+ / macOS 14.4+ / watchOS 9.4+ / tvOS 17.4+ / visionOS 1.4+ で非推奨化された（Appleが`SCNetworkReachability`系APIを同バージョンで非推奨化したのに追従）。新規実装では Network framework の `NWPathMonitor` への移行を推奨。
 
 ---
 

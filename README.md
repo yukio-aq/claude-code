@@ -2,7 +2,7 @@
 
 Claude Code をテックリードとして使い倒すための設定・エージェント・ワークフロー集。
 
-36個の専門エージェント・14のスラッシュコマンド・自動化フックで、
+37個の専門エージェント・15のスラッシュコマンド・自動化フックで、
 設計からコミットまでの開発フローを自動化する。
 エージェントの品質を定点観測する eval システムと、継続学習による知見蓄積サイクルを内蔵。
 日報・半期レビューなど個人の業務ログ運用（Obsidian連携）もカバーする。
@@ -89,7 +89,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ├── README.md                    # このファイル
 ├── setup.sh                     # 初期セットアップスクリプト
 │
-├── agents/                      # 専門エージェント定義（36個）
+├── agents/                      # 専門エージェント定義（37個）
 │   ├── orchestration/
 │   │   └── chief-of-staff.md        # 大きなタスクの司令塔
 │   ├── design/
@@ -99,7 +99,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   │   ├── refactor-planner.md      # 技術的負債解消計画
 │   │   ├── ui-designer.md           # UIデザイン設計
 │   │   ├── ai-agent-designer.md     # AIエージェント設計（Mastra/LangChain/LlamaIndex）
-│   │   └── domain-analyst.md        # 顧客業界のドメイン知識収集（上流工程）
+│   │   ├── domain-analyst.md        # 顧客業界のドメイン知識収集（上流工程）
+│   │   └── proposal-estimator.md    # RFP分析・工数/費用見積もり・提案書作成（受注前）
 │   ├── implement/
 │   │   ├── frontend-implementer.md
 │   │   ├── backend-implementer.md
@@ -135,7 +136,8 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── ops/
 │       └── observability-engineer.md # OpenTelemetry・SLO設計
 │
-├── commands/                    # スラッシュコマンド（14個）
+├── commands/                    # スラッシュコマンド（15個）
+│   ├── estimate.md              # /estimate
 │   ├── domain.md                # /domain
 │   ├── requirements.md          # /requirements
 │   ├── plan.md                  # /plan
@@ -208,6 +210,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 | コマンド | 用途 |
 |---|---|
+| `/estimate` | RFP・要件メモを分析し工数・費用見積もりと提案書ドラフトを作成する（受注前） |
 | `/domain` | 顧客業界のドメイン知識を収集・構造化する（要件定義の前段） |
 | `/requirements` | 要件を精査・構造化して要件定義書を作成する |
 | `/plan` | 実装計画を作成する（planner → architect → qa-engineer） |
@@ -231,13 +234,14 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 
 | モデル | 用途 |
 |---|---|
-| Opus | 設計・判断・プロンプト設計（architect / planner / qa-engineer / domain-analyst / ai-agent-designer / ai-agent-implementer / ai-agent-reviewer） |
+| Opus | 設計・判断・プロンプト設計（architect / planner / qa-engineer / domain-analyst / proposal-estimator / ai-agent-designer / ai-agent-implementer / ai-agent-reviewer） |
 | Sonnet | 実装・レビュー・ドキュメント（それ以外） |
 
 ### エージェント一覧
 
 **設計**
 - `chief-of-staff` — 複数領域にまたがる大きなタスクの司令塔
+- `proposal-estimator` — RFP分析・工数/費用見積もり・クライアント向け提案書ドラフト作成（受注前）
 - `domain-analyst` — 顧客業界のドメイン知識収集・構造化（requirements-analyst の前段）
 - `requirements-analyst` — 要件の精査・構造化・要件定義書作成
 - `planner` — タスク分解・実装計画書作成（`docs/plans/` に保存）
@@ -276,6 +280,15 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 ---
 
 ## 開発ワークフロー
+
+### 受注前提案（RFP対応）
+
+```
+/estimate → RFP・要件メモを分析し工数・費用見積もりと提案書ドラフトを作成
+            （単価未確定でも工数までは概算可能。単価はヒアリング必須）
+
+提案承認 → 通常の「新機能の開発」フローへ（/requirements から開始）
+```
 
 ### 新機能の開発
 

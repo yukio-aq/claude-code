@@ -67,6 +67,7 @@
 
 ### 自動起動の原則
 - 複雑なタスク（複数ファイル・複数領域にまたがる）→ まず chief-of-staff に委譲
+- RFP・見積もり依頼 → proposal-estimator で工数・費用見積もりと提案書ドラフトを作成してから進む
 - 要件が曖昧・未整理な場合 → requirements-analyst で要件定義書を作成してから進む
 - 技術選定・設計判断 → architect を使い ADR を残す
 - **バグ修正・既存コードの修正・設定変更** → fix-implementer（新機能追加は *-implementer）
@@ -76,7 +77,7 @@
 
 ### モデル選定の原則
 - 設計・判断・プロンプト設計 → Opus
-  （architect / ai-agent-designer / planner / qa-engineer / ai-agent-implementer / ai-agent-reviewer / requirements-analyst）
+  （architect / ai-agent-designer / planner / qa-engineer / ai-agent-implementer / ai-agent-reviewer / requirements-analyst / domain-analyst / proposal-estimator）
 - 実装・レビュー・ドキュメント → Sonnet（それ以外）
 - コスト最適化のため、Opusは上記以外では使わない
 
@@ -87,6 +88,13 @@
 ---
 
 ## ワークフロー
+
+### 受注前提案（RFP対応）
+```
+1. proposal-estimator → RFP・要件メモを分析し、工数・費用見積もりと提案書ドラフトを作成
+                         （単価未確定でも工数までは概算可能。単価はヒアリング必須）
+2. 提案承認後          → 通常の「新機能の開発」フローへ（requirements-analyst から開始）
+```
 
 ### 新機能の開発
 ```

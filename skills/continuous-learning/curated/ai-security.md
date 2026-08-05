@@ -306,3 +306,62 @@ if (import.meta.env.DEV && import.meta.env.VITE_DEV_BYPASS_AUTH === 'true') {
 **根拠:** `import.meta.env.DEV` は本番ビルド時に `false` にツリーシェイクされるため、AND 条件を付けることで本番環境への影響をコンパイル時に排除できる。環境変数だけで制御するバイパスは本番設定ミスで有効化されるリスクがある。
 
 ---
+
+### `returnTo` パラメータを `startsWith('/')` だけで検証する
+
+**問題:** 外部から受け取ったリダイレクト先パラメータ（`returnTo`・`redirect` 等）を検証せずに、あるいは `startsWith('/')` だけで検証して `navigate()` に渡すと、オープンリダイレクトが成立する。`//evil.com` のようなプロトコル相対 URL は `/` から始まるがブラウザは外部ドメインとして解釈する。
+
+**発生状況:** クエリパラメータやログイン後のリダイレクト先を URL パラメータとして受け取り、そのまま画面遷移に使う実装。
+
+**悪い例:**
+```typescript
+// NG: 検証なし、または startsWith('/') だけ → //evil.com が内部パス扱いで通過する
+const returnTo = searchParams.get('returnTo')
+navigate(returnTo ?? '/dashboard')
+```
+
+**良い例:**
+```typescript
+// OK: 内部パスであることを厳密に検証し、不正な値はフォールバックに倒す
+const isInternalPath = (path: string | null): path is string =>
+  !!path && path.startsWith('/') && !path.startsWith('//')
+
+const returnTo = searchParams.get('returnTo')
+navigate(isInternalPath(returnTo) ? returnTo : '/dashboard')
+```
+
+**根拠:** `startsWith('/')` のみの検証は `//evil.com` のようなプロトコル相対 URL を素通りさせる。ブラウザはこれを `https://evil.com` として解釈するため、`!path.startsWith('//')` の否定条件も併せてチェックしないとオープンリダイレクトを防げない。
+
+---
+
+### 新規エンドポイントに既存の認証チェックが自動で付くと思い込む
+
+**問題:** 同じファイル内の既存エンドポイントに認証（`get_current_user` 等）があっても、新しく追加した関数には自動で付与されない。追加時にコピーし忘れると未認証エンドポイントが生まれる。
+
+**発生状況:** 既存のルートファイルに PATCH / GET 等の新規エンドポイントを追加するとき。
+
+**悪い例:**
+```python
+# NG: 同ファイルの他エンドポイントに認証があっても新規関数には手動で付ける必要がある
+@router.get("/items/{item_id}")
+async def get_item(item_id: str, user: User = Depends(get_current_user)):
+    ...
+
+@router.patch("/items/{item_id}/status")  # 新規追加 — Depends を書き忘れる
+async def update_status(item_id: str, body: StatusUpdate):
+    ...  # 認証チェックなしで実行されてしまう
+```
+
+**良い例:**
+```python
+# OK: 新規エンドポイントにも同じ依存を明示的に付与する
+@router.patch("/items/{item_id}/status")
+async def update_status(
+    item_id: str, body: StatusUpdate, user: User = Depends(get_current_user)
+):
+    ...
+```
+
+**根拠:** フレームワークの認証は関数単位の宣言（デコレータ・`Depends` 等）であり、ファイル単位で自動適用されるものではない。新規エンドポイント追加時は既存の認証パターンをコピーしたか個別に確認し、レビュー時も「新規追加された関数に認証チェックがあるか」を専用の観点として確認する。
+
+---

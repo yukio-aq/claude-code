@@ -5,7 +5,7 @@ description: FastAPI のベストプラクティス（2026年版）。backend-im
 
 # FastAPI — ベストプラクティス
 
-> 情報収集日: 2026-03-23 / FastAPI 0.135.x / Pydantic v2 / Python 3.12+ ベース
+> 情報収集日: 2026-08-05 / FastAPI 0.141.x / Pydantic v2 / Python 3.12+ ベース
 
 ## FastAPIの特徴（2026）
 
@@ -332,7 +332,7 @@ async def test_create_user():
 
 ---
 
-## v0.115 → v0.135 移行チェックリスト
+## v0.115 → v0.141 移行チェックリスト
 
 - [ ] `pip install "fastapi[standard]"` に変更（`fastapi-slim` は廃止）
 - [ ] `FastAPI(strict_content_type=True)` が既存クライアントに影響しないか確認

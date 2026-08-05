@@ -8,7 +8,7 @@ description: >
 
 # TanStack Query v5 — ベストプラクティス
 
-> 情報収集日: 2026-04-07 / TanStack Query v5 ベース
+> 情報収集日: 2026-08-05 / TanStack Query v5 ベース
 > 公式ドキュメント: https://tanstack.com/query/latest/docs/framework/react/guides/important-defaults
 
 ---

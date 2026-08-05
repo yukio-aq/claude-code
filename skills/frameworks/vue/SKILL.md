@@ -9,8 +9,9 @@ description: >
 # Vue.js 3.x — 実装スキル
 
 > 公式ドキュメント: https://ja.vuejs.org/
-> 情報収集日: 2026-03-31
+> 情報収集日: 2026-08-05
 > 推奨ツール: Vite, Pinia, Vue Router, Volar (Extension)
+> **Note:** Vue 3.6 は Virtual DOM を使わない新しいコンパイル方式「Vapor Mode」を含み、2026年7月にRC入り。安定版は同年秋に予定されている。既存コードを壊さないオプトイン機能のため、当面は本ドキュメントの Composition API ベースのパターンをそのまま使ってよい。
 
 ---
 

@@ -8,8 +8,10 @@ description: >
 
 # React Hook Form v7 — ベストプラクティス
 
-> 情報収集日: 2026-04-24 / React Hook Form v7.74.0 ベース
+> 情報収集日: 2026-08-05 / React Hook Form v7.8x ベース
 > 公式ドキュメント: https://react-hook-form.com/
+
+> **v8ベータの動向（要注意）:** v8ベータでは `useFieldArray` の `keyName` オプションが廃止（レンダーキーは常に `key` 固定）、`watch` のコールバック購読APIが廃止され `subscribe` に統一される予定。本ファイルはv7系の記述のみを扱う。v8安定版がリリースされたら本ファイルを見直すこと。
 
 ---
 

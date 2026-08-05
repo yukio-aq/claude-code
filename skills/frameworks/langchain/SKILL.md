@@ -1,15 +1,15 @@
 ---
 name: langchain
 description: >
-  LangChain Python v1.0 の エージェント・ツール・ミドルウェア・メモリ実装パターン。
+  LangChain Python v1.1 の エージェント・ツール・ミドルウェア・メモリ実装パターン。
   ai-agent-implementer / ai-agent-reviewer が LangChain エージェントを
   実装・レビューするときに参照する。
 ---
 
-# LangChain Python v1.0 — 実装スキル
+# LangChain Python v1.1 — 実装スキル
 
 > 公式ドキュメント: https://docs.langchain.com/oss/python/langchain/overview
-> 情報収集日: 2026-03-31
+> 情報収集日: 2026-08-05
 > クイックスタート: https://docs.langchain.com/oss/python/langchain/quickstart
 
 ---
@@ -62,6 +62,11 @@ model = init_chat_model(
 )
 agent = create_agent(model, tools=tools)
 ```
+
+### v1.1 での追加機能
+
+- チャットモデルが `.profile` 属性を持つようになり、構造化出力・function calling 対応可否などのモデル機能を実行前に確認できる
+- `create_agent` の `system_prompt` に文字列だけでなく `SystemMessage` インスタンスを直接渡せるようになった（キャッシュ制御や構造化コンテンツブロックが必要な場合）。文字列渡しも引き続き後方互換で動作する
 
 ---
 

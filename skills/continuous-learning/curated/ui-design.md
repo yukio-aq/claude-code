@@ -200,3 +200,38 @@ const handleNameChange = (v: string) => {
 **根拠:** 空状態はコンバージョンの好機。CTA を置くことで「次にすること」が明確になり離脱率が下がる。検索結果の場合は「絞り込みを緩める」等の別アクションが適切。
 
 ---
+
+### `window.confirm` で削除確認を実装する
+
+**問題:** `window.confirm` はタブレット・WebView 環境（アプリ内ブラウザ等）でブロックされたり動作しないことがある。削除・破棄などの確認ダイアログに使うと、環境によって確認なしで処理が進む、または一切操作できなくなる。
+
+**発生状況:** 削除・キャンセル等の破壊的操作の確認に `window.confirm` / `window.alert` を使う実装。
+
+**悪い例:**
+```typescript
+// NG: WebView/タブレットでブロックされ、確認なしで処理が進むことがある
+const handleDelete = () => {
+  if (window.confirm('本当に削除しますか？')) {
+    deleteItem(id)
+  }
+}
+```
+
+**良い例:**
+```typescript
+// OK: アプリ内の ConfirmDialog コンポーネントに置き換える
+const [confirmOpen, setConfirmOpen] = useState(false)
+
+const handleDelete = () => setConfirmOpen(true)
+
+<ConfirmDialog
+  open={confirmOpen}
+  message="本当に削除しますか？"
+  onConfirm={() => { deleteItem(id); setConfirmOpen(false) }}
+  onCancel={() => setConfirmOpen(false)}
+/>
+```
+
+**根拠:** `window.confirm`/`alert` はブラウザネイティブのブロッキングダイアログで、WebView・PWA・一部タブレット環境ではポリシーにより抑制・無視されることがある。破壊的操作の確認は自前のモーダルコンポーネントで実装し、全環境で確実に確認を挟む。
+
+---

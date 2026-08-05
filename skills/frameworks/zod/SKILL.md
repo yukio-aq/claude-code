@@ -8,7 +8,7 @@ description: >
 
 # Zod v4 — ベストプラクティス
 
-> 情報収集日: 2026-04-24 / Zod v4 ベース
+> 情報収集日: 2026-08-05 / Zod v4 ベース
 > 公式ドキュメント: https://zod.dev/
 
 ---
@@ -91,14 +91,16 @@ z.coerce.boolean();   // Boolean(input)
 z.string().min(5);
 z.string().max(100);
 z.string().length(10);           // 完全一致
-z.string().email();              // メールアドレス形式
-z.string().url();                // URL形式
-z.string().uuid();               // UUID形式
+z.email();                       // メールアドレス形式（トップレベル関数）
+z.url();                         // URL形式（トップレベル関数）
+z.uuid();                        // UUID形式（トップレベル関数）
 z.string().regex(/^[a-z]+$/);   // 正規表現
 z.string().trim();               // 前後の空白を除去（変換）
 z.string().toLowerCase();        // 小文字化（変換）
 z.string().toUpperCase();        // 大文字化（変換）
 ```
+
+> **v4での変更点:** `z.string().email()` / `.url()` / `.uuid()` などのメソッドチェーン形式はレガシー扱い（非推奨）。`z.email()` / `z.url()` / `z.uuid()` のようなトップレベル関数が推奨される（ツリーシェイク性のため）。メソッドチェーン形式もまだ動作するが、次期メジャーバージョンで削除予定のため新規コードでは使わない。
 
 ### 数値
 
@@ -131,7 +133,7 @@ z.nullable(z.string());
 const UserSchema = z.object({
   id: z.number().int(),
   name: z.string().min(1),
-  email: z.string().email(),
+  email: z.email(),
   role: z.enum(["admin", "user", "guest"]),
   age: z.number().optional(),
 });
@@ -268,7 +270,7 @@ const result = await UserSchema.safeParseAsync(rawInput);
 
 ```typescript
 const ProductSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
   price: z.number().positive(),
   tags: z.array(z.string()),
@@ -292,7 +294,7 @@ type ProductOutput = z.output<typeof ProductSchema>;
 
 ```typescript
 const BaseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -300,7 +302,7 @@ const BaseSchema = z.object({
 // フィールドを追加
 const UserSchema = BaseSchema.extend({
   name: z.string(),
-  email: z.string().email(),
+  email: z.email(),
 });
 
 // 特定フィールドだけ抽出
@@ -335,7 +337,7 @@ const merged = SchemaA.merge(SchemaB);
 const StringToNumberSchema = z.string().transform((val) => parseInt(val, 10));
 // z.infer<typeof StringToNumberSchema> => number
 
-const TrimmedEmailSchema = z.string().email().transform((val) => val.toLowerCase().trim());
+const TrimmedEmailSchema = z.email().transform((val) => val.toLowerCase().trim());
 ```
 
 ### pipe
@@ -361,7 +363,7 @@ const PasswordSchema = z.string().refine(
 );
 
 // 非同期バリデーション（DBでの重複チェック等）
-const UniqueEmailSchema = z.string().email().refine(
+const UniqueEmailSchema = z.email().refine(
   async (email) => {
     const exists = await checkEmailExists(email);
     return !exists;
@@ -497,7 +499,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 const LoginSchema = z.object({
-  email: z.string().email("有効なメールアドレスを入力してください"),
+  email: z.email("有効なメールアドレスを入力してください"),
   password: z.string().min(8, "パスワードは8文字以上にしてください"),
 });
 
@@ -530,7 +532,7 @@ function LoginForm() {
 const ApiUserSchema = z.object({
   id: z.number(),
   name: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   createdAt: z.string(), // APIからはstring, 必要なら.transform(val => new Date(val))
 });
 
@@ -560,7 +562,7 @@ import * as z from "zod";
 
 const CreateUserSchema = z.object({
   name: z.string().min(1).max(100),
-  email: z.string().email(),
+  email: z.email(),
   role: z.enum(["admin", "user"]).default("user"),
 });
 
@@ -586,9 +588,9 @@ export async function POST(req: NextRequest) {
 ```typescript
 // env.ts
 const EnvSchema = z.object({
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.url(),
   NEXTAUTH_SECRET: z.string().min(32),
-  NEXTAUTH_URL: z.string().url(),
+  NEXTAUTH_URL: z.url(),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 

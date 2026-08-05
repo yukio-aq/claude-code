@@ -9,7 +9,7 @@ description: >
 
 # Zustand — ベストプラクティス
 
-> 情報収集日: 2026-04-07 / Zustand v5 ベース
+> 情報収集日: 2026-08-05 / Zustand v5 ベース
 > 公式ドキュメント: https://zustand.docs.pmnd.rs/
 
 ---

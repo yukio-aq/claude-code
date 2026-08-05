@@ -406,6 +406,35 @@ exec(`open ${url}`)
 
 ---
 
+### バイナリ系フィールドは配列PATCHから専用エンドポイントに切り出す
+
+**概要:** base64 画像等のバイナリ系フィールドを配列ごとまとめて PATCH すると 1 リクエストが数百KB〜1MB に膨らむ。バイナリ・大容量フィールドは専用エンドポイントに切り出し、変更があったものだけを送信する設計にする。
+
+**適用条件:** 複数アイテムを配列でまとめて更新する API で、一部のフィールドが画像・署名等のバイナリデータを含む場合。
+
+**良い例:**
+```typescript
+// OK: バイナリ系は専用エンドポイントで個別に送信
+app.patch('/items', zValidator('json', ItemsMetaSchema), handler) // メタデータのみ
+app.patch('/items/:id/signature', zValidator('json', SignatureSchema), handler) // 署名は個別
+
+// 変更があったものだけ送信
+if (signatureChanged) {
+  await apiFetch(`/items/${id}/signature`, { method: 'PATCH', body: signature })
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: 配列全体を1リクエストでPATCH → 未変更のバイナリも毎回まとめて送信され肥大化する
+app.patch('/items', zValidator('json', z.array(ItemWithSignatureSchema)), handler)
+await apiFetch('/items', { method: 'PATCH', body: JSON.stringify(allItems) }) // 数百KB〜1MB
+```
+
+**適用すべきでないケース:** バイナリフィールドが小さい（数KB程度のサムネイル等）か、更新頻度が低くリクエストサイズが問題にならない場合は分離不要。
+
+---
+
 ## アンチパターン
 
 ### `yaml.safe_load()` の戻り値を None チェックせずに使う

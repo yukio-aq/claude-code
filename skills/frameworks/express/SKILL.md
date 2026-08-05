@@ -5,7 +5,7 @@ description: Express.js 5 のベストプラクティス（2026年版）。backe
 
 # Express.js 5 — ベストプラクティス
 
-> 情報収集日: 2026-03-23 / Express 5.1.0 + TypeScript ベース
+> 情報収集日: 2026-08-05 / Express 5.2.1 + TypeScript ベース
 > **注:** 新規プロジェクトでは Hono を推奨。Express は既存プロジェクトの保守・大規模チームの標準化用途。
 > Node.js 18+ 必須
 

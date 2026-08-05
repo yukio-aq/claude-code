@@ -8,7 +8,7 @@ description: >
 
 # TanStack Router — ベストプラクティス
 
-> 情報収集日: 2026-04-24 / TanStack Router 最新版（v1系）ベース
+> 情報収集日: 2026-08-05 / TanStack Router 最新版（v1系）ベース
 > 公式ドキュメント: https://tanstack.com/router/latest
 
 ---
@@ -367,9 +367,10 @@ function PostDetailPage() {
 
 `validateSearch` でスキーマを定義する。Zod との組み合わせが推奨される。
 
+Zod v4 を使う場合、`.default()` / `.catch()` によってスキーマ単体で `validateSearch` の契約（パース失敗時のフォールバック）を満たせるため、`@tanstack/zod-adapter` の `zodValidator` は不要になった。`validateSearch` にスキーマを直接渡せばよい。
+
 ```tsx
 import { createFileRoute } from '@tanstack/react-router'
-import { zodValidator } from '@tanstack/zod-adapter'
 import { z } from 'zod'
 
 const productSearchSchema = z.object({
@@ -379,7 +380,7 @@ const productSearchSchema = z.object({
 })
 
 export const Route = createFileRoute('/shop/products')({
-  validateSearch: zodValidator(productSearchSchema),
+  validateSearch: productSearchSchema, // Zod v4 はスキーマをそのまま渡せる
   component: ProductsPage,
 })
 
@@ -390,6 +391,8 @@ function ProductsPage() {
   return <div>Page: {page}</div>
 }
 ```
+
+> `zodValidator` はZod v3系のスキーマを使う互換ケースでのみ使用する（Zod v3の `.parse()` ベースの挙動に依存するアダプタのため）。Zod v4環境では基本的に不要。
 
 **検索パラメータの更新:**
 

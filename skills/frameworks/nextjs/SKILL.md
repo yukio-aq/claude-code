@@ -5,7 +5,7 @@ description: Next.js 16 App Router のベストプラクティス（2026年版�
 
 # Next.js 16 — App Router ベストプラクティス
 
-> 情報収集日: 2026-03-23 / Next.js 16.2.1 + React 19.2 ベース
+> 情報収集日: 2026-08-05 / Next.js 16.3.0 + React 19.2 ベース
 
 ## App Router の基本原則
 
@@ -85,6 +85,8 @@ export default async function UserPage({ params }: { params: { id: string } }) {
 v16 では `'use cache'` ディレクティブが stable になり、明示的なキャッシュ宣言が標準化。
 `fetch()` のデフォルトキャッシュ（`force-cache`）は廃止方向。
 
+> **前提条件:** `'use cache'` を機能させるには `next.config.ts` で `cacheComponents: true` を設定する必要がある。未設定だと Cache Components 機構自体が有効化されず、ディレクティブが期待通りに動作しない。
+
 ```typescript
 // ✅ v16 推奨: 'use cache' ディレクティブで明示的に制御
 'use cache';
@@ -120,12 +122,16 @@ revalidateTag('users', 'hours');  // ✅
 
 フォーム送信・データ変更はServer Actionsを使う。
 
+**キャッシュ更新は `updateTag` と `revalidateTag` を使い分ける:**
+- `updateTag`: Server Action内でのみ使用可能。ユーザー自身の変更を即座にUIへ反映したい場合（read-your-own-writes）に使う
+- `revalidateTag`: Server Action以外（Route Handler等）からも呼べる。stale-while-revalidateのため即時反映は保証されない。結果整合性で問題ないコンテンツ（ブログ一覧等）向け
+
 ```typescript
 // app/actions/user.ts
 'use server';
 
 import { z } from 'zod';
-import { revalidateTag } from 'next/cache';
+import { updateTag } from 'next/cache';
 
 const UpdateUserSchema = z.object({
   name: z.string().min(1).max(50),
@@ -150,8 +156,8 @@ export async function updateUser(formData: FormData) {
   // 3. DB更新
   await db.update(users).set(parsed.data).where(eq(users.id, session.userId));
 
-  // 4. キャッシュ無効化（v16形式）
-  revalidateTag('users', 'hours');
+  // 4. キャッシュ更新（Server Action内で即時反映したいので updateTag）
+  updateTag('users');
   return { success: true };
 }
 
@@ -188,6 +194,8 @@ export const config = {
   matcher: ['/dashboard/:path*'],
 };
 ```
+
+> **セキュリティ注意:** 2026年5月のセキュリティリリース（16.2.6 / 15.5.18、[Vercel公式changelog](https://vercel.com/changelog/next-js-may-2026-security-release)参照）で、segment-prefetchリクエスト（GHSA-267c-6grr-h53f, GHSA-26hh-7cqf-hhc6）・i18n環境でのdefault-localeパスバイパス（GHSA-36qx-fr4f-26g5）・動的ルートパラメータインジェクション（GHSA-492v-c6pp-mqqv）によって proxy/middleware ベースの認可チェックを回避できる脆弱性が報告された。proxy/middleware だけに認可判定を委ねず、各ルート・Server Action側でも必ずセッション検証を行うこと。
 
 ---
 

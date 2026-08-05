@@ -8,8 +8,8 @@ description: >
 
 # Django 6.0 — ベストプラクティス
 
-> 情報収集日: 2026-04-07 / Django 6.0 / Python 3.12+
-> 公式ドキュメント: https://docs.djangoproject.com/ja/6.0/
+> 情報収集日: 2026-08-05 / Django 6.1 / Python 3.12+
+> 公式ドキュメント: https://docs.djangoproject.com/ja/6.1/
 
 ---
 
@@ -17,9 +17,11 @@ description: >
 
 | 項目                  | 内容       |
 | --------------------- | ---------- |
-| Django バージョン     | 6.0        |
-| Python 最小バージョン | 3.12+      |
+| Django バージョン     | 6.1        |
+| Python 最小バージョン | 3.12+（3.14まで対応） |
 | 推奨 DB               | PostgreSQL |
+
+> **Django 6.1 の新機能**: モデルフィールドの遅延取得動作が `fetch modes` で設定可能になった（デフォルトは既存動作と同じ `FETCH_ONE`）。詳細は公式リリースノートを参照。
 
 ---
 
@@ -153,6 +155,8 @@ if Article.objects.filter(author=user).exists():    # ✅ count() より速い
 ## N+1 クエリ対策（最重要）
 
 N+1 はパフォーマンス劣化の最大要因。必ず `select_related` / `prefetch_related` で解消する。
+
+> **Django 6.1 での非推奨化**: `select_related()` を引数なしで呼び、非 null な関連フィールドを全選択する使い方は非推奨。フィールドを明示するか `FETCH_PEERS` fetch mode を使う。
 
 ```python
 # ❌ N+1 — author を参照するたびに SELECT が発生
