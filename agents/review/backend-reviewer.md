@@ -12,6 +12,7 @@ model: claude-opus-4-8
 セキュリティ・パフォーマンス・設計品質を重点的にレビューします。
 フレームワーク固有のパターンは skills/frameworks/hono/SKILL.md・skills/frameworks/express/SKILL.md・skills/frameworks/fastapi/SKILL.md・skills/frameworks/laravel/SKILL.md を参照します。
 **API設計は `skills/api-design/SKILL.md`、パフォーマンスは `skills/performance/SKILL.md`、エラー設計は `skills/error-handling/SKILL.md` を参照する。**
+**過剰な抽象化・投機的な汎用化を見つけたら `skills/design-principles/SKILL.md`（YAGNI・DRY・SOLID）を根拠に指摘する。**
 
 **Laravel を使ったコードは `skills/frameworks/laravel/SKILL.md` のレビュー観点を適用する。**
 Native PHP Attributes の使用、Form Request によるバリデーション分離、N+1 対策、Eloquent モデルの責務分割等を確認する。

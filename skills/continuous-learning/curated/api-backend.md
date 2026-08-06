@@ -435,6 +435,50 @@ await apiFetch('/items', { method: 'PATCH', body: JSON.stringify(allItems) }) //
 
 ---
 
+### ドメイン関数は既知の業務終端=正常return、想定外の例外=throwで分ける
+
+**概要:** キュー（SQS等）でproducer/consumerに分離する構成で、ドメイン関数側が「バリデーション失敗・認可NG等の既知の業務的終端は正常return（ack相当）」「想定外の例外はthrow（retry/DLQ相当）」と明確に分けておく。consumer側の再配信・DLQ判定ロジックがドメインの詳細を知らなくても正しく機能する。
+
+**適用条件:** 同期処理をキューでproducer/consumerに分離し、consumer側でリトライ・DLQ判定を行う構成全般。
+
+**良い例:**
+```typescript
+// ドメイン関数: 既知の業務終端は正常return、想定外は例外
+async function processApproval(input: ApprovalInput): Promise<ApprovalResult> {
+  const validation = validate(input)
+  if (!validation.ok) {
+    return { status: 'rejected', reason: validation.reason } // ack相当。再配信不要
+  }
+  if (!(await isAuthorized(input))) {
+    return { status: 'rejected', reason: 'unauthorized' } // ack相当
+  }
+  await db.approvals.create(input) // ここで想定外の例外が出ればthrowされ、DLQに乗る
+  return { status: 'approved' }
+}
+
+// consumer: ドメインの詳細を知らずに正しく動く
+export const handler = async (event: SQSEvent) => {
+  for (const record of event.Records) {
+    await processApproval(JSON.parse(record.body)) // throwすればLambdaがretry/DLQ扱いにする
+  }
+}
+```
+
+**アンチパターン:**
+```typescript
+// NG: 業務エラーも想定外エラーも同じ例外で統一
+async function processApproval(input: ApprovalInput) {
+  if (!validate(input).ok) throw new Error('invalid') // 再配信されても永久に失敗し続ける
+  if (!(await isAuthorized(input))) throw new Error('unauthorized')
+  await db.approvals.create(input)
+}
+// consumer側がエラーメッセージをパースして「これは再配信不要」と判定する必要が生じる
+```
+
+**適用すべきでないケース:** リトライ・DLQの仕組みがない単純な同期処理には当てはまらない。
+
+---
+
 ## アンチパターン
 
 ### `yaml.safe_load()` の戻り値を None チェックせずに使う
@@ -908,5 +952,69 @@ class WorkRecordCreate(WorkRecordBase):
 ```
 
 **根拠:** バリデーション制約を派生スキーマのみに追加すると、ベーススキーマを使う PUT・PATCH 等の別エンドポイントではバリデーションがかからない。不整合なデータが混入するリスクを避けるため、制約はベーススキーマに定義する。
+
+---
+
+### レイテンシ制約解消後に、その制約のための妥協策が残り続ける
+
+**問題:** 特定のレイテンシ制約（例: Slackの3秒応答制限）に対応するために入れた最適化（非同期化・エラーの非致命化）が、アーキテクチャ変更で制約自体が別レイヤーに移動・撤廃された後も残り続け、別の正しさのバグを生む。
+
+**発生状況:** producer/consumer分離等でレイテンシ制約が撤廃されたのに、旧実装の妥協策（非同期化・エラーの握り潰し等）を見直さないとき。
+
+**悪い例:**
+```typescript
+// producer/consumer分離前: 3秒制限のため非同期化+non-fatalで握っていた
+async function respondToSlack(payload: SlackPayload) {
+  saveRefreshToken(payload.token).catch((e) => logger.warn('save failed', e)) // non-fatal
+  return { status: 200 } // 3秒以内に返す必要があった
+}
+
+// producer/consumer分離後: consumer側に時間制約はないのに非同期+non-fatalが残っている
+async function consumeRefreshTokenEvent(event: TokenEvent) {
+  saveRefreshToken(event.token).catch((e) => logger.warn('save failed', e)) // 制約は既に消えている
+  // 保存失敗時、既にローテーション済みの旧tokenしか残らず強制再連携を招く
+}
+```
+
+**良い例:**
+```typescript
+// consumer側は時間制約がないため同期的に保存し、失敗はthrowしてリトライ/DLQに委ねる
+async function consumeRefreshTokenEvent(event: TokenEvent) {
+  await saveRefreshToken(event.token) // 失敗時はthrow → SQSがretry/DLQ判定
+}
+```
+
+**根拠:** 制約が消えたのに妥協策だけが化石化して残ると、当初は許容していた失敗モードが本来の正しさのバグに変わる。アーキテクチャ変更を行うときは「なぜこの実装なのか」の前提が今も有効かをすべて見直す必要がある。
+
+---
+
+### 同じ設定値をinfraとアプリケーションコードの両方に別々のリテラルで持たせる
+
+**問題:** 設定値（例: SQSの`RedrivePolicy.maxReceiveCount`と、アプリ側で「最終試行」判定に使う同じ値）をinfra（CDK等）とアプリケーションコードの両方に別々のリテラルで持たせると、コメントで「対で管理する」と明記していても実際には容易にドリフトする。
+
+**発生状況:** IaC定義とアプリケーションコードの両方に同じ意味を持つ数値・文字列を独立して書くとき。
+
+**悪い例:**
+```typescript
+// CDK側
+new Queue(this, 'Queue', { redrivePolicy: { maxReceiveCount: 3, /* ... */ } })
+
+// アプリ側（別ファイルに独立したリテラル。コメントで「対で管理」と書いてあるだけ）
+const MAX_RECEIVE_COUNT = 3 // CDKのmaxReceiveCountと合わせること
+if (receiveCount >= MAX_RECEIVE_COUNT) { /* 最終試行として処理 */ }
+```
+
+**良い例:**
+```typescript
+// CDK側を単一の定義元にし、env変数でアプリに渡す
+const MAX_RECEIVE_COUNT = 3
+new Queue(this, 'Queue', { redrivePolicy: { maxReceiveCount: MAX_RECEIVE_COUNT, /* ... */ } })
+lambda.addEnvironment('MAX_RECEIVE_COUNT', String(MAX_RECEIVE_COUNT))
+
+// アプリ側
+const MAX_RECEIVE_COUNT = Number(process.env.MAX_RECEIVE_COUNT)
+```
+
+**根拠:** コメントでの「対で管理」という運用ルールは強制力がなく、片方だけ変更されて容易にドリフトする。値の同期を人間の注意力に依存させず、単一の定義元から配線する構造にする。
 
 ---

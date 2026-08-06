@@ -500,3 +500,84 @@ def test_reject(base_payload):
 **根拠:** Python の dict はミュータブルなため、テスト内で変更するとモジュールレベルの参照先が書き換わる。各テストは独立して実行できる必要がある。fixture かテスト関数ローカルで毎回新しい dict を生成する。
 
 ---
+
+### 直列ガード節のエラー系テストで、対象より手前のガードが先に失敗していることに気づかない
+
+**問題:** 複数のガード節（timestamp検証→署名比較等）を直列に持つ関数で、後段のガードのエラー系をテストする際、前段のガードにも無効な値を使うと、そこで先に失敗し対象の分岐は一度も実行されない偽陽性テストになる。
+
+**発生状況:** 期限切れtimestamp＋不正な署名を同時に使い「署名が不正なとき401」をテストするような、複数の前提条件を同時に崩すテストを書くとき。
+
+**悪い例:**
+```typescript
+it('署名が不正なとき401を返す', async () => {
+  const req = makeRequest({ timestamp: oldTimestamp, signature: 'invalid' }) // timestampも無効
+  const res = await handler(req)
+  expect(res.status).toBe(401) // timestamp検証で先に401になっており、署名比較は未実行
+})
+```
+
+**良い例:**
+```typescript
+it('署名が不正なとき401を返す', async () => {
+  const req = makeRequest({ timestamp: validTimestamp, signature: 'invalid' }) // 他の前提は正常値
+  const res = await handler(req)
+  expect(res.status).toBe(401)
+  expect(timingSafeEqualSpy).toHaveBeenCalled() // 意図した分岐を実際に通ったことを確認
+})
+```
+
+**根拠:** ステータスコードだけの確認では、どのガードで失敗したかを区別できない。検証したい条件だけを変え、他の前提条件は正常値に固定した上で、意図した分岐を通ったことまで確認する。
+
+---
+
+### `beforeEach`の`mockClear()`は`mockResolvedValueOnce`等の実装キューを消さない
+
+**問題:** `mockClear()`は呼び出し履歴のみをクリアし、`mockResolvedValueOnce`等で積んだ実装キューは残る。各テストがそのテスト内でOnceを消費し切っていれば問題化しないが、将来「消費されないOnceを積む」テストが追加されると次のテストに漏れて順序依存バグになる。
+
+**発生状況:** `beforeEach`でのモックリセットをテストスイート全体で使っているとき。
+
+**悪い例:**
+```typescript
+beforeEach(() => {
+  fetchMock.mockClear() // 履歴だけクリア、Onceの実装キューは残る
+})
+```
+
+**良い例:**
+```typescript
+beforeEach(() => {
+  fetchMock.mockReset() // 履歴と実装キューの両方をクリア
+})
+// または vitest.config.ts で test.mockReset: true をグローバル設定する
+```
+
+**根拠:** `mockClear`と`mockReset`は挙動が異なり、後者のほうが安全側。今問題が起きていなくても、Onceの消費漏れは将来のテスト追加で静かに順序依存バグを生む。
+
+---
+
+### バッチ処理の「失敗リストが空」だけを検証するテストは早期returnバグを見逃す
+
+**問題:** SQSトリガー等のバッチ処理で「正常終了したら失敗リストに入れない」だけを検証するテストは、内部でドメイン関数が実際に呼ばれたか・正しい引数が渡ったかを固定していない。早期returnするバグを入れても通ってしまう。
+
+**発生状況:** バッチハンドラのテストで、成否の集計結果だけをアサートし、内部の呼び出しを検証しないとき。
+
+**悪い例:**
+```typescript
+it('全件成功時に失敗リストが空になる', async () => {
+  await handler(records)
+  expect(failedIds).toEqual([]) // ドメイン関数が本当に呼ばれたかは見ていない
+})
+```
+
+**良い例:**
+```typescript
+it('全件成功時に失敗リストが空になり、各レコードでドメイン関数が正しい引数で呼ばれる', async () => {
+  await handler(records)
+  expect(failedIds).toEqual([])
+  expect(processApprovalMock).toHaveBeenCalledWith(records[0].body) // 実行されたことまで固定
+})
+```
+
+**根拠:** 集計結果だけのアサートは、ドメイン関数を呼ばずに早期returnするだけのバグを検出できない。副作用（呼び出し・引数）まで固定して初めて「正しく処理された」ことを保証できる。
+
+---

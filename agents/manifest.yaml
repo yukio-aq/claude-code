@@ -6,12 +6,12 @@
 # ── フロントエンド ────────────────────────────────────────────
 - name: frontend-implementer
   action: implement
-  skills: [ui-design, typescript, testing-patterns]
+  skills: [ui-design, typescript, testing-patterns, design-principles]
   description: React/Next.js/Vue.jsのコンポーネント・状態管理・スタイリングを実装
 
 - name: frontend-reviewer
   action: review
-  skills: [ui-design, typescript]
+  skills: [ui-design, typescript, design-principles]
   description: フロントエンドのコードレビュー（.tsx/.ts + components/pages/app/）
 
 - name: ui-designer
@@ -22,12 +22,12 @@
 # ── バックエンド ──────────────────────────────────────────────
 - name: backend-implementer
   action: implement
-  skills: [api-design, database, error-handling, typescript]
+  skills: [api-design, database, error-handling, typescript, design-principles]
   description: Node.js/Python/PHP APIのエンドポイント・DB操作・認証ロジックを実装
 
 - name: backend-reviewer
   action: review
-  skills: [api-design, database, error-handling, typescript]
+  skills: [api-design, database, error-handling, typescript, design-principles]
   description: バックエンドのコードレビュー（.ts/.js/.php + api/routes/services/）
 
 - name: database-reviewer
@@ -75,12 +75,12 @@
 # ── 設計 ──────────────────────────────────────────────────────
 - name: architect
   action: design
-  skills: [docs-lookup]
+  skills: [docs-lookup, design-principles]
   description: 技術選定・システム設計・ADR作成の専門家
 
 - name: refactor-planner
   action: design
-  skills: [typescript, testing-patterns]
+  skills: [typescript, testing-patterns, design-principles]
   description: 技術的負債の解消計画を立てるリファクタリング専門家
 
 # ── オブザーバビリティ ────────────────────────────────────────

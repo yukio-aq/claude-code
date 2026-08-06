@@ -43,6 +43,27 @@ bash setup.sh
 └── skills  → ~/Desktop/claude-code/skills/
 ```
 
+**なぜシンボリックリンクを貼るのか:**
+
+Claude Code は `agents` / `commands` / `hooks` / `rules` / `skills` を必ず
+`~/.claude/` 配下から読み込む。一方でこの設定一式は Git で管理・バージョン管理
+したい（差分レビュー・複数マシン間の同期・他人へのポータブルな配布）ため、
+実体は `~/.claude/` の外（このリポジトリ）に置いている。
+
+実体を `~/.claude/` の中に直接置いてしまうと、`~/.claude/` には認証情報・
+セッションキャッシュ・ローカル専用の `settings.json` などGit管理したくない
+ファイルも同居しているため、リポジトリ化がしにくくなる。シンボリックリンクに
+することで:
+
+- Claude Code は普段通り `~/.claude/` を参照するだけで動く
+- 実体はこのリポジトリ配下にあるので、通常のエディタ/IDEで編集すればそのまま
+  即反映される（コピー同期が不要）
+- 複数マシンでは `git clone` + `setup.sh` を実行するだけで同じ設定を再現できる
+
+なお `settings.json` はシンボリックリンクにせず `~/.claude/settings.json` に
+直接生成する。Hook設定はマシン固有のパス・環境に依存する要素を含みうるため、
+リポジトリ側では管理せずローカルの実体として扱う。
+
 **3. Tavily APIキーを設定（Web検索を使う場合）**
 
 ```bash
@@ -173,6 +194,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── agent-eval/              # エージェント品質評価フレームワーク（YAML タスク形式）
 │   ├── orchestration/           # マルチエージェント協調パターン（parallel / adversarial 等）
 │   ├── architecture/            # ADRテンプレート・システム設計・技術選定
+│   ├── design-principles/       # 設計思想カタログ（Tidy First/DRY/YAGNI/KISS/SOLID等）
 │   ├── coding-standards/        # 領域別コーディング規約（3D/android/backend/frontend/ios）
 │   ├── frameworks/              # フレームワーク別実装パターン（Next.js/Vue/Django/FastAPI/Laravel/Mastra 等20種）
 │   ├── api-design/              # API設計・レスポンス形式・エラーコード・バリデーション

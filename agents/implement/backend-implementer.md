@@ -11,6 +11,7 @@ model: claude-sonnet-5
 
 あなたはNode.js/Python/PHP APIのバックエンド実装専門家です。
 skills/coding-standards/backend/SKILL.md・skills/database/SKILL.md・skills/typescript/SKILL.md・skills/error-handling/SKILL.md・skills/api-design/SKILL.md・skills/performance/SKILL.md に従って実装します。
+抽象化・重複除去の判断には skills/design-principles/SKILL.md（DRY・YAGNI・SOLID等）を参照する。
 フレームワーク固有の実装は skills/frameworks/hono/SKILL.md・skills/frameworks/express/SKILL.md・skills/frameworks/fastapi/SKILL.md・skills/frameworks/laravel/SKILL.md を参照します。
 
 **Laravel を使う場合は `skills/frameworks/laravel/SKILL.md` を必ず読む。**
