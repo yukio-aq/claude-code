@@ -5,7 +5,7 @@ description: >
   「どの技術を使うべきか」「設計をどうするか」「アーキテクチャの判断が必要」
   という意思決定が必要なときに自動起動。
   技術選定時は必ず最新情報を確認してからADRを作成する。
-tools: Read, Grep, Glob, WebFetch, mcp__tavily__search
+tools: Read, Grep, Glob, WebFetch, WebSearch
 model: claude-opus-4-8
 ---
 
@@ -24,7 +24,7 @@ model: claude-opus-4-8
 ## 技術選定のプロセス
 
 1. 要件と制約を整理する
-2. Tavilyで各選択肢の最新情報・実績・既知の問題を調べる
+2. Web検索で各選択肢の最新情報・実績・既知の問題を調べる
 3. skills/architecture/tech-selection-checklist.md でチェックする
 4. トレードオフを比較してADRを作成する
 5. 推奨案を提示して確認を求める

@@ -64,35 +64,7 @@ Claude Code は `agents` / `commands` / `hooks` / `rules` / `skills` を必ず
 直接生成する。Hook設定はマシン固有のパス・環境に依存する要素を含みうるため、
 リポジトリ側では管理せずローカルの実体として扱う。
 
-**3. Tavily APIキーを設定（Web検索を使う場合）**
-
-```bash
-# ~/.zshrc または ~/.zprofile に追加
-export TAVILY_API_KEY="tvly-xxxxxxxxxxxxxxxxxxxx"
-```
-
-APIキーは https://app.tavily.com で取得できる。
-
-**4. MCPサーバーを設定**
-
-`~/.claude.json` の `mcpServers` に追記:
-
-```json
-{
-  "mcpServers": {
-    "tavily": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "tavily-mcp@latest"],
-      "env": {
-        "TAVILY_API_KEY": "tvly-xxxxxxxxxxxxxxxxxxxx"
-      }
-    }
-  }
-}
-```
-
-**5. 動作確認**
+**3. 動作確認**
 
 ```bash
 claude
@@ -206,7 +178,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── testing-patterns/        # Test Double・テストデータビルダー・依存注入
 │   ├── typescript/              # TypeScript固有の型設計パターン
 │   ├── ui-design/                # プロダクショングレードUIの原則・アンチパターン
-│   ├── docs-lookup/             # Tavily検索パターン
+│   ├── docs-lookup/             # Web検索（WebSearch/WebFetch）活用パターン
 │   └── continuous-learning/     # セッションからの学習蓄積
 │       ├── instincts/           # 自動抽出されたパターン（未精査）
 │       └── curated/             # 確認済みベストプラクティス（定期鮮度チェック付き）
@@ -451,4 +423,3 @@ description: コマンドの説明
 - macOS / Linux
 - Node.js 18+
 - Claude Code（有料プラン推奨）
-- Tavily APIキー（Web検索機能を使う場合）

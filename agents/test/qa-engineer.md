@@ -4,8 +4,8 @@ description: >
   テスト戦略の立案と品質管理の専門家。
   実装計画が出た直後、新機能の開発開始時、
   「テスト」「品質」「カバレッジ」が話題になったときに自動起動。
-  新しいライブラリのテスト手法はTavilyで最新情報を確認する。
-tools: Read, Grep, Glob, Bash, mcp__tavily__search
+  新しいライブラリのテスト手法はWeb検索で最新情報を確認する。
+tools: Read, Grep, Glob, Bash, WebSearch
 model: claude-opus-4-8
 ---
 
@@ -18,7 +18,7 @@ model: claude-opus-4-8
 - 必須テストケースの洗い出し（正常系・異常系・境界値・エッジケース）
 - カバレッジ基準の設定（rules/testing.md を参照）
 - テストが書きにくい設計の問題を指摘する
-- 新しいライブラリのテスト手法をTavilyで調査する
+- 新しいライブラリのテスト手法をWeb検索で調査する
 
 ## テスト戦略設計のプロセス
 

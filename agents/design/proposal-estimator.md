@@ -5,7 +5,7 @@ description: >
   作成する専門家。「見積もりを出して」「RFPを分析して」「提案書を作って」「費用感を出して」
   というタスクで起動。受注前の提案フェーズを担当し、domain-analyst / requirements-analyst の
   前段、もしくは並行して起動する（要件が固まっていない段階でも概算を出せる）。
-tools: Read, Bash, Grep, Glob, WebFetch, mcp__tavily__search
+tools: Read, Bash, Grep, Glob, WebFetch, WebSearch
 model: claude-opus-4-8
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: docs-lookup
-description: Tavilyを使ったリアルタイム情報収集のガイドライン。architect / ai-agent-designer / ai-agent-implementer / qa-engineer が参照する。
+description: WebSearch/WebFetch（ネイティブ機能）を使ったリアルタイム情報収集のガイドライン。architect / ai-agent-designer / ai-agent-implementer / qa-engineer が参照する。
 when_to_use:
   - ライブラリ・フレームワークの最新APIや仕様を確認したいとき
   - 未知の技術・サービスの概要を調査するとき
@@ -13,14 +13,17 @@ not_for:
   - プロジェクト内の既存コード調査（Grep/Readで十分）
   - コードレビュー・実装タスク
   - 社内ドキュメント・ローカルファイルの参照
-last_updated: 2026-03-31
+last_updated: 2026-08-06
 ---
 
-# ドキュメント検索パターン（Tavily）
+# ドキュメント検索パターン（WebSearch / WebFetch）
 
-> 情報収集日: 2026-03-31
+> 情報収集日: 2026-08-06
 
-## 必ずTavilyで検索するタイミング
+`WebSearch` はハーネスのネイティブ機能で、MCPサーバーの追加設定なしに使える。
+検索結果の特定URLを深掘りしたい場合は `WebFetch` でページ本文を取得する。
+
+## 必ずWeb検索するタイミング
 
 ### 技術選定時（architect）
 
@@ -85,6 +88,10 @@ last_updated: 2026-03-31
 中信頼: Vercel・Cloudflare・Anthropic等の公式ブログ
 低信頼: 個人ブログ・古いStack Overflow（1年以上前）
 ```
+
+情報源が競合する場合は公式ドキュメント・公式リポジトリ（高信頼）を一次情報として
+優先する。ブログ・Stack Overflow等の二次情報は、一次情報が見つからない場合や
+実例・workaroundを補う場合にのみ参照する。
 
 ### llms.txt の活用
 

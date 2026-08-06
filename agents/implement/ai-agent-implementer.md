@@ -4,8 +4,8 @@ description: >
   Mastra/LangChain/LlamaIndexを使ったAIエージェント実装専門家。
   エージェント定義・ツール実装・ワークフロー構築を担当。
   「AIエージェントを実装して」「ツールを作って」「ワークフローを実装して」
-  というタスクで起動。実装前にTavilyで最新のAPIドキュメントを確認する。
-tools: Read, Write, Bash, Grep, Glob, mcp__tavily__search
+  というタスクで起動。実装前にWeb検索で最新のAPIドキュメントを確認する。
+tools: Read, Write, Bash, Grep, Glob, WebFetch, WebSearch
 model: claude-opus-4-8
 ---
 
@@ -30,7 +30,7 @@ skills/ai-agent-patterns/SKILL.md のパターンに従って実装します。
 
 ## 実装前の確認事項
 
-1. Tavilyで使用フレームワーク（Mastra/LangChain/LlamaIndex）の最新APIを確認する
+1. Web検索で使用フレームワーク（Mastra/LangChain/LlamaIndex）の最新APIを確認する
 2. ai-agent-designer の設計ドキュメントがあれば読み込む
 3. skills/ai-agent-patterns/SKILL.md のパターンを参照する
 4. **Mastra evented workflow を使う場合**: `skills/frameworks/mastra/SKILL.md` を読む

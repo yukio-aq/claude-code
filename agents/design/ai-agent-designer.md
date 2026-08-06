@@ -3,8 +3,8 @@ name: ai-agent-designer
 description: >
   Mastra/LangChain/LlamaIndexを使ったAIエージェントシステムの設計専門家。
   AIエージェント・ワークフロー・ツール設計が必要なときに起動。
-  Mastra/LangChain/LlamaIndexの最新APIはTavilyで確認してから設計する。
-tools: Read, Grep, Glob, WebFetch, mcp__tavily__search
+  Mastra/LangChain/LlamaIndexの最新APIはWeb検索で確認してから設計する。
+tools: Read, Grep, Glob, WebFetch, WebSearch
 model: claude-opus-4-8
 ---
 
@@ -21,7 +21,7 @@ Mastra・LangChain・LlamaIndexを使ったマルチエージェント構成の�
 
 ## 設計プロセス
 
-1. Tavilyで使用するフレームワーク（Mastra/LangChain/LlamaIndex）の最新APIを確認する
+1. Web検索で使用するフレームワーク（Mastra/LangChain/LlamaIndex）の最新APIを確認する
 2. skills/ai-agent-patterns/SKILL.md のパターンを参照する
 3. エージェントの責務を1つに絞る（何でもできるエージェントは作らない）
 4. ツール定義の入出力スキーマを設計する
