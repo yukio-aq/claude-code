@@ -104,29 +104,12 @@ else
         }]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [{
-          "type": "command",
-          "command": "node $CLAUDE_CODE_DIR/hooks/format-check.js"
-        }]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
         "hooks": [{
           "type": "command",
-          "command": "node $CLAUDE_CODE_DIR/hooks/pre-commit-guard.js"
-        }]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [{
-          "type": "command",
-          "command": "node $CLAUDE_CODE_DIR/hooks/session-extract.js"
+          "command": "node $CLAUDE_CODE_DIR/hooks/bash-guard.js"
         }]
       }
     ]

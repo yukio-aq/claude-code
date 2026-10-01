@@ -13,6 +13,9 @@ secrets/
 skills/continuous-learning/instincts/*
 !skills/continuous-learning/instincts/.gitkeep
 
+# claude.ai から自動同期されるスキル（Claude Code 2.1.275+ が生成）
+skills/synced/
+
 # OS
 .DS_Store
 Thumbs.db

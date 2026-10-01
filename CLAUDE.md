@@ -133,10 +133,9 @@
 ```
 ~/desktop/claude-code/
 ├── CLAUDE.md          # このファイル（グローバル指針）
-├── agents/            # サブエージェント定義（34個・8カテゴリ）
-├── hooks/             # 自動化スクリプト（3個）
+├── agents/            # サブエージェント定義（37個・8カテゴリ）
+├── hooks/             # 自動化スクリプト（2個）
 │   ├── bash-guard.js        # PreToolUse(Bash): 危険コマンド / force push / コミット前ガード
-│   ├── format-check.js      # PostToolUse(Write|Edit|MultiEdit): フォーマットチェック
 │   └── session-load.js      # UserPromptSubmit: 前回セッション引き継ぎ注入
 ├── commands/          # スラッシュコマンド（10個）
 ├── rules/             # 常時適用ルール（4個）

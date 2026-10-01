@@ -146,11 +146,9 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── nippo.md                 # /nippo（Obsidian日報）
 │   └── hanki-review.md          # /hanki-review（Obsidian半期レビュー）
 │
-├── hooks/                       # 自動化スクリプト（4個・settings.jsonで有効化するのは3個）
+├── hooks/                       # 自動化スクリプト（2個）
 │   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
-│   ├── format-check.js          # ファイル変更後にフォーマット確認（PostToolUse hook）
-│   ├── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
-│   └── skill-router.js          # プロンプトから関連スキルを自動検出・提示（UserPromptSubmit hook、未登録・実験中）
+│   └── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
 │
 ├── rules/                       # 常時適用ルール（7個）
 │   ├── principles.md                 # 実装・レビューの行動原則（悪例/良例）
@@ -179,6 +177,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   ├── typescript/              # TypeScript固有の型設計パターン
 │   ├── ui-design/                # プロダクショングレードUIの原則・アンチパターン
 │   ├── docs-lookup/             # Web検索（WebSearch/WebFetch）活用パターン
+│   ├── evidence-based-docs/     # 一次資料の裏取り・C4のズームレベルに基づく設計判断ドキュメント作成
 │   └── continuous-learning/     # セッションからの学習蓄積
 │       ├── instincts/           # 自動抽出されたパターン（未精査）
 │       └── curated/             # 確認済みベストプラクティス（定期鮮度チェック付き）

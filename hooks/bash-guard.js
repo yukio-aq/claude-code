@@ -4,13 +4,14 @@
 // 役割:
 //   1. 危険コマンドの即時ブロック（rm -rf / 等）
 //   2. git push --force のブロック（--force-with-lease を促す）
-//   3. git commit 前のチェック（シークレットスキャン / Prettier / 型 / テスト）
+//   3. git commit 前のチェック（main 直コミット禁止 / シークレットスキャン）
+//   Prettier / 型 / テストは /ship・pr-author が担うためここでは実行しない
 
-import { execSync, spawnSync } from "child_process";
-import { existsSync } from "fs";
-import { join } from "path";
+import { execSync } from "child_process";
+import { readFileSync } from "fs";
 
-const raw = process.env.HOOK_INPUT ?? "{}";
+// Claude Code passes hook input as JSON on stdin (not via env)
+const raw = readFileSync(0, "utf-8") || "{}";
 /** @type {{ tool_input?: { command?: string } }} */
 const hookInput = JSON.parse(raw);
 const command = hookInput.tool_input?.command ?? "";
@@ -46,9 +47,9 @@ const DANGEROUS_PATTERNS = [
 
 for (const { pattern, label } of DANGEROUS_PATTERNS) {
   if (pattern.test(command)) {
-    console.log(`🚫 危険なコマンドをブロックしました: ${label}`);
-    console.log(`   コマンド: ${command.slice(0, 120)}`);
-    console.log("   意図した操作であれば、ターミナルで直接実行してください。");
+    console.error(`🚫 危険なコマンドをブロックしました: ${label}`);
+    console.error(`   コマンド: ${command.slice(0, 120)}`);
+    console.error("   意図した操作であれば、ターミナルで直接実行してください。");
     process.exit(2);
   }
 }
@@ -62,12 +63,12 @@ if (/\bgit\s+push\b/.test(command)) {
   const hasForce = /--force(?!-with-lease)/.test(command);
 
   if (hasForce && !hasForceWithLease) {
-    console.log("🚫 git push --force はブロックされています。");
-    console.log("   共有ブランチの履歴が破壊されるリスクがあります。");
-    console.log("");
-    console.log("   代替コマンド:");
-    console.log("     git push --force-with-lease");
-    console.log("   （リモートに他者の変更がある場合は自動でリジェクトされます）");
+    console.error("🚫 git push --force はブロックされています。");
+    console.error("   共有ブランチの履歴が破壊されるリスクがあります。");
+    console.error("");
+    console.error("   代替コマンド:");
+    console.error("     git push --force-with-lease");
+    console.error("   （リモートに他者の変更がある場合は自動でリジェクトされます）");
     process.exit(2);
   }
 }
@@ -77,7 +78,7 @@ if (/\bgit\s+push\b/.test(command)) {
 // ═══════════════════════════════════════════════════════
 if (!command.includes("git commit")) process.exit(0);
 
-console.log("🔍 Pre-commit guard: チェックを開始します...\n");
+console.error("🔍 Pre-commit guard: チェックを開始します...\n");
 
 // プロジェクトルートを取得
 let projectRoot;
@@ -86,7 +87,7 @@ try {
     .toString()
     .trim();
 } catch {
-  console.log("⚠️  Gitリポジトリが見つかりません。スキップします");
+  console.error("⚠️  Gitリポジトリが見つかりません。スキップします");
   process.exit(0);
 }
 
@@ -97,8 +98,8 @@ try {
     .toString()
     .trim();
   if (!staged) {
-    console.log("⚠️  ステージングされたファイルがありません。");
-    console.log("   git add でファイルをステージングしてください。");
+    console.error("⚠️  ステージングされたファイルがありません。");
+    console.error("   git add でファイルをステージングしてください。");
     process.exit(2);
   }
   stagedFiles = staged.split("\n").filter(Boolean);
@@ -112,15 +113,15 @@ try {
     .toString()
     .trim();
   if (branch === "main" || branch === "master") {
-    console.log(`🚫 ${branch} ブランチへの直接コミットは禁止です。`);
-    console.log("   フィーチャーブランチを作成してください:");
-    console.log("   git checkout -b feat/your-feature-name");
+    console.error(`🚫 ${branch} ブランチへの直接コミットは禁止です。`);
+    console.error("   フィーチャーブランチを作成してください:");
+    console.error("   git checkout -b feat/your-feature-name");
     process.exit(2);
   }
 } catch {}
 
 // ── シークレットスキャン ─────────────────────────────
-process.stdout.write("  checking Secrets... ");
+process.stderr.write("  checking Secrets... ");
 
 const SECRET_PATTERNS = [
   { regex: /AKIA[A-Z0-9]{16}/, label: "AWS Access Key ID" },
@@ -180,128 +181,19 @@ for (const file of stagedFiles) {
 }
 
 if (secretHits.length > 0) {
-  console.log("❌");
-  console.log("\n🚨 シークレットが検出されました。コミットをブロックします:\n");
+  console.error("❌");
+  console.error("\n🚨 シークレットが検出されました。コミットをブロックします:\n");
   for (const { file, label, masked } of secretHits) {
-    console.log(`   [${label}] ${masked}...`);
-    console.log(`   ファイル: ${file}`);
+    console.error(`   [${label}] ${masked}...`);
+    console.error(`   ファイル: ${file}`);
   }
-  console.log("\n   対処方法:");
-  console.log("   1. ファイルからシークレットを削除して .env に移動する");
-  console.log("   2. .gitignore に .env が含まれているか確認する");
-  console.log(
+  console.error("\n   対処方法:");
+  console.error("   1. ファイルからシークレットを削除して .env に移動する");
+  console.error("   2. .gitignore に .env が含まれているか確認する");
+  console.error(
     "   3. 既にコミット済みの場合は git filter-repo でヒストリを書き換える",
   );
   process.exit(2);
 } else {
-  console.log("✅");
+  console.error("✅");
 }
-
-// ── ヘルパー ─────────────────────────────────────────
-/**
- * @param {string} name
- * @param {string} cmd
- * @param {string[]} args
- * @returns {{ ok: boolean, output: string }}
- */
-function runCheck(name, cmd, args) {
-  process.stdout.write(`  checking ${name}... `);
-  const result = spawnSync(cmd, args, {
-    cwd: projectRoot,
-    encoding: "utf-8",
-  });
-  const output = [result.stdout, result.stderr]
-    .filter(Boolean)
-    .join("\n")
-    .trim();
-  const ok = result.status === 0;
-  console.log(ok ? "✅" : "❌");
-  return { ok, output };
-}
-
-function isAvailable(cmd) {
-  try {
-    execSync(`which ${cmd}`, { stdio: "pipe" });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const failures = [];
-
-// ── Prettier チェック ────────────────────────────────
-if (isAvailable("prettier")) {
-  const result = runCheck("Prettier", "prettier", ["--check", "."]);
-  if (!result.ok) {
-    failures.push({
-      name: "Prettier",
-      output: result.output,
-      fix: "prettier --write . で自動修正できます",
-    });
-  }
-}
-
-// ── TypeScript 型チェック ────────────────────────────
-const tsconfigPath = join(projectRoot, "tsconfig.json");
-if (existsSync(tsconfigPath) && isAvailable("npx")) {
-  const result = runCheck("TypeScript", "npx", [
-    "tsc",
-    "--noEmit",
-    "--skipLibCheck",
-  ]);
-  if (!result.ok) {
-    const lines = result.output.split("\n").slice(0, 30).join("\n");
-    failures.push({ name: "TypeScript", output: lines, fix: "" });
-  }
-}
-
-// ── テスト実行 ───────────────────────────────────────
-const testRunners = [
-  { cmd: "bun", args: ["test", "--passWithNoTests"] },
-  { cmd: "npx", args: ["vitest", "run", "--passWithNoTests"] },
-  { cmd: "npx", args: ["jest", "--passWithNoTests"] },
-];
-
-let testRan = false;
-for (const runner of testRunners) {
-  if (!isAvailable(runner.cmd)) continue;
-
-  try {
-    const pkg = JSON.parse(
-      execSync("cat package.json", {
-        cwd: projectRoot,
-        stdio: "pipe",
-      }).toString(),
-    );
-    const hasTest = pkg.scripts?.test || pkg.scripts?.["test:run"];
-    if (!hasTest && runner.cmd === "npx") continue;
-  } catch {}
-
-  const result = runCheck("Tests", runner.cmd, runner.args);
-  testRan = true;
-  if (!result.ok) {
-    failures.push({ name: "Tests", output: result.output, fix: "" });
-  }
-  break;
-}
-
-if (!testRan) {
-  console.log("  checking Tests... ⏭️  (テストランナーが見つかりません)");
-}
-
-// ── 結果出力 ─────────────────────────────────────────
-if (failures.length > 0) {
-  console.log("\n🚫 コミットをブロックしました。以下を修正してください:\n");
-  for (const f of failures) {
-    console.log(`${"─".repeat(50)}`);
-    console.log(`❌ ${f.name}`);
-    if (f.output) console.log(f.output);
-    if (f.fix) console.log(`💡 ${f.fix}`);
-  }
-  console.log(`${"─".repeat(50)}\n`);
-  process.exit(2);
-}
-
-console.log("\n✅ 全チェック通過。コミットを許可します。");
-console.log("💡 次のステップ: /ship でPR descriptionを生成できます。");

@@ -19,6 +19,7 @@ docs/xxx      ← ドキュメントのみ
 - `main` へのコミットは必ずPR経由
 - ブランチ名はケバブケース（例: `feat/user-authentication`）
 - 作業ブランチは `main` または `develop` から切る
+- 作業開始時は親ブランチ（develop / main）を `git fetch` → `git pull --ff-only` で最新化してからブランチを切る
 
 ## コミット規約（Conventional Commits）
 
