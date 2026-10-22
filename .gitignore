@@ -15,6 +15,7 @@ skills/continuous-learning/instincts/*
 
 # claude.ai から自動同期されるスキル（Claude Code 2.1.275+ が生成）
 skills/synced/
+skills/.trash/
 
 # OS
 .DS_Store
