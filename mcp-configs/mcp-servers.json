@@ -1,5 +1,5 @@
 {
-  "_readme": "このファイルは ~/.claude.json への追加用テンプレートです。`claude mcp add` コマンドの代わりに直接 ~/.claude.json の mcpServers にコピペして使えます。Figma は FIGMA_API_KEY を実際のトークンに置き換えてから追加してください。",
+  "_readme": "このファイルは ~/.claude.json への追加用テンプレートです。`claude mcp add` コマンドの代わりに直接 ~/.claude.json の mcpServers にコピペして使えます。Figma は FIGMA_API_KEY を実際のトークンに置き換えてから追加してください。Backlog は <HOME> を実パスに置き換え、~/.config/backlog-mcp/ に .env（BACKLOG_DOMAIN / BACKLOG_API_KEY、chmod 600）と warp-ca.pem（/Library/Application Support/Cloudflare/installed_cert.pem のコピー。WARP の TLS 検査を通すため）を用意してから追加してください。",
   "mcpServers": {
     "playwright": {
       "type": "stdio",
@@ -10,6 +10,19 @@
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "figma-developer-mcp@latest", "--figma-api-key", "${FIGMA_API_KEY}", "--stdio"]
+    },
+    "backlog": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "--read-only", "--cap-drop=ALL", "--security-opt", "no-new-privileges",
+        "--user", "node", "--memory", "256m",
+        "-v", "<HOME>/.config/backlog-mcp/warp-ca.pem:/certs/warp.pem:ro",
+        "-e", "NODE_EXTRA_CA_CERTS=/certs/warp.pem",
+        "--env-file", "<HOME>/.config/backlog-mcp/.env",
+        "ghcr.io/nulab/backlog-mcp-server@sha256:25e212772a8f4eb03e5151860c02a4bfa3c8a778e03b79e545631ec707689d28"
+      ]
     }
   }
 }
