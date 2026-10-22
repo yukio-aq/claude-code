@@ -80,6 +80,19 @@ if (!command.includes("git commit")) process.exit(0);
 
 console.error("🔍 Pre-commit guard: チェックを開始します...\n");
 
+// The guard runs before the whole command, so files staged within the same
+// command (git add ... && git commit, or commit -a) would bypass the secret scan
+const unquoted = command.replace(/"[^"]*"|'[^']*'/g, '""');
+const stagesInSameCommand =
+  /\bgit\s+add\b/.test(unquoted) ||
+  /\bgit\s+commit\b[^;&|]*\s(-[a-zA-Z]*a[a-zA-Z]*|--all)\b/.test(unquoted);
+if (stagesInSameCommand) {
+  console.error("🚫 ステージングとコミットを同じコマンドで実行しています。");
+  console.error("   シークレットスキャンはコマンド実行前に走るため、同時にステージされるファイルを検査できません。");
+  console.error("   git add（または commit -a の代わりの git add -u）を先に実行し、git commit を別コマンドで実行してください。");
+  process.exit(2);
+}
+
 // プロジェクトルートを取得
 let projectRoot;
 try {
