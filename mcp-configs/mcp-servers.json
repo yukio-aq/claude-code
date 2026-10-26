@@ -21,7 +21,7 @@
         "-v", "<HOME>/.config/backlog-mcp/warp-ca.pem:/certs/warp.pem:ro",
         "-e", "NODE_EXTRA_CA_CERTS=/certs/warp.pem",
         "--env-file", "<HOME>/.config/backlog-mcp/.env",
-        "ghcr.io/nulab/backlog-mcp-server@sha256:25e212772a8f4eb03e5151860c02a4bfa3c8a778e03b79e545631ec707689d28"
+        "ghcr.io/nulab/backlog-mcp-server@sha256:c444e21bd7ff495e14dc633d7b5f7dd7d3f0c72f3df696c4be24148474da8b1b"
       ]
     }
   }
