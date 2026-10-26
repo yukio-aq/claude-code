@@ -96,20 +96,12 @@ else
   cat > "$SETTINGS_FILE" << EOF
 {
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [{
-          "type": "command",
-          "command": "node $CLAUDE_CODE_DIR/hooks/session-load.js"
-        }]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",
         "hooks": [{
           "type": "command",
-          "command": "node $CLAUDE_CODE_DIR/hooks/bash-guard.js"
+          "command": "/opt/homebrew/opt/node@22/bin/node $CLAUDE_CODE_DIR/hooks/bash-guard.js"
         }]
       }
     ]
@@ -157,7 +149,7 @@ echo "🔑 Tavily APIキーを確認します..."
 if [ -z "$TAVILY_API_KEY" ]; then
   echo "  ⚠️  TAVILY_API_KEY が設定されていません"
   echo "       ~/.zshrc に以下を追加してください:"
-  echo "       export TAVILY_API_KEY=\"tvly-xxxxxxxxxxxxxxxxxxxx\""
+  echo "       export TAVILY_API_KEY=\"tvly-<your-key>\""
 else
   echo "  ✅ TAVILY_API_KEY 設定済み"
 fi

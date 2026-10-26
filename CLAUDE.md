@@ -136,7 +136,7 @@
 ├── agents/            # サブエージェント定義（37個・8カテゴリ）
 ├── hooks/             # 自動化スクリプト（2個）
 │   ├── bash-guard.js        # PreToolUse(Bash): 危険コマンド / force push / コミット前ガード
-│   └── session-load.js      # UserPromptSubmit: 前回セッション引き継ぎ注入
+│   └── session-load.js      # 前回セッション引き継ぎ注入（現在は未登録。/save 再開時に UserPromptSubmit へ登録）
 ├── commands/          # スラッシュコマンド（10個）
 ├── rules/             # 常時適用ルール（4個）
 ├── skills/            # ドメイン知識・ベストプラクティス（15カテゴリ）
@@ -151,6 +151,6 @@
 ## セッション管理
 
 - /save コマンドで手動保存（自動保存なし・Stop hook は廃止済み）
-- 次回起動時に前回の要約を自動注入（UserPromptSubmit hook: session-load.js）
+- 前回要約の自動注入（session-load.js）は現在無効。/save を再開するときに UserPromptSubmit hook として登録する
 - 24時間以上前のセッションは警告付き表示
 - セッションファイルはプロジェクトごとに分離

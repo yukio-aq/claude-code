@@ -147,7 +147,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 │   └── hanki-review.md          # /hanki-review（Obsidian半期レビュー）
 │
 ├── hooks/                       # 自動化スクリプト（2個）
-│   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（UserPromptSubmit hook）
+│   ├── session-load.js          # 前回セッションを初回プロンプト時に1回だけ注入（現在は未登録）
 │   └── bash-guard.js            # 危険コマンド / force push / コミット前チェック（PreToolUse hook）
 │
 ├── rules/                       # 常時適用ルール（7個）
@@ -326,7 +326,7 @@ Claude Code を起動して `/help` でコマンド一覧が表示されれば�
 /save ユーザー認証のアーキテクチャをJWTに決定
 ```
 
-次回起動後、最初のプロンプト送信時に前回のセッション要約が1回だけ自動注入される（session-load hook）。
+自動注入（session-load hook）は現在未登録。使う場合は `settings.json` の UserPromptSubmit に `session-load.js` を登録する。
 
 ### パターン蓄積（continuous-learning）
 
