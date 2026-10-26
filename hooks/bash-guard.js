@@ -8,13 +8,16 @@
 //   Prettier / 型 / テストは /ship・pr-author が担うためここでは実行しない
 
 import { execSync } from "child_process";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
+import { homedir } from "os";
+import { isAbsolute, resolve } from "path";
 
 // Claude Code passes hook input as JSON on stdin (not via env)
 const raw = readFileSync(0, "utf-8") || "{}";
-/** @type {{ tool_input?: { command?: string } }} */
+/** @type {{ tool_input?: { command?: string }, cwd?: string }} */
 const hookInput = JSON.parse(raw);
 const command = hookInput.tool_input?.command ?? "";
+const sessionCwd = hookInput.cwd ?? process.cwd();
 
 // ═══════════════════════════════════════════════════════
 // 1. 危険コマンドのガード
@@ -76,7 +79,8 @@ if (/\bgit\s+push\b/.test(command)) {
 // ═══════════════════════════════════════════════════════
 // 3. git commit のガード
 // ═══════════════════════════════════════════════════════
-if (!command.includes("git commit")) process.exit(0);
+const COMMIT_RE = /\bgit\s+(-C\s+("[^"]+"|'[^']+'|\S+)\s+)?commit\b/;
+if (!COMMIT_RE.test(command)) process.exit(0);
 
 console.error("🔍 Pre-commit guard: チェックを開始します...\n");
 
@@ -93,10 +97,40 @@ if (stagesInSameCommand) {
   process.exit(2);
 }
 
+// The hook runs in the session cwd, but the commit may target another repo via
+// `cd <dir> && git commit` or `git -C <dir> commit`; checking the wrong repo
+// would scan unrelated files and let the real commit through unscanned
+function expandPath(p, base) {
+  const unq = p.replace(/^["']|["']$/g, "");
+  const home = unq.replace(/^~(?=\/|$)/, homedir()).replace(/^\$HOME(?=\/|$)/, homedir());
+  return isAbsolute(home) ? home : resolve(base, home);
+}
+
+function resolveTargetDir() {
+  const commitIdx = command.search(COMMIT_RE);
+  const beforeCommit = command.slice(0, commitIdx);
+  let dir = sessionCwd;
+  for (const m of beforeCommit.matchAll(/(?:^|&&|;|\|\|)\s*cd\s+("[^"]+"|'[^']+'|[^\s;&|]+)/g)) {
+    dir = expandPath(m[1], dir);
+  }
+  // Anchor at the actual commit invocation so text inside -m messages is ignored
+  const gitC = command.slice(commitIdx).match(/^git\s+-C\s+("[^"]+"|'[^']+'|\S+)\s+commit\b/);
+  if (gitC) dir = expandPath(gitC[1], dir);
+  return dir;
+}
+
+const targetDir = resolveTargetDir();
+if (/\$|`/.test(targetDir) || !existsSync(targetDir)) {
+  console.error(`🚫 コミット先のディレクトリを特定できません: ${targetDir}`);
+  console.error("   cd <絶対パス> && git commit ... の形で実行してください。");
+  process.exit(2);
+}
+const git = { stdio: "pipe", cwd: targetDir };
+
 // プロジェクトルートを取得
 let projectRoot;
 try {
-  projectRoot = execSync("git rev-parse --show-toplevel", { stdio: "pipe" })
+  projectRoot = execSync("git rev-parse --show-toplevel", git)
     .toString()
     .trim();
 } catch {
@@ -107,7 +141,7 @@ try {
 // ステージングが空なら警告
 let stagedFiles = [];
 try {
-  const staged = execSync("git diff --staged --name-only", { stdio: "pipe" })
+  const staged = execSync("git diff --staged --name-only", git)
     .toString()
     .trim();
   if (!staged) {
@@ -122,7 +156,7 @@ try {
 
 // main ブランチへの直接コミットを防ぐ
 try {
-  const branch = execSync("git rev-parse --abbrev-ref HEAD", { stdio: "pipe" })
+  const branch = execSync("git rev-parse --abbrev-ref HEAD", git)
     .toString()
     .trim();
   if (branch === "main" || branch === "master") {
@@ -177,7 +211,7 @@ for (const file of stagedFiles) {
   try {
     // ファイル名にスペース等が含まれる場合を考慮して JSON.stringify でエスケープ
     content = execSync(`git show :${JSON.stringify(file)}`, {
-      stdio: "pipe",
+      ...git,
       maxBuffer: 512 * 1024, // 512KB
     }).toString();
   } catch {
