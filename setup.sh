@@ -142,25 +142,11 @@ else
   echo "       （プロジェクトのローカルインストールでも動作します）"
 fi
 
-# ── 8. Tavily APIキーの確認 ───────────────────────────
-echo ""
-echo "🔑 Tavily APIキーを確認します..."
-
-if [ -z "$TAVILY_API_KEY" ]; then
-  echo "  ⚠️  TAVILY_API_KEY が設定されていません"
-  echo "       ~/.zshrc に以下を追加してください:"
-  echo "       export TAVILY_API_KEY=\"tvly-<your-key>\""
-else
-  echo "  ✅ TAVILY_API_KEY 設定済み"
-fi
-
 # ── 完了 ──────────────────────────────────────────────
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✅ セットアップ完了"
 echo ""
 echo "次のステップ:"
-echo "  1. ~/.zshrc に TAVILY_API_KEY を追加（Web検索を使う場合）"
-echo "  2. ~/.claude.json の mcpServers に Tavily を追加（README参照）"
-echo "  3. claude でClaude Codeを起動して動作確認"
+echo "  1. claude でClaude Codeを起動して動作確認"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
