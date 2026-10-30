@@ -1,5 +1,6 @@
 ---
 description: その日の作業内容から日報を生成し、Obsidian の Daily/{案件名}/ に保存する。作業の区切りで手動実行する。
+effort: low
 ---
 
 # /nippo

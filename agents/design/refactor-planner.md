@@ -6,7 +6,8 @@ description: >
   「〇〇が複雑になってきた」というタイミングで起動。
   新機能追加ではなく既存コードの改善・整理に特化した計画を作成する。
 tools: Read, Grep, Glob, Bash, Task
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはリファクタリング計画の専門家です。

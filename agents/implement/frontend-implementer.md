@@ -6,7 +6,8 @@ description: >
   「コンポーネントを作って」「UIを実装して」というタスクで起動。
   テストはtest-implementerと並走して書く。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-5
+model: sonnet
+effort: medium
 ---
 
 あなたはReact/Next.js/Vue.jsのフロントエンド実装専門家です。

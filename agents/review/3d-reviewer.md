@@ -5,7 +5,8 @@ description: >
   3Dのコードが変更されたとき、またはレビュー依頼があったときに起動。
   three / r3f / .unity / .cs のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはThree.js/React Three Fiber/Unityのシニア3Dエンジニアです。

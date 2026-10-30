@@ -6,7 +6,8 @@ description: >
   「テスト」「品質」「カバレッジ」が話題になったときに自動起動。
   新しいライブラリのテスト手法はWeb検索で最新情報を確認する。
 tools: Read, Grep, Glob, Bash, WebSearch
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはQAエンジニアです。

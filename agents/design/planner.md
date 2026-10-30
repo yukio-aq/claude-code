@@ -6,7 +6,8 @@ description: >
   タスク分解・依存関係整理・フェーズ分けを行う。
   複数領域にまたがる機能や、工数・依存関係の整理が必要なときに自動起動。
 tools: Read, Grep, Glob
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたは実装計画の専門家です。

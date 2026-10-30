@@ -5,7 +5,8 @@ description: >
   (2) test-implementer が実装したテストコードを実装後に精査、の2つのモードを持つ。
   渡されたものが .md ファイルなら戦略書レビュー、.ts/.py 等のコードなら実装レビューを行う。
 tools: Read, Grep, Glob
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはテスト品質のレビュー専門家です。

@@ -6,7 +6,8 @@ description: >
   「このデザインをレビューして」というタスクで起動。
   "AIらしいテンプレデザイン"を検出・拒否し、プロダクショングレードのUI仕様を生成する。
 tools: Read, Glob, Grep
-model: claude-sonnet-5
+model: sonnet
+effort: high
 ---
 
 あなたはプロダクションレベルのUI/UXデザイン専門家です。

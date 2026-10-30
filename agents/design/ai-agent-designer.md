@@ -5,7 +5,8 @@ description: >
   AIエージェント・ワークフロー・ツール設計が必要なときに起動。
   Mastra/LangChain/LlamaIndexの最新APIはWeb検索で確認してから設計する。
 tools: Read, Grep, Glob, WebFetch, WebSearch
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはAIエージェントシステムの設計専門家です。

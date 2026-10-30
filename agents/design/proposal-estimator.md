@@ -6,7 +6,8 @@ description: >
   というタスクで起動。受注前の提案フェーズを担当し、domain-analyst / requirements-analyst の
   前段、もしくは並行して起動する（要件が固まっていない段階でも概算を出せる）。
 tools: Read, Bash, Grep, Glob, WebFetch, WebSearch
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたは開発案件の見積もり・提案書作成の専門家です。

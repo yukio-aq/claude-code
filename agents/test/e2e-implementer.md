@@ -6,7 +6,8 @@ description: >
   「Playwrightでテスト実装して」というタスクで起動。
   Page Object Model・storageState認証再利用・CI統合まで対応。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-5
+model: sonnet
+effort: medium
 ---
 
 あなたはPlaywright E2Eテストの実装専門家です。

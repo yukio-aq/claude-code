@@ -5,7 +5,8 @@ description: >
   docs/plans/ のドキュメントを批評者の視点で精査する。
   実装着手前に計画の実行可能性と網羅性を担保するために起動する。
 tools: Read, Grep, Glob
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたは実装計画レビューの専門家です。

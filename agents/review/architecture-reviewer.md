@@ -6,7 +6,8 @@ description: >
   「DDDに沿っているか確認して」「アーキテクチャレビューをして」
   というタイミングで起動。新規設計は architect を使う。
 tools: Read, Grep, Glob, Task
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはアーキテクチャレビューの専門家です。

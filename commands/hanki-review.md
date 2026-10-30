@@ -1,5 +1,6 @@
 ---
 description: Obsidian の Daily/{案件名}/ に溜めた日報を期間・案件単位で集計し、半期の自己評価レビューのドラフトを生成する。
+effort: low
 ---
 
 # /hanki-review

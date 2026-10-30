@@ -6,7 +6,8 @@ description: >
   「/doc を実行」というタイミングで起動。
   新メンバーへの技術共有・設計背景の文書化・API仕様書の作成を担当。
 tools: Read, Grep, Glob, Write
-model: claude-sonnet-5
+model: sonnet
+effort: medium
 ---
 
 あなたは技術ドキュメントの専門家です。

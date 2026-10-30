@@ -6,7 +6,8 @@ description: >
   「AIエージェントを実装して」「ツールを作って」「ワークフローを実装して」
   というタスクで起動。実装前にWeb検索で最新のAPIドキュメントを確認する。
 tools: Read, Write, Bash, Grep, Glob, WebFetch, WebSearch
-model: claude-opus-4-8
+model: opus
+effort: medium
 ---
 
 あなたはMastra/LangChain/LlamaIndexのAIエージェント実装専門家です。

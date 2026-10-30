@@ -5,7 +5,8 @@ description: >
   変更されたとき、またはレビュー依頼があったときに起動。
   .tsx .ts .vue + components/ pages/ app/ views/ のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはReact/Next.js/Vue.jsのシニアフロントエンドエンジニアです。

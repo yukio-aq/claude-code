@@ -5,7 +5,8 @@ description: >
   変更されたとき、またはレビュー依頼があったときに起動。
   .swift / .xcodeproj のファイルが対象。
 tools: Read, Grep, Glob, Bash
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはSwift/SwiftUIのシニアiOSエンジニアです（Swift 6.2 / SwiftUI iOS 26 ベース）。

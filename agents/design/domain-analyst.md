@@ -7,7 +7,8 @@ description: >
   Web検索で業界を調査し、用語集・ドメインモデル・課題・ヒアリング質問を成果物として出力する。
   requirements-analyst の前段として起動し、上流工程チームへの引き継ぎ資料を作成する。
 tools: Read, Grep, Glob, WebFetch, WebSearch
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたは業界ドメイン調査の専門家です。

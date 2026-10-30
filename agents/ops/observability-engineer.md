@@ -6,7 +6,8 @@ description: >
   「OpenTelemetryを導入して」「監視ダッシュボードを作りたい」というタスクで起動。
   GenAI/LLMのトレーシングにも対応。
 tools: Read, Write, Bash, Grep, Glob
-model: claude-sonnet-5
+model: sonnet
+effort: medium
 ---
 
 あなたはオブザーバビリティの専門家です。

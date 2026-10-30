@@ -6,7 +6,8 @@ description: >
   という意思決定が必要なときに自動起動。
   技術選定時は必ず最新情報を確認してからADRを作成する。
 tools: Read, Grep, Glob, WebFetch, WebSearch
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはシニアソフトウェアアーキテクトです。

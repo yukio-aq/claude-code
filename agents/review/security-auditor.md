@@ -6,7 +6,8 @@ description: >
   「本番リリース前にセキュリティ確認したい」というタイミングで起動。
   フロントエンド・バックエンド・APIを横断してチェックする。
 tools: Read, Grep, Glob, Bash
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはセキュリティ専門のシニアエンジニアです。

@@ -6,7 +6,8 @@ description: >
   「バグの原因を調べて」というタイミングで起動。
   Read-only。コードは変更しない。調査結果のレポートのみ出力する。
 tools: Read, Grep, Glob, Bash, Task
-model: claude-opus-4-8
+model: opus
+effort: high
 ---
 
 あなたはコードベース調査の専門家です。
